@@ -1,0 +1,26 @@
+language: java
+jdk:
+- openjdk8
+cache:
+  directories:
+  - "$HOME/.m2/repository"
+sudo: false
+notifications:
+  email:
+    on_success: never
+    on_failure: never
+  slack:
+    on_success: never
+    on_failure: always
+branches:
+  only:
+  - master
+script:
+- mvn --settings .travis.settings.xml clean cobertura:cobertura deploy
+after_success:
+- bash <(curl -s https://codecov.io/bash)
+- mvn site
+env:
+  global:
+  - secure: YKUqXBLbY9lHhPbh344Ia8QjzQmS9Cwu4kQ7g1KYCkeohGPQWcEXOeaa7+R5hRnme135E73Q2P2rE+MwZPvgSizV3wGpLB74Sp3vpAK7elgw66BJLa+ot01MrPal+VQkrnPUb2d6nPh4QoPf2UBRakZKm0spWAf2V/e93HZJ2+uuO6UmrH3s9czf1zQqJ6Au2wdsTNsp9YksXM67F+Kt2mi5NhZNJ73P0uk7m8KtckKkV7S26xb16e6PtK1B1SOTzs+Y+3OFZ35LXSMJ7HeMr2hsYRiEbXf2mpcwhK2feGSwzfwdu40PMUHbaFzJimxBhvsibzZLUAar7+ARAwrI+jtpUVqN3bQaLHwRXm6Kj9VvkLQmUdj/Kvpf3WFJAf6ZEbwu8Xpf5sVGr3oB7lKarL0t6X2EoZ5Jvvmm/b2SxWIFT0qA13RPtlPSAXFi+oz63lbq2C4VIhpHvdDB8ufnUQpE7S/m4AkTRNsQQcOGOTj24krfTbpFbihVCJtHtSkq459c10Aa288HUcPuObW5tKa/eCFBazP1jEGQvrKw/kCT2zSuqAmlPS1KZNzTNMNdMmoT163f6ZEgSdaESW1c6vBW+gD+5KcAq3S4jOnzk7e0uFoMnLJlkpDSDvmAVxh0vbubPydIU2iZoVwhevAPNv6jbMyUQYac/kNlcegAOpI=
+  - secure: FqMuaRN5mXhQkKSYk7lVepY+wFg2J80T3kDRMh/wc1P41Sxi5G3BMQNwZIwWwm30hu+bFqq+Buh9ivkeQcMTJhE96GWNmOfZncnvRedpjy9MxTO1qo9fJEWst/Ca0xUrL3VDyOFKYrjVIix8EgAdeRleORkm2R2avOci7SuMyNhk0uXUo//3yjyVgLqAttodBFjiwSHykM4MzWNrjKzBQLyVnNdOe2ZdFzIb/jW2UysZbHc0Y3BcKHBAndvMmmZmE4urQS6qzQQ14CU4aZTA6yiS8/QI85jFcb0iqtRWsqjmGcI5CKA0gvOQmShGtvGosy+HvPwQpycBJ/n9Puzt/m9WKdDtlBUJx/1z366xgOOuX2XSd3c6liksvdV32jgguEa6mdSrw2WylAUrB4J4dNqYtnOb1VVaK9ppq7XCeojmpukXdHzB/G+R4Nwg1o611WpgS2R9TfNq9H1baNN78KJdbf72JAraa2Udxirn/P5Uncuq5AgRUpY7RET3GhVcJXJ19YKmU7kFDkRrfWjuocHQDTjlmARTPXBtwryDHZCzuxXqB5ePjVkSPvfBsVDJsHcePkfEU9VzsVZj3NVkool0zxhtBqsNGfaUihHb4PDTsReyyUN9tkspplF7gwd4n/2GOeVvIVOqt1dZgRVfS3ih2wO1HsB1dxq32aFCbWo=
