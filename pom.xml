@@ -43,28 +43,45 @@
 
   </dependencies>
 
-  <repositories>
-    <repository>
-			<id>nexus-snap</id>
-			<name>qbic snapshots</name>
+  <!-- we only need to tell maven where to find our parent pom and other QBiC dependencies -->
+	<repositories>
+		<repository>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>always</updatePolicy>
+				<checksumPolicy>fail</checksumPolicy>
+			</snapshots>
+			<id>nexus-snapshots</id>
+			<name>QBiC Snapshots</name>
 			<url>https://qbic-repo.am10.uni-tuebingen.de/repository/maven-snapshots</url>
-    </repository>
-    <repository>
-			<id>nexus-release</id>
-			<name>qbic release</name>
+		</repository>
+		<repository>
+			<releases>
+				<enabled>true</enabled>
+				<updatePolicy>always</updatePolicy>
+				<checksumPolicy>fail</checksumPolicy>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+			<id>nexus-releases</id>
+			<name>QBiC Releases</name>
 			<url>https://qbic-repo.am10.uni-tuebingen.de/repository/maven-releases</url>
 		</repository>
 	</repositories>
 	<distributionManagement>
 		<repository>
 			<uniqueVersion>true</uniqueVersion>
-			<id>nexus-release</id>
+			<id>nexus-releases</id>
 			<name>QBiC Releases</name>
 			<url>https://qbic-repo.am10.uni-tuebingen.de/repository/maven-releases</url>
 		</repository>
 		<snapshotRepository>
 			<uniqueVersion>false</uniqueVersion>
-			<id>nexus-snap</id>
+			<id>nexus-snapshots</id>
 			<name>QBiC Snapshots</name>
 			<url>https://qbic-repo.am10.uni-tuebingen.de/repository/maven-snapshots</url>
 		</snapshotRepository>
