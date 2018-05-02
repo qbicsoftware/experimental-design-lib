@@ -1,6 +1,7 @@
 package life.qbic.expdesign;
 
 import life.qbic.datamodel.entities.ISampleBean;
+import life.qbic.datamodel.projects.ProjectInfo;
 import life.qbic.expdesign.io.EasyDesignReader;
 import life.qbic.expdesign.io.IExperimentalDesignReader;
 import life.qbic.expdesign.io.MHCLigandDesignReader;
@@ -22,11 +23,8 @@ import java.util.Set;
 
 import javax.xml.bind.JAXBException;
 
-import projects.ProjectInfo;
-
 public class SamplePreparator {
 
-	// private TSVReader reader;
 	private IExperimentalDesignReader reader;
 	private List<ISampleBean> samples;
 	private List<List<ISampleBean>> processed;
@@ -36,17 +34,6 @@ public class SamplePreparator {
 	public SamplePreparator() {
 		processed = new ArrayList<List<ISampleBean>>();
 		summary = new ArrayList<SampleSummaryBean>();
-	}
-
-	public static void main(String[] args) throws IOException, JAXBException {
-		SamplePreparator p = new SamplePreparator();
-		p.processTSV(new File("/Volumes/OvCa-Qbic/Batchupload tabelle180122.txt"), ExperimentalDesignType.MHC_Ligands_Finished);
-		// for(List<ISampleBean> level : p.getProcessed()) {
-		// System.out.println(level.size());
-		// System.out.println(level);
-		// }
-		System.out.println(p.getProcessed());
-		// System.out.println(p.getSummary());
 	}
 
 	public List<String> getOriginalTSV() {

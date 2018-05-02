@@ -21,7 +21,6 @@ import life.qbic.datamodel.codes.SampleCodeFunctions;
 import life.qbic.datamodel.entities.ISampleBean;
 import life.qbic.datamodel.entities.SampleSummary;
 import life.qbic.datamodel.entities.TSVSampleBean;
-import life.qbic.expdesign.ParserHelpers;
 import life.qbic.expdesign.SamplePreparator;
 import life.qbic.expdesign.model.ExperimentalDesignType;
 import life.qbic.xml.properties.Unit;
@@ -295,11 +294,11 @@ public class QBiCDesignReader implements IExperimentalDesignReader {
 				|| isMeasurementBarcode(code))
 			return code;
 		if (code.length() == 9)
-			return code + ParserHelpers.checksum(code);
+			return code + SampleCodeFunctions.checksum(code);
 		else {
 			String main = code.substring(code.length() - 9);
 			String prefix = code.replace(main, "");
-			return prefix + main + ParserHelpers.checksum(code);
+			return prefix + main + SampleCodeFunctions.checksum(code);
 		}
 	}
 
@@ -324,7 +323,7 @@ public class QBiCDesignReader implements IExperimentalDesignReader {
 					return null;
 				}
 				if (parent.length() < 10)
-					parents = parents.replace(parent, parent + ParserHelpers.checksum(parent));
+					parents = parents.replace(parent, parent + SampleCodeFunctions.checksum(parent));
 			}
 		}
 		return parents.replace(" ", ",");

@@ -21,10 +21,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import life.qbic.datamodel.entities.ISampleBean;
-import life.qbic.datamodel.entities.LigandPrepRun;
-import life.qbic.datamodel.entities.MSRunCollection;
 import life.qbic.datamodel.entities.SampleSummary;
 import life.qbic.datamodel.entities.TSVSampleBean;
+import life.qbic.datamodel.ms.LigandPrepRun;
+import life.qbic.datamodel.ms.MSRunCollection;
 import life.qbic.expdesign.SamplePreparator;
 import life.qbic.expdesign.model.ExperimentalDesignType;
 import life.qbic.xml.properties.Unit;
