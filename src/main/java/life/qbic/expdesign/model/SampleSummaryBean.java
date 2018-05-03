@@ -1,4 +1,4 @@
-package life.qbic.expdesign;
+package life.qbic.expdesign.model;
 
 import java.util.HashMap;
 import java.util.HashSet;

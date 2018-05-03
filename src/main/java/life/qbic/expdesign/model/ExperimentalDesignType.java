@@ -5,7 +5,6 @@ import java.util.List;
 
 public enum ExperimentalDesignType {
 
-
   Standard("Standard Format", "An easy format.",
       Arrays.asList("Organism", "Organism ID", "Tissue", "Extract ID", "Analyte", "Analyte ID"),
       Arrays.asList("Conditions")),

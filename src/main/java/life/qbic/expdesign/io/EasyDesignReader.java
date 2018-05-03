@@ -24,10 +24,10 @@ import life.qbic.datamodel.entities.TSVSampleBean;
 import life.qbic.expdesign.ParserHelpers;
 import life.qbic.expdesign.SamplePreparator;
 import life.qbic.expdesign.model.ExperimentalDesignType;
-import life.qbic.expdesign.model.Unit;
 import life.qbic.xml.manager.XMLParser;
 import life.qbic.xml.properties.Property;
 import life.qbic.xml.properties.PropertyType;
+import life.qbic.xml.properties.Unit;
 
 public class EasyDesignReader implements IExperimentalDesignReader {
 
