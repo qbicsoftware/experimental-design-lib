@@ -8,8 +8,8 @@ import java.util.Set;
 
 import javax.xml.bind.JAXBException;
 
-import life.qbic.datamodel.entities.ISampleBean;
-import life.qbic.datamodel.entities.SampleSummary;
+import life.qbic.datamodel.samples.ISampleBean;
+import life.qbic.datamodel.samples.SampleSummary;
 
 public interface IExperimentalDesignReader {
 

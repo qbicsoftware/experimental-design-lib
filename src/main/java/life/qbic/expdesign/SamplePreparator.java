@@ -1,7 +1,7 @@
 package life.qbic.expdesign;
 
-import life.qbic.datamodel.entities.ISampleBean;
 import life.qbic.datamodel.projects.ProjectInfo;
+import life.qbic.datamodel.samples.ISampleBean;
 import life.qbic.expdesign.io.EasyDesignReader;
 import life.qbic.expdesign.io.IExperimentalDesignReader;
 import life.qbic.expdesign.io.MHCLigandDesignReader;

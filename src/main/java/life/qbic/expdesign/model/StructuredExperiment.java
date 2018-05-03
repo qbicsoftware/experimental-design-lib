@@ -3,7 +3,7 @@ package life.qbic.expdesign.model;
 import java.util.List;
 import java.util.Map;
 
-import life.qbic.datamodel.entities.SampleSummary;
+import life.qbic.datamodel.samples.SampleSummary;
 
 public class StructuredExperiment {
 

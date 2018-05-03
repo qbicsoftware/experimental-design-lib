@@ -18,9 +18,9 @@ import javax.xml.bind.JAXBException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import life.qbic.datamodel.entities.ISampleBean;
-import life.qbic.datamodel.entities.SampleSummary;
-import life.qbic.datamodel.entities.TSVSampleBean;
+import life.qbic.datamodel.samples.ISampleBean;
+import life.qbic.datamodel.samples.SampleSummary;
+import life.qbic.datamodel.samples.TSVSampleBean;
 import life.qbic.expdesign.ParserHelpers;
 import life.qbic.expdesign.SamplePreparator;
 import life.qbic.expdesign.model.ExperimentalDesignType;

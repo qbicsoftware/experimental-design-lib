@@ -3,7 +3,7 @@ package life.qbic.expdesign;
 
 import java.util.Comparator;
 
-import life.qbic.datamodel.entities.ISampleBean;
+import life.qbic.datamodel.samples.ISampleBean;
 
 /**
  * Compares ISampleBeans by their sample type
