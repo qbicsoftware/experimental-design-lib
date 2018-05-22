@@ -75,19 +75,19 @@ public class EasyDesignReader implements IExperimentalDesignReader {
   public Map<String, List<Map<String, Object>>> getExperimentInfos() {
     return experimentInfos;
   }
-
-  public static void main(String[] args) throws JAXBException {
-    try {
-      SamplePreparator p = new SamplePreparator();
-      p.processTSV(new File("/Users/frieda/Desktop/Standard+Format.tsv"),
-          ExperimentalDesignType.Standard);
-      System.out.println(p.getSummary());
-      // System.out.println(p.getProcessed());
-      System.out.println(p.getSampleGraph());
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-  }
+//
+//  public static void main(String[] args) throws JAXBException {
+//    try {
+//      SamplePreparator p = new SamplePreparator();
+//      p.processTSV(new File("import_bug.txt"),
+//          ExperimentalDesignType.Standard);
+//      System.out.println(p.getSummary());
+//      // System.out.println(p.getProcessed());
+//      System.out.println(p.getSampleGraph());
+//    } catch (IOException e) {
+//      e.printStackTrace();
+//    }
+//  }
 
   public static final String UTF8_BOM = "\uFEFF";
 
@@ -164,15 +164,14 @@ public class EasyDesignReader implements IExperimentalDesignReader {
       return null;
     }
     for (i = 0; i < header.length; i++) {
+      String lowerCase = header[i].toLowerCase();
       int position = mandatory.indexOf(header[i]);
       if (position > -1) {
         headerMapping.put(header[i], i);
         meta.add(i);
-      } else if (header[i].toLowerCase().contains("condition: ")
-          || header[i].toLowerCase().contains("property: ")) {
-        String attribute = header[i];
+      } else if (lowerCase.contains("condition: ") || lowerCase.contains("property: ")) {
         // example: Property: mass [kg]
-        attribute = attribute.replace("condition: ", "").replace("property: ", "");
+        String attribute = removeFactorKeywords(header[i]);
         for (char c : attribute.toCharArray()) {
           if (Character.isUpperCase(c)) {
             error = "Attributes are not allowed to contain upper case characters: " + attribute;
@@ -198,11 +197,11 @@ public class EasyDesignReader implements IExperimentalDesignReader {
           error = "Attributes are not allowed to start with a number: " + attribute;
           return null;
         }
-        if (header[i].contains("Property: "))
+        if (lowerCase.contains("property: "))
           properties.add(i);
         else
           factors.add(i);
-      } else if (header[i].contains("Locus:")) {
+      } else if (lowerCase.contains("locus:")) {
         loci.add(i);
       } else if (header[i].contains("DIGESTION_KEYWORD")// TODO?
           || header[i].contains("FRACTIONATION_KEYWORD")) {
@@ -313,11 +312,6 @@ public class EasyDesignReader implements IExperimentalDesignReader {
           extractIDToSample.put(extractID, eSample);
           eSample.addParent(sourceID);
 
-          // //graph parser
-          // for(int factorCol : factors) {
-          // String label = parseXMLPartLabel(header[factorCol]);
-          // createNodeSummary(eSample, parents, label, currentID, leaf)
-          // }
         }
         if (!sourceIDToSample.containsKey(sourceID)) {
           sampleID++;
@@ -346,6 +340,11 @@ public class EasyDesignReader implements IExperimentalDesignReader {
     this.tissueSet = tissueSet;
     this.analyteSet = analyteSet;
     return beans;
+  }
+
+  private String removeFactorKeywords(String string) {
+    return string.replace("condition: ", "").replace("property: ", "").replace("Condition: ", "")
+        .replace("Property: ", "");
   }
 
   private void createGraphSummariesForRow(List<TSVSampleBean> levels, int nodeID)
@@ -379,8 +378,6 @@ public class EasyDesignReader implements IExperimentalDesignReader {
               currentSummary = oldNode;
             }
           }
-          // if (!exists)
-          // idCounterPerLabel.put(label, idCounterPerLabel.get(label) + 1);
           // adds node if not already contained in set
           Set<SampleSummary> theseNodes = nodesForFactorPerLabel.get(label);
           theseNodes.add(currentSummary);
@@ -389,14 +386,6 @@ public class EasyDesignReader implements IExperimentalDesignReader {
           for (SampleSummary parentSummary : parentSummaries) {
             parentSummary.addChildID(currentSummary.getId());
           }
-          // for (Sample c : children) {
-          // samplesBreadthFirst.add(c);
-          // if (!sampleToParentNodes.containsKey(c)) {
-          // sampleToParentNodes.put(c, new LinkedHashSet<SampleSummary>());
-          // }
-          // sampleToParentNodes.get(c).add(node);
-          // sampleToParentNodesPerLabel.put(label, sampleToParentNodes);
-          // }
         }
       }
     }
