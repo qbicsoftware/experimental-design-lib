@@ -551,7 +551,6 @@ public class MHCLigandDesignReader implements IExperimentalDesignReader {
   private Map<String, Object> parseMSExperimentData(String[] row,
       Map<String, Integer> headerMapping, HashMap<String, Object> metadata) {
     Map<String, String> designMap = new HashMap<String, String>();
-    // lcmsMethod.replace("@", "").replace("+", "").replace("_100ms", ""));
     designMap.put("MS Run Date", "Q_MEASUREMENT_FINISH_DATE");
     designMap.put("Share", "Q_EXTRACT_SHARE");
     designMap.put("MS Device", "Q_MS_DEVICE");
@@ -570,17 +569,6 @@ public class MHCLigandDesignReader implements IExperimentalDesignReader {
       metadata.put(openbisType, val);
     }
     return metadata;
-  }
-
-  public static void main(String[] args) throws ParseException, JAXBException {
-    try {
-      SamplePreparator p = new SamplePreparator();
-      p.processTSV(new File("/Users/frieda/Downloads/Ligandosphere_large_example.csv"),
-          ExperimentalDesignType.MHC_Ligands_Finished);
-    } catch (IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
   }
 
   protected Object parseLCMSMethod(String value) {
@@ -603,9 +591,7 @@ public class MHCLigandDesignReader implements IExperimentalDesignReader {
       if (date != null) {
         return dateformat.format(date);
       }
-    } catch (IllegalArgumentException e) {
-      logger.warn("No valid preparation date input. Not setting Date for this experiment.");
-    } catch (ParseException e) {
+    } catch (IllegalArgumentException | ParseException e) {
       logger.warn("No valid preparation date input. Not setting Date for this experiment.");
     }
     return "";
@@ -629,18 +615,6 @@ public class MHCLigandDesignReader implements IExperimentalDesignReader {
     }
     return true;
 
-  }
-
-  private String trySplitMetadata(String line, String keyword) {
-    try {
-      return line.split(keyword)[1].trim();
-    } catch (ArrayIndexOutOfBoundsException e) {
-      return "";
-    }
-  }
-
-  private String replaceSpecials(String s) {
-    return s.replace("%%%", "#").replace(">>>", "=");
   }
 
   private HashMap<String, Object> fillMetadata(String[] header, String[] data, List<Integer> meta,
@@ -724,7 +698,6 @@ public class MHCLigandDesignReader implements IExperimentalDesignReader {
 
   @Override
   public Map<String, List<SampleSummary>> getSampleGraphNodes() {
-    // TODO Auto-generated method stub
     return null;
   }
 

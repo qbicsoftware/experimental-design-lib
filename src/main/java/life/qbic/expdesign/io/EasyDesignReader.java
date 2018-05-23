@@ -22,8 +22,6 @@ import life.qbic.datamodel.samples.ISampleBean;
 import life.qbic.datamodel.samples.SampleSummary;
 import life.qbic.datamodel.samples.TSVSampleBean;
 import life.qbic.expdesign.ParserHelpers;
-import life.qbic.expdesign.SamplePreparator;
-import life.qbic.expdesign.model.ExperimentalDesignType;
 import life.qbic.xml.manager.XMLParser;
 import life.qbic.xml.properties.Property;
 import life.qbic.xml.properties.PropertyType;
