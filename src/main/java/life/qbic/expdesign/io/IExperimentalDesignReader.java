@@ -13,7 +13,7 @@ import life.qbic.datamodel.samples.SampleSummary;
 
 public interface IExperimentalDesignReader {
 
-  List<ISampleBean> readSamples(File file) throws IOException, JAXBException;
+  List<ISampleBean> readSamples(File file, boolean parseGraph) throws IOException, JAXBException;
 
   String getError();
 
