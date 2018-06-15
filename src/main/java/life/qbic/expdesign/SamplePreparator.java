@@ -52,7 +52,7 @@ public class SamplePreparator {
    * @throws IOException
    * @throws JAXBException
    */
-  public boolean processTSV(File file, ExperimentalDesignType designType)
+  public boolean processTSV(File file, ExperimentalDesignType designType, boolean parseGraph)
       throws IOException, JAXBException {
     switch (designType) {
       case QBIC:
@@ -66,7 +66,7 @@ public class SamplePreparator {
       default:
         break;
     }
-    List<ISampleBean> rawSamps = reader.readSamples(file);
+    List<ISampleBean> rawSamps = reader.readSamples(file, parseGraph);
     if (reader instanceof QBiCDesignReader) {
       QBiCDesignReader qReader = (QBiCDesignReader) reader;
       projectinfo = new ProjectInfo(qReader.getDescription(), qReader.getSecondaryName(),
@@ -85,7 +85,7 @@ public class SamplePreparator {
       ParserHelpers.fixXMLProps(b.getMetadata());
 
       // fill children map
-      for (String parent : b.fetchParentIDs()) {
+      for (String parent : b.getParentIDs()) {
         if (sampleToChildrenMap.containsKey(parent))
           sampleToChildrenMap.get(parent).add(b);
         else
@@ -231,7 +231,7 @@ public class SamplePreparator {
               + "<y:Geometry width=\"105\"/>" + "<y:NodeLabel>" + code + " \n" + "</y:NodeLabel> \n"
               + "</y:ShapeNode> \n" + "</data> \n" + "</node> \n";
           if (b.hasParents()) {
-            List<String> parents = b.fetchParentIDs();
+            List<String> parents = b.getParentIDs();
             for (String p : parents) {
               res += "<edge id=\"" + e + "\" source=\"" + code + "\" target=\"" + p + "\"> \n"
                   + "<data key=\"d2\"> \n" + "<y:PolyLineEdge> \n"
@@ -274,7 +274,7 @@ public class SamplePreparator {
         sampleContent.add(content);
       }
 
-      List<String> parentCodes = s.fetchParentIDs();
+      List<String> parentCodes = s.getParentIDs();
       if (parentCodes.size() > 1) {
         pool = true;
       } else {
@@ -309,8 +309,9 @@ public class SamplePreparator {
       if (!b.getType().equals(type)) {// || !b.getExperiment().equals(exp)) {
         newLvl = true;
       } else if (b.hasParents()) {
-        for (String id : b.fetchParentIDs())
+        for (String id : b.getParentIDs()) {
           newLvl |= ids.contains(id);
+        }
       }
       if (newLvl) {
         knownLevels.put(i, level);
