@@ -75,7 +75,7 @@ public class QBiCDesignReader implements IExperimentalDesignReader {
   public static void main(String[] args) throws JAXBException {
     try {
       SamplePreparator p = new SamplePreparator();
-      p.processTSV(new File("/Users/frieda/Downloads/SANDBOX_PCT_Q0675-1.tsv"),
+      p.processTSV(new File("/Users/frieda/Downloads/Internal_QBiC_Format.tsv"),
           ExperimentalDesignType.QBIC, false);
       System.out.println(p.getSummary());
     } catch (IOException e) {
@@ -185,7 +185,6 @@ public class QBiCDesignReader implements IExperimentalDesignReader {
       }
     }
     reader.close();
-
     String[] header = data.get(0);
     data.remove(0);
     // find out where the mandatory and other metadata data is
@@ -280,7 +279,7 @@ public class QBiCDesignReader implements IExperimentalDesignReader {
           order.add(new ArrayList<ISampleBean>());
         }
         List<String> parentIDs = parseParentCodes(row[mapping.get(5)]);
-        if (parentIDs.isEmpty())
+        if (parentIDs == null)
           return null;
         order.get(experimentLevel).add(new TSVSampleBean(code, exp, project, space, type,
             row[mapping.get(4)], parentIDs, metadata));
@@ -327,7 +326,7 @@ public class QBiCDesignReader implements IExperimentalDesignReader {
           return null;
         }
         if (parent.length() < 10) {
-//          parents = parents.replace(parent, parent + SampleCodeFunctions.checksum(parent));
+          // parents = parents.replace(parent, parent + SampleCodeFunctions.checksum(parent));
           parent = parent + SampleCodeFunctions.checksum(parent);
         }
         res.add(parent);
