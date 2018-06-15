@@ -164,7 +164,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
    * @return ArrayList of TSVSampleBeans
    * @throws IOException
    */
-  public List<ISampleBean> readSamples(File file) throws IOException {
+  public List<ISampleBean> readSamples(File file, boolean parseGraph) throws IOException {
     tsvByRows = new ArrayList<String>();
 
     BufferedReader reader = new BufferedReader(new FileReader(file));
@@ -337,7 +337,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
           String bloodID = sourceID + "_blood";
           TSVSampleBean blood = new TSVSampleBean(Integer.toString(sampleID), "Q_BIOLOGICAL_SAMPLE",
               bloodID, new HashMap<String, Object>());
-          blood.addParent(sourceID);
+          blood.addParentID(sourceID);
           blood.addProperty("Q_PRIMARY_TISSUE", "Blood plasma");
           blood.addProperty("Q_EXTERNALDB_ID", bloodID);
           tissueSet.add("Blood plasma");
@@ -345,7 +345,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
           sampleID++;
           TSVSampleBean dna = new TSVSampleBean(Integer.toString(sampleID), "Q_TEST_SAMPLE",
               sourceID + "_DNA", new HashMap<String, Object>());
-          dna.addParent(bloodID);
+          dna.addParentID(bloodID);
           dna.addProperty("Q_SAMPLE_TYPE", "DNA");
           dna.addProperty("MHC_I", parseMHCClass(mhcTypes, 1));
           dna.addProperty("MHC_II", parseMHCClass(mhcTypes, 2));
@@ -360,7 +360,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
           tissueSample = new TSVSampleBean(Integer.toString(sampleID), "Q_BIOLOGICAL_SAMPLE",
               extractID, fillMetadata(header, row, meta, factors, loci, "Q_BIOLOGICAL_SAMPLE"));
           order.get(1).add(tissueSample);
-          tissueSample.addParent(sourceID);
+          tissueSample.addParentID(sourceID);
           tissueSample.addProperty("Q_EXTERNALDB_ID", extractID);
           tissueToSample.put(extractID, tissueSample);
 
@@ -369,7 +369,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
               new TSVSampleBean(Integer.toString(sampleID), "Q_TEST_SAMPLE", prepID,
                   fillMetadata(header, row, meta, factors, loci, "Q_TEST_SAMPLE"));
           order.get(2).add(analyteSample);
-          analyteSample.addParent(extractID);
+          analyteSample.addParentID(extractID);
           analyteSample.addProperty("Q_EXTERNALDB_ID", prepID);
           analyteToSample.put(prepID, tissueSample);
           analyteSample.addProperty("Q_SAMPLE_TYPE", "CELL_LYSATE");
@@ -392,7 +392,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
           if (mhcClass.length == 1) {
             ligandExtract.addProperty("Q_MHC_CLASS", mhcClass[0]);
           }
-          ligandExtract.addParent(prepID);
+          ligandExtract.addParentID(prepID);
           ligandExtract.addProperty("Q_EXTERNALDB_ID", ligandExtrID);
           order.get(3).add(ligandExtract);
           analyteToSample.put(ligandExtrID, ligandExtract);
@@ -418,7 +418,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
           // and ms run date are the same?
           msIDToMSExp.put(msRuns,
               parseMSExperimentData(row, headerMapping, new HashMap<String, Object>()));
-        msRun.addParent(ligandExtrID);
+        msRun.addParentID(ligandExtrID);
         msRun.addProperty("File", fName);
 
         msRun.addProperty("Q_PROPERTIES",
@@ -579,7 +579,7 @@ System.out.println(expIDToLigandExp.keySet());
     try {
       SamplePreparator p = new SamplePreparator();
       p.processTSV(new File("/Users/frieda/Downloads/Ligandosphere_large_example.csv"),
-          ExperimentalDesignType.MHC_Ligands_Finished);
+          ExperimentalDesignType.MHC_Ligands_Finished, false);
     } catch (IOException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
