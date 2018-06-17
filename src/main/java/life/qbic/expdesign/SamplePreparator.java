@@ -60,12 +60,17 @@ public class SamplePreparator {
         break;
       case Standard:
         reader = new EasyDesignReader();
+        int size = reader.countEntities(file);
+        //TODO figure something out
+        if(size > 300)
+          parseGraph = false;
         break;
       case MHC_Ligands_Finished:
         reader = new MHCLigandDesignReader();
       default:
         break;
     }
+
     List<ISampleBean> rawSamps = reader.readSamples(file, parseGraph);
     if (reader instanceof QBiCDesignReader) {
       QBiCDesignReader qReader = (QBiCDesignReader) reader;

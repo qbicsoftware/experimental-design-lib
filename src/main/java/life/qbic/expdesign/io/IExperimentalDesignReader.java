@@ -26,4 +26,6 @@ public interface IExperimentalDesignReader {
 
   Map<String, List<SampleSummary>> getSampleGraphNodes();
 
+  int countEntities(File file) throws IOException;
+
 }

@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.xml.bind.JAXBException;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -25,8 +24,6 @@ import life.qbic.datamodel.ms.MSRunCollection;
 import life.qbic.datamodel.samples.ISampleBean;
 import life.qbic.datamodel.samples.SampleSummary;
 import life.qbic.datamodel.samples.TSVSampleBean;
-import life.qbic.expdesign.SamplePreparator;
-import life.qbic.expdesign.model.ExperimentalDesignType;
 import life.qbic.xml.properties.Unit;
 
 public class MHCLigandDesignReader implements IExperimentalDesignReader {
@@ -699,6 +696,12 @@ public class MHCLigandDesignReader implements IExperimentalDesignReader {
   @Override
   public Map<String, List<SampleSummary>> getSampleGraphNodes() {
     return null;
+  }
+
+  @Override
+  public int countEntities(File file) throws IOException {
+    // TODO Auto-generated method stub
+    return 0;
   }
 
 }

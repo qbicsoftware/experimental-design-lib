@@ -731,4 +731,10 @@ System.out.println(expIDToLigandExp.keySet());
     return null;
   }
 
+  @Override
+  //TODO
+  public int countEntities(File file) throws IOException {
+    return 0;
+  }
+
 }

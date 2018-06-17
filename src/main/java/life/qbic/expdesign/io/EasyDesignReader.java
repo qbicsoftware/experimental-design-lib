@@ -2,6 +2,7 @@ package life.qbic.expdesign.io;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -81,7 +82,6 @@ public class EasyDesignReader implements IExperimentalDesignReader {
           ExperimentalDesignType.Standard, false);
       System.out.println(p.getSummary());
       // System.out.println(p.getProcessed());
-      System.out.println(p.getSampleGraph());
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -94,6 +94,75 @@ public class EasyDesignReader implements IExperimentalDesignReader {
       s = s.substring(1);
     }
     return s;
+  }
+
+  public int countEntities(File file) throws IOException {
+    Set<String> ids = new HashSet<String>();
+
+
+    nodesForFactorPerLabel = new HashMap<String, Set<SampleSummary>>();
+
+    tsvByRows = new ArrayList<String>();
+    BufferedReader reader = new BufferedReader(new FileReader(file));
+    ArrayList<String[]> data = new ArrayList<String[]>();
+    String next;
+    int i = 0;
+    // isPilot = false;
+    while ((next = reader.readLine()) != null) {
+      i++;
+      next = removeUTF8BOM(next);
+      tsvByRows.add(next);
+      String[] nextLine = next.split("\t", -1);// this is needed for trailing tabs
+      if (data.isEmpty() || nextLine.length == data.get(0).length) {
+        data.add(nextLine);
+      } else {
+        reader.close();
+        return -1;
+      }
+    }
+    reader.close();
+
+    String[] header = data.get(0);
+    data.remove(0);
+    // find out where the mandatory and other metadata data is
+    Map<String, Integer> headerMapping = new HashMap<String, Integer>();
+    List<Integer> meta = new ArrayList<Integer>();
+
+    ArrayList<String> found = new ArrayList<String>(Arrays.asList(header));
+    for (String col : mandatory) {
+      if (!found.contains(col)) {
+        return -1;
+      }
+    }
+    if (found.contains("Analyte") && found.contains("Analyte ID")) {
+      headerMapping.put("Analyte", found.indexOf("Analyte"));
+      headerMapping.put("Analyte ID", found.indexOf("Analyte ID"));
+      analytesIncluded = true;
+    } else if (!found.contains("Analyte") && !found.contains("Analyte ID"))
+      analytesIncluded = false;
+    else {
+      return -1;
+    }
+    for (i = 0; i < header.length; i++) {
+      int position = mandatory.indexOf(header[i]);
+      if (position > -1) {
+        headerMapping.put(header[i], i);
+        meta.add(i);
+      }
+    }
+    for (String[] row : data) {
+      String sourceID = row[headerMapping.get("Organism ID")];
+      String extractID = row[headerMapping.get("Extract ID")];
+      ids.add(sourceID);
+      ids.add(extractID);
+      String analyteID = "";
+      if (analytesIncluded) {
+        analyteID = row[headerMapping.get("Analyte ID")];
+        ids.add(analyteID);
+      }
+    }
+
+    return ids.size();
   }
 
   /**
@@ -255,7 +324,7 @@ public class EasyDesignReader implements IExperimentalDesignReader {
     Set<String> tissueSet = new HashSet<String>();
     Set<String> analyteSet = new HashSet<String>();
     int rowID = 0;
-//    int sampleID = 0;
+    // int sampleID = 0;
     for (String[] row : data) {
       rowID++;
       // boolean special = false;
@@ -290,10 +359,9 @@ public class EasyDesignReader implements IExperimentalDesignReader {
       // if analyte is known, nothing needs to be done
       if (!analyteIDToSample.containsKey(analyteID)) {
         if (!analyteID.isEmpty()) {// some analytes can be added, while other cells can be empty
-//          sampleID++;
-          TSVSampleBean firstASample =
-              new TSVSampleBean(analyteID, "Q_TEST_SAMPLE", analyteID,
-                  fillMetadata(header, row, meta, factors, loci, "Q_TEST_SAMPLE"));
+          // sampleID++;
+          TSVSampleBean firstASample = new TSVSampleBean(analyteID, "Q_TEST_SAMPLE", analyteID,
+              fillMetadata(header, row, meta, factors, loci, "Q_TEST_SAMPLE"));
           firstASample.addProperty("Q_SAMPLE_TYPE", analyte);
           order.get(2).add(firstASample);
           firstASample.addParentID(extractID);
@@ -304,7 +372,7 @@ public class EasyDesignReader implements IExperimentalDesignReader {
         TSVSampleBean eSample = extractIDToSample.get(extractID);
         TSVSampleBean sSample = sourceIDToSample.get(sourceID);
         if (!extractIDToSample.containsKey(extractID)) {
-//          sampleID++;
+          // sampleID++;
           eSample = new TSVSampleBean(extractID, "Q_BIOLOGICAL_SAMPLE", extractID,
               fillMetadata(header, row, meta, extractFactors, loci, "Q_BIOLOGICAL_SAMPLE"));
           eSample.addProperty("Q_PRIMARY_TISSUE", tissue);
@@ -314,7 +382,7 @@ public class EasyDesignReader implements IExperimentalDesignReader {
 
         }
         if (!sourceIDToSample.containsKey(sourceID)) {
-//          sampleID++;
+          // sampleID++;
           sSample = new TSVSampleBean(sourceID, "Q_BIOLOGICAL_ENTITY", sourceID,
               fillMetadata(header, row, meta, entityFactors, loci, "Q_BIOLOGICAL_ENTITY"));
           sSample.addProperty("Q_NCBI_ORGANISM", species);

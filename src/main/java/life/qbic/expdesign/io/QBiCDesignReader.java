@@ -516,4 +516,10 @@ public class QBiCDesignReader implements IExperimentalDesignReader {
     return null;
   }
 
+  @Override
+  public int countEntities(File file) throws IOException {
+    // TODO Auto-generated method stub
+    return 0;
+  }
+
 }
