@@ -2,7 +2,6 @@ package life.qbic.expdesign.io;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -319,7 +318,6 @@ public class EasyDesignReader implements IExperimentalDesignReader {
     Map<String, TSVSampleBean> sourceIDToSample = new HashMap<String, TSVSampleBean>();
     Map<String, TSVSampleBean> extractIDToSample = new HashMap<String, TSVSampleBean>();
     Map<String, TSVSampleBean> analyteIDToSample = new HashMap<String, TSVSampleBean>();
-    List<TSVSampleBean> roots = new ArrayList<TSVSampleBean>();
     Set<String> speciesSet = new HashSet<String>();
     Set<String> tissueSet = new HashSet<String>();
     Set<String> analyteSet = new HashSet<String>();
@@ -386,15 +384,15 @@ public class EasyDesignReader implements IExperimentalDesignReader {
           sSample = new TSVSampleBean(sourceID, "Q_BIOLOGICAL_ENTITY", sourceID,
               fillMetadata(header, row, meta, entityFactors, loci, "Q_BIOLOGICAL_ENTITY"));
           sSample.addProperty("Q_NCBI_ORGANISM", species);
-          roots.add(sSample);
           order.get(0).add(sSample);
           sourceIDToSample.put(sourceID, sSample);
         }
         if (parseGraph) {
-          createGraphSummariesForRow(
-              new ArrayList<TSVSampleBean>(Arrays.asList(sourceIDToSample.get(sourceID),
-                  extractIDToSample.get(extractID), analyteIDToSample.get(analyteID))),
-              new Integer(rowID));
+          List<TSVSampleBean> sampleRow = new ArrayList<TSVSampleBean>(
+              Arrays.asList(sourceIDToSample.get(sourceID), extractIDToSample.get(extractID)));
+          if (analytesIncluded)
+            sampleRow.add(analyteIDToSample.get(analyteID));
+          createGraphSummariesForRow(sampleRow, new Integer(rowID));
         }
       }
       // }
@@ -419,7 +417,7 @@ public class EasyDesignReader implements IExperimentalDesignReader {
 
   private void createGraphSummariesForRow(List<TSVSampleBean> levels, int nodeID)
       throws JAXBException {
-    nodeID *= 3;
+    nodeID *= levels.size();
     // create summary for this each node based on each experimental factor as well as "none"
     for (String label : nodesForFactorPerLabel.keySet()) {
       SampleSummary currentSummary = null;
