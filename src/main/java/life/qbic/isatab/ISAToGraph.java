@@ -42,7 +42,6 @@ public class ISAToGraph {
       "/src/main/resources/Configurations/isaconfig-default_v2015-07-02/";
   private static Logger log = Logger.getLogger(ISAToGraph.class);
 
-
   private ISAtabFilesImporter importer = null;
   private String isatabParentDir = null;
   private HashMap<String, Set<SampleSummary>> nodesForFactorPerLabel;
