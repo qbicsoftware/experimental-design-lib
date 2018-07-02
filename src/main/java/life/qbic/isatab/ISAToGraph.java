@@ -20,9 +20,6 @@ import org.isatools.isacreator.model.Assay;
 import org.isatools.isacreator.model.Factor;
 import org.isatools.isacreator.model.Investigation;
 import org.isatools.isacreator.model.Study;
-import org.isatools.isacreator.ontologymanager.OntologyManager;
-import org.isatools.isacreator.ontologymanager.OntologySourceRefObject;
-import org.isatools.isacreator.ontologymanager.common.OntologyTerm;
 import org.isatools.isacreator.settings.ISAcreatorProperties;
 import org.isatools.isacreator.utils.PropertyFileIO;
 
@@ -49,7 +46,8 @@ public class ISAToGraph {
 
   public static void main(String[] args) {
     ISAToGraph g = new ISAToGraph();
-    g.read(true);
+     g.read(new File("/Users/frieda/git/ISAcreator/src/test/resources/test-data/BII-I-1"));
+//    g.read(new File("/Users/frieda/Downloads/isatab"));
   }
 
   private String getAnalyteFromMeasureEndpoint(String technologyType) {
@@ -60,7 +58,7 @@ public class ISAToGraph {
     return graphsByStudy;
   }
 
-  private void read(boolean validateForDataModel) {
+  public void read(File file) {
 
     String baseDir = System.getProperty("basedir");
 
@@ -77,7 +75,7 @@ public class ISAToGraph {
 
     log.debug("configDir=" + configDir);
     importer = new ISAtabFilesImporter(configDir);
-    isatabParentDir = "/Users/frieda/Downloads/isatab";
+    isatabParentDir = file.toString();
     log.debug("isatabParentDir=" + isatabParentDir);
 
     importer.importFile(isatabParentDir);
@@ -89,26 +87,6 @@ public class ISAToGraph {
       for (ErrorMessage message : report.getMessages()) {
         System.out.println(message.getErrorLevel().toString() + " > " + message.getMessage());
       }
-    }
-
-    // if import worked ok, there should not be error messages
-    // System.out.println(importer.getMessages().size() + " errors");
-    //
-    // System.out.println("ontologies used=" + OntologyManager.getOntologiesUsed());
-    // System.out
-    // .println("ontology description=" + OntologyManager.getOntologyDescription("NCBITAXON"));
-    // // System.out.println("ontology selection history=" +
-    // // OntologyManager.getOntologySelectionHistory());
-    // System.out.println("ontology selection history size=" +
-    // OntologyManager.getOntologyTermsSize());
-
-    for (String term : OntologyManager.getOntologyTermsKeySet()) {
-      OntologyTerm ontologyTerm = OntologyManager.getOntologyTerm(term);
-      OntologySourceRefObject ontologySourceRefObject = ontologyTerm.getOntologySourceInformation();
-      // System.out.println("ontology term=" + ontologyTerm);
-      // System.out.println("term URI = " + ontologyTerm.getOntologyTermURI());
-      // System.out.println(ontologySourceRefObject);
-      // System.out.println();
     }
 
     // TODO: list each study (by name), return graph for selected study
@@ -138,8 +116,12 @@ public class ISAToGraph {
 
       Object[][] matrix = study.getStudySampleDataMatrix();
       for (int rowID = 1; rowID < matrix.length; rowID++) {
-        String organism = removeOntologyPrefix((String) matrix[rowID][organismCol]);
-        String tissue = removeOntologyPrefix((String) matrix[rowID][organCol]);
+        String organism = "unspecified species";
+        if (organismCol != -1)
+          organism = removeOntologyPrefix((String) matrix[rowID][organismCol]);
+        String tissue = "unspecified organ";
+        if (organCol != -1)
+          tissue = removeOntologyPrefix((String) matrix[rowID][organCol]);
         String sourceID = (String) matrix[rowID][sourceCol];
         String sampleID = (String) matrix[rowID][sampleCol];
         List<Property> factors = new ArrayList<Property>();
@@ -184,33 +166,53 @@ public class ISAToGraph {
           // sampleID++;
           Map<String, Object> metadata = new HashMap<String, Object>();
           metadata.put("Factors", new ArrayList<Property>());
-          sSample = new TSVSampleBean(sampleID, "Q_BIOLOGICAL_ENTITY", sampleID, metadata);
+          sSample = new TSVSampleBean(sourceID, "Q_BIOLOGICAL_ENTITY", sourceID, metadata);
           sSample.addProperty("Q_NCBI_ORGANISM", organism);
           sourceIDToSample.put(sourceID, sSample);
         }
         List<TSVSampleBean> sampleRow = new ArrayList<TSVSampleBean>(
             Arrays.asList(sourceIDToSample.get(sourceID), sampleIDToSample.get(sampleID)));
-        // if (analytesIncluded)
-        // sampleRow.add(analyteIDToSample.get(analyteID));
-        createGraphSummariesForRow(sampleRow, new Integer(rowID));
+//        createGraphSummariesForRow(sampleRow, new Integer(rowID));
       }
 
+      // for each assay find entities by Names and connect them via Sample Names to existing tissue
+      // samples
+      int unknownExtractID = 0;
+      int uniqueEntityID = 0;
       for (String ass : study.getAssays().keySet()) {
-        // System.out.println(ass);
         Assay assay = study.getAssays().get(ass);
-        // System.out.println(assay.getFieldKeysAsList());
-        // System.out.println(assay.getFieldValues());
-        // System.out.println();
-        // String platform = assay.getAssayPlatform();
-        // String tech = assay.getTechnologyType();
-        // System.out.println(assay.getTechnologyTypeTermAccession());
-        // System.out.println(tech);
-        // System.out.println(platform);
-
+        int assaySampleIDCol = findAssayColumnID(assay, "Sample Name");
+        int assayExtractIDCol = findAssayColumnID(assay, "Extract Name");
         // Analyte
         String endpoint = assay.getMeasurementEndpoint();
-        System.out.println(getAnalyteFromMeasureEndpoint(endpoint));
+        String analyte = getAnalyteFromMeasureEndpoint(endpoint);
+
+        Object[][] assayMatrix = assay.getAssayDataMatrix();
+        for (int rowID = 1; rowID < assayMatrix.length; rowID++) {
+          String sampleID = (String) assayMatrix[rowID][assaySampleIDCol];
+          unknownExtractID++;
+          String extractID = Integer.toString(unknownExtractID);
+          if(assayExtractIDCol !=-1) {
+            extractID = extractID+"-"+(String) assayMatrix[rowID][assayExtractIDCol];
+          }
+          TSVSampleBean eSample = sampleIDToSample.get(sampleID);
+          Map<String, Object> metadata = eSample.getMetadata();
+//          metadata.put("Factors", new ArrayList<Property>());
+          TSVSampleBean tSample = new TSVSampleBean(extractID, "Q_TEST_SAMPLE", extractID, metadata);
+          
+          tSample.addProperty("Q_SAMPLE_TYPE", analyte);
+          analyteIDToSample.put(extractID, tSample);
+          tSample.addParentID(sampleID);
+                    
+          List<TSVSampleBean> sampleRow = new ArrayList<TSVSampleBean>(
+              Arrays.asList(sourceIDToSample.get(eSample.getParentIDs().get(0)), sampleIDToSample.get(sampleID), tSample));
+          // if (analytesIncluded)
+          // sampleRow.add(analyteIDToSample.get(analyteID));
+          uniqueEntityID++;
+          createGraphSummariesForRow(sampleRow, new Integer(uniqueEntityID));
+        }
       }
+
       Map<String, List<SampleSummary>> nodeListsPerLabel =
           new HashMap<String, List<SampleSummary>>();
       for (String label : nodesForFactorPerLabel.keySet()) {
@@ -238,7 +240,17 @@ public class ISAToGraph {
     Object[][] matrix = study.getStudySampleDataMatrix();
     for (int j = 0; j < matrix[0].length; j++) {
       String colName = (String) matrix[0][j];
-      if (colName.equals(label))
+      if (colName.toLowerCase().equals(label.toLowerCase()))
+        return j;
+    }
+    return -1;
+  }
+
+  private int findAssayColumnID(Assay assay, String label) {
+    Object[][] matrix = assay.getAssayDataMatrix();
+    for (int j = 0; j < matrix[0].length; j++) {
+      String colName = (String) matrix[0][j];
+      if (colName.toLowerCase().equals(label.toLowerCase()))
         return j;
     }
     return -1;
@@ -266,7 +278,7 @@ public class ISAToGraph {
     // create summary for this each node based on each experimental factor as well as "none"
     for (String label : nodesForFactorPerLabel.keySet()) {
       SampleSummary currentSummary = null;
-      // source - extract - analyte (at least the first must exist) - create summaries for them all
+      // source - extract - analyte (at least the first must exist) - create summaries each
       for (int level = 0; level < levels.size(); level++) {
         TSVSampleBean s = levels.get(level);
         // find out if this sample has children or not
