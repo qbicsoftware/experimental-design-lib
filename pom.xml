@@ -42,9 +42,9 @@
 			<version>0.1.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
-			<groupId>org.isatools</groupId>
-			<artifactId>ISAcreator</artifactId>
-			<version>1.7.11</version>
+			<groupId>life.qbic</groupId>
+			<artifactId>isa-creator-lib</artifactId>
+			<version>1.7.12-SNAPSHOT</version>
 		</dependency>
 		
 	</dependencies>

@@ -70,7 +70,7 @@ public class ISAToGraph {
       }
     }
 
-    ISAcreatorProperties.setProperties(PropertyFileIO.DEFAULT_CONFIGS_SETTINGS_PROPERTIES);
+//    ISAcreatorProperties.setProperties(PropertyFileIO.DEFAULT_CONFIGS_SETTINGS_PROPERTIES);
     configDir = baseDir + DEFAULT_CONFIG_DIR;
 
     log.debug("configDir=" + configDir);
