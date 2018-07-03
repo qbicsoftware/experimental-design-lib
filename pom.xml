@@ -43,7 +43,7 @@
 		<dependency>
 			<groupId>life.qbic</groupId>
 			<artifactId>isa-creator-lib</artifactId>
-			<version>1.7.12-SNAPSHOT</version>
+			<version>1.7.12</version>
 		</dependency>
 		
 	</dependencies>
