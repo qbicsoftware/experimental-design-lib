@@ -5,22 +5,24 @@ import java.util.List;
 
 public enum ExperimentalDesignType {
 
-  Standard("Standard Format", "An easy format.",
+  Standard("Standard Format", "The Standard Import format for experimental designs containing information about organism, tissues/cell cultures and the analyte preparations.",
       Arrays.asList("Organism", "Organism ID", "Tissue", "Extract ID", "Analyte", "Analyte ID"),
       Arrays.asList("Conditions")),
 
   QBIC("Internal QBiC Format",
-      "In this format Source Organism, Tissue Extracts and Analytes are all described in their own rows. Barcodes have to be predefined.",
+      "QBiC openBIS import format. Not recommended for external users. In this format Source Organism, Tissue Extracts and Analytes are all described in their own rows. Barcodes have to be predefined.",
       Arrays.asList("Identifier", "SAMPLE TYPE", "SPACE", "EXPERIMENT", "PARENT",
           "Q_PRIMARY_TISSUE", "Q_NCBI_ORGANISM", "Q_SAMPLE_TYPE"),
       Arrays.asList("Q_TISSUE_DETAILED", "Q_SECONDARY_NAME", "Q_ADDITIONAL_INFO", "Q_EXTERNALDB_ID",
           "Conditions")),
 
+  ISA("ISA-Tab format", "", Arrays.asList(""), Arrays.asList("")),
+  
   MHC_Ligands_Finished("Ligandomics Format (measured)",
       "Format to describe MHC Ligand extraction and measurement experiments. Tissue, Antibody and Mass spectrometry information needs to be provided. Measurements should be from the same project/group of patients.",
       Arrays.asList(""),
       Arrays.asList("")), MHC_Ligands_Plan("", "", Arrays.asList(), Arrays.asList());
-
+  
   private final String name;
   private final String description;
   private final List<String> required;

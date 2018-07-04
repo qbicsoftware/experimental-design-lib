@@ -106,7 +106,6 @@ public class QBiCDesignReader implements IExperimentalDesignReader {
     tsvByRows = new ArrayList<String>();
     this.space = "";
     this.project = "";
-    // CSVReader reader = new CSVReader(new FileReader(file), '\t');
     BufferedReader reader = new BufferedReader(new FileReader(file));
     ArrayList<String[]> data = new ArrayList<String[]>();
     String next;

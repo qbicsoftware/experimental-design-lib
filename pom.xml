@@ -8,7 +8,6 @@
 		<version>1.0.0</version>
 	</parent>
 
-	<groupId>life.qbic</groupId>
 	<artifactId>experimental-design-lib</artifactId>
 	<packaging>jar</packaging>
 	<version>0.10.0-SNAPSHOT</version>
