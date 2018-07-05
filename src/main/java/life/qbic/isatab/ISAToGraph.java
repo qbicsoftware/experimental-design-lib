@@ -35,20 +35,13 @@ import life.qbic.xml.properties.Unit;
 public class ISAToGraph {
 
   private String configDir = null;
-  public static final String DEFAULT_CONFIG_DIR =
-      "/src/main/resources/Configurations/isaconfig-default_v2015-07-02/";
+  public static final String DEFAULT_CONFIG_DIR = "/isaconfig-default_v2015-07-02/";
   private static Logger log = Logger.getLogger(ISAToGraph.class);
 
   private ISAtabFilesImporter importer = null;
   private String isatabParentDir = null;
   private HashMap<String, Set<SampleSummary>> nodesForFactorPerLabel;
   private Map<Study, StructuredExperiment> graphsByStudy;
-
-  public static void main(String[] args) {
-    ISAToGraph g = new ISAToGraph();
-     g.read(new File("/Users/frieda/git/ISAcreator/src/test/resources/test-data/BII-I-1"));
-//    g.read(new File("/Users/frieda/Downloads/isatab"));
-  }
 
   private String getAnalyteFromMeasureEndpoint(String technologyType) {
     return KeywordTranslator.getQBiCKeyword(technologyType);
