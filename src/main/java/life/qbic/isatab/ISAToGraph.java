@@ -2,6 +2,8 @@ package life.qbic.isatab;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -34,8 +36,9 @@ import life.qbic.xml.properties.Unit;
 
 public class ISAToGraph {
 
-  private String configDir = null;
-  public static final String DEFAULT_CONFIG_DIR = "/isaconfig-default_v2015-07-02/";
+  public static final Path[] DEFAULT_CONFIG_PATHS = {
+    Paths.get("Configurations", "isaconfig-default_v2015-07-02"),
+    Paths.get("src", "main", "resources", "Configurations", "isaconfig-default_v2015-07-02")};
   private static Logger log = Logger.getLogger(ISAToGraph.class);
 
   private ISAtabFilesImporter importer = null;
@@ -52,19 +55,8 @@ public class ISAToGraph {
   }
 
   public void read(File file) {
-
-    String baseDir = System.getProperty("basedir");
-
-    if (baseDir == null) {
-      try {
-        baseDir = new File(".").getCanonicalPath();
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
-    }
-
 //    ISAcreatorProperties.setProperties(PropertyFileIO.DEFAULT_CONFIGS_SETTINGS_PROPERTIES);
-    configDir = baseDir + DEFAULT_CONFIG_DIR;
+    final String configDir = resolveConfigurationFilesPath();
 
     log.debug("configDir=" + configDir);
     importer = new ISAtabFilesImporter(configDir);
@@ -214,6 +206,19 @@ public class ISAToGraph {
       }
       graphsByStudy.put(study, new StructuredExperiment(nodeListsPerLabel));
     }
+  }
+
+  private String resolveConfigurationFilesPath() {
+    for (int i = 0; i < DEFAULT_CONFIG_PATHS.length; i++) {
+      final File possibleConfigFolder = DEFAULT_CONFIG_PATHS[i].toFile();
+      if (possibleConfigFolder.exists() && possibleConfigFolder.isDirectory()) {
+        return DEFAULT_CONFIG_PATHS[i].toString();
+      } else {
+        log.info(String.format("Configuration files not found in folder %s", DEFAULT_CONFIG_PATHS[i].toString()));
+      }
+    }
+    // TODO: change for ApplicationException, one of QBiC's "generic" runtime exceptions
+    throw new RuntimeException("Required configuration files were not found at any of the default folders.");
   }
 
   private String factorNameForXML(String label, boolean validate) {
