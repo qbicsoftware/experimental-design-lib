@@ -155,9 +155,6 @@ public class ISAToGraph {
           sSample.addProperty("Q_NCBI_ORGANISM", organism);
           sourceIDToSample.put(sourceID, sSample);
         }
-        List<TSVSampleBean> sampleRow = new ArrayList<TSVSampleBean>(
-            Arrays.asList(sourceIDToSample.get(sourceID), sampleIDToSample.get(sampleID)));
-//        createGraphSummariesForRow(sampleRow, new Integer(rowID));
       }
 
       // for each assay find entities by Names and connect them via Sample Names to existing tissue
@@ -330,7 +327,6 @@ public class ISAToGraph {
     String type = s.getType();
     String source = "unknown";
     Map<String, Object> props = s.getMetadata();
-    ParserHelpers.fixXMLProps(props);
 
     Property factor = getFactorOfSampleOrNull((List<Property>) props.get("Factors"), label);
     boolean newFactor = true;
