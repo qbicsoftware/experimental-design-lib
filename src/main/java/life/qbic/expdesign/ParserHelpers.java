@@ -43,6 +43,7 @@ public class ParserHelpers {
       }
       factors = new ArrayList<Property>();
     }
+    metadata.remove("Factors");
     
     if (metadata.get("XML_FACTORS") != null) {
       String[] fStrings = semicolon.split((String) metadata.get("XML_FACTORS"));
