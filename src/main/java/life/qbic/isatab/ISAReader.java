@@ -446,9 +446,9 @@ public class ISAReader implements IExperimentalDesignReader {
       throws IOException, JAXBException {
     log.debug("reading samples of selected study " + selectedStudy);
     List<ISampleBean> res = new ArrayList<ISampleBean>();
-    Set<String> speciesSet = new HashSet<String>();
-    Set<String> tissueSet = new HashSet<String>();
-    Set<String> analyteSet = new HashSet<String>();
+    speciesSet = new HashSet<String>();
+    tissueSet = new HashSet<String>();
+    analyteSet = new HashSet<String>();
 
     final String configDir = resolveConfigurationFilesPath();
 
