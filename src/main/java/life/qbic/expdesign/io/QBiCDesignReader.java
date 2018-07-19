@@ -23,6 +23,7 @@ import life.qbic.datamodel.samples.SampleSummary;
 import life.qbic.datamodel.samples.TSVSampleBean;
 import life.qbic.expdesign.SamplePreparator;
 import life.qbic.expdesign.model.ExperimentalDesignType;
+import life.qbic.expdesign.model.StructuredExperiment;
 import life.qbic.xml.properties.Unit;
 
 public class QBiCDesignReader implements IExperimentalDesignReader {
@@ -76,7 +77,7 @@ public class QBiCDesignReader implements IExperimentalDesignReader {
     try {
       SamplePreparator p = new SamplePreparator();
       p.processTSV(new File("/Users/frieda/Downloads/Internal_QBiC_Format.tsv"),
-          ExperimentalDesignType.QBIC, false);
+          new QBiCDesignReader(), false);
       System.out.println(p.getSummary());
     } catch (IOException e) {
       // TODO Auto-generated catch block
@@ -510,7 +511,7 @@ public class QBiCDesignReader implements IExperimentalDesignReader {
   }
 
   @Override
-  public Map<String, List<SampleSummary>> getSampleGraphNodes() {
+  public StructuredExperiment getGraphStructure() {
     // TODO Auto-generated method stub
     return null;
   }

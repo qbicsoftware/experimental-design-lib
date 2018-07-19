@@ -24,6 +24,7 @@ import life.qbic.datamodel.ms.MSRunCollection;
 import life.qbic.datamodel.samples.ISampleBean;
 import life.qbic.datamodel.samples.SampleSummary;
 import life.qbic.datamodel.samples.TSVSampleBean;
+import life.qbic.expdesign.model.StructuredExperiment;
 import life.qbic.xml.properties.Unit;
 
 public class MHCLigandDesignReader implements IExperimentalDesignReader {
@@ -694,7 +695,7 @@ public class MHCLigandDesignReader implements IExperimentalDesignReader {
   }
 
   @Override
-  public Map<String, List<SampleSummary>> getSampleGraphNodes() {
+  public StructuredExperiment getGraphStructure() {
     return null;
   }
 

@@ -9,6 +9,7 @@ import life.qbic.expdesign.io.QBiCDesignReader;
 import life.qbic.expdesign.model.ExperimentalDesignType;
 import life.qbic.expdesign.model.SampleSummaryBean;
 import life.qbic.expdesign.model.StructuredExperiment;
+import life.qbic.isatab.ISAReader;
 
 import java.io.File;
 import java.io.IOException;
@@ -52,24 +53,27 @@ public class SamplePreparator {
    * @throws IOException
    * @throws JAXBException
    */
-  public boolean processTSV(File file, ExperimentalDesignType designType, boolean parseGraph)
+  public boolean processTSV(File file, IExperimentalDesignReader reader, boolean parseGraph)
       throws IOException, JAXBException {
-    switch (designType) {
-      case QBIC:
-        reader = new QBiCDesignReader();
-        break;
-      case Standard:
-        reader = new EasyDesignReader();
-        int size = reader.countEntities(file);
-        //TODO figure something out
-        if(size > 300)
-          parseGraph = false;
-        break;
-      case MHC_Ligands_Finished:
-        reader = new MHCLigandDesignReader();
-      default:
-        break;
-    }
+    this.reader = reader;
+//    switch (designType) {
+//      case QBIC:
+//        reader = new QBiCDesignReader();
+//        break;
+//      case Standard:
+//        reader = new EasyDesignReader();
+//        int size = reader.countEntities(file);
+//        //TODO figure something out
+//        if(size > 300)
+//          parseGraph = false;
+//        break;
+//      case MHC_Ligands_Finished:
+//        reader = new MHCLigandDesignReader();
+//      case ISA:
+//        reader = new ISAReader();
+//      default:
+//        break;
+//    }
 
     List<ISampleBean> rawSamps = reader.readSamples(file, parseGraph);
     if (reader instanceof QBiCDesignReader) {
@@ -207,7 +211,7 @@ public class SamplePreparator {
   }
 
   public StructuredExperiment getSampleGraph() {
-    return new StructuredExperiment(reader.getSampleGraphNodes());
+    return reader.getGraphStructure();
   }
 
   public ProjectInfo getProjectInfo() {
@@ -335,4 +339,5 @@ public class SamplePreparator {
   public Map<String, ISampleBean> getIDsToSamples() {
     return idsToSamples;
   }
+  
 }
