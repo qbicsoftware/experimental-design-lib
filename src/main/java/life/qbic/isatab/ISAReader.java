@@ -53,6 +53,7 @@ public class ISAReader implements IExperimentalDesignReader {
   private Set<String> speciesSet;
   private Set<String> tissueSet;
   private Set<String> analyteSet;
+  private String error;
 
   private String getAnalyteFromMeasureEndpoint(String technologyType) {
     return KeywordTranslator.getQBiCKeyword(technologyType);
@@ -61,7 +62,7 @@ public class ISAReader implements IExperimentalDesignReader {
   public List<StructuredExperiment> getGraphsByStudy() {
     return graphsByStudy;
   }
-  
+
   public StructuredExperiment getGraphStructure() {
     return currentGraphStructure;
   }
@@ -70,18 +71,15 @@ public class ISAReader implements IExperimentalDesignReader {
     this.selectedStudy = study;
   }
 
-//  public static void main(String[] args) throws IOException, JAXBException {
-//    ISAReader i = new ISAReader();
-////    i.createAllGraphs(new File("/Users/frieda/Downloads/isatab"));
-//File test = new File("/Users/frieda/Downloads/BII-I-1");
-//    List<Study> studies = i.listStudies(test);
-//    i.selectStudyToParse(studies.get(0).getStudyId());
-//    SamplePreparator prep = new SamplePreparator();
-//    prep.processTSV(test, i, true);
-//    System.out.println(prep.getSummary());
-//    System.out.println(prep.getSampleGraph());
-//    System.out.println(prep.getProcessed());
-//  }
+  public static void main(String[] args) throws IOException, JAXBException {
+    ISAReader i = new ISAReader();
+    // i.createAllGraphs(new File("/Users/frieda/Downloads/isatab"));
+    File test = new File("/Users/frieda/Downloads/BII-I-1");
+    List<Study> studies = i.listStudies(test);
+    i.selectStudyToParse(studies.get(0).getStudyId());
+    SamplePreparator prep = new SamplePreparator();
+    prep.processTSV(test, i, true);
+  }
 
   public List<Study> listStudies(File file) {
     final String configDir = resolveConfigurationFilesPath();
@@ -155,6 +153,7 @@ public class ISAReader implements IExperimentalDesignReader {
         String sourceID = (String) matrix[rowID][sourceCol];
         String sampleID = (String) matrix[rowID][sampleCol];
         List<Property> factors = new ArrayList<Property>();
+        Set<String> unknownUnits = new HashSet<String>();
         for (String factorLabel : nodesForFactorPerLabel.keySet()) {
           String colLabel = "Factor Value[" + factorLabel + "]";
           int factorCol = findStudyColumnID(study, colLabel);
@@ -168,7 +167,7 @@ public class ISAReader implements IExperimentalDesignReader {
                 unitBlock = removeOntologyPrefix(unitBlock);
                 unit = Unit.fromString(unitBlock);
               } catch (IllegalArgumentException e) {
-                System.err.println(e);
+                unknownUnits.add(e.toString());
                 factorVal += " " + unitBlock;
                 unit = Unit.Arbitrary_Unit;
               } finally {
@@ -179,6 +178,10 @@ public class ISAReader implements IExperimentalDesignReader {
             }
             factors.add(factor);
           }
+        }
+        if (!unknownUnits.isEmpty()) {
+          log.warn(unknownUnits);
+          log.warn("Units have been replaced by \"Arbitrary Unit\"");
         }
         // these will be filled below, if they don't exist
         TSVSampleBean eSample = sampleIDToSample.get(sampleID);
@@ -452,16 +455,15 @@ public class ISAReader implements IExperimentalDesignReader {
 
     final String configDir = resolveConfigurationFilesPath();
 
-    log.debug("configDir=" + configDir);
     importer = new ISAtabFilesImporter(configDir);
     isatabParentDir = file.toString();
-    log.debug("isatabParentDir=" + isatabParentDir);
 
     importer.importFile(isatabParentDir);
     investigation = importer.getInvestigation();
 
     for (ISAFileErrorReport report : importer.getMessages()) {
       for (ErrorMessage message : report.getMessages()) {
+        error = message.getMessage();
         log.error(message.getErrorLevel().toString() + " > " + message.getMessage());
       }
     }
@@ -479,7 +481,7 @@ public class ISAReader implements IExperimentalDesignReader {
     int sampleCol = findStudyColumnID(study, "Sample Name");
 
     for (Factor factor : study.getFactors()) {
-      String label = factor.getFactorName();      
+      String label = factor.getFactorName();
       nodesForFactorPerLabel.put(label, new LinkedHashSet<SampleSummary>());
     }
     nodesForFactorPerLabel.put("None", new LinkedHashSet<SampleSummary>());
@@ -497,6 +499,7 @@ public class ISAReader implements IExperimentalDesignReader {
       String sourceID = (String) matrix[rowID][sourceCol];
       String sampleID = (String) matrix[rowID][sampleCol];
       List<Property> factors = new ArrayList<Property>();
+      Set<String> unknownUnits = new HashSet<String>();
       for (String factorLabel : nodesForFactorPerLabel.keySet()) {
         String colLabel = "Factor Value[" + factorLabel + "]";
         int factorCol = findStudyColumnID(study, colLabel);
@@ -510,8 +513,9 @@ public class ISAReader implements IExperimentalDesignReader {
               unitBlock = removeOntologyPrefix(unitBlock);
               unit = Unit.fromString(unitBlock);
             } catch (IllegalArgumentException e) {
-              System.err.println(e);
-              factorVal += " " + unitBlock;
+              unknownUnits.add(e.toString());
+              // TODO unknown units
+              // factorVal += " " + unitBlock;
               unit = Unit.Arbitrary_Unit;
             } finally {
               factor = new Property(factorLabel, factorVal, unit, PropertyType.Factor);
@@ -521,6 +525,10 @@ public class ISAReader implements IExperimentalDesignReader {
           }
           factors.add(factor);
         }
+      }
+      if (!unknownUnits.isEmpty()) {
+        log.warn(unknownUnits);
+        log.warn("Units have been replaced by \"Arbitrary Unit\"");
       }
       // these will be filled below, if they don't exist
       TSVSampleBean eSample = sampleIDToSample.get(sampleID);
@@ -588,10 +596,11 @@ public class ISAReader implements IExperimentalDesignReader {
     for (String label : nodesForFactorPerLabel.keySet()) {
       // needed to register experiment at qbic
       String newLabel = factorNameForXML(label, true);
-      nodeListsPerLabel.put(newLabel, new ArrayList<SampleSummary>(nodesForFactorPerLabel.get(label)));
+      nodeListsPerLabel.put(newLabel,
+          new ArrayList<SampleSummary>(nodesForFactorPerLabel.get(label)));
     }
     currentGraphStructure = new StructuredExperiment(nodeListsPerLabel, study);
-    
+
     res.addAll(sourceIDToSample.values());
     res.addAll(sampleIDToSample.values());
     res.addAll(analyteIDToSample.values());
@@ -600,8 +609,7 @@ public class ISAReader implements IExperimentalDesignReader {
 
   @Override
   public String getError() {
-    // TODO Auto-generated method stub
-    return null;
+    return error;
   }
 
   @Override

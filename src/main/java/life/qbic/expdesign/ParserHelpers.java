@@ -16,6 +16,7 @@ import life.qbic.xml.manager.XMLParser;
 import life.qbic.xml.properties.Property;
 import life.qbic.xml.properties.PropertyType;
 import life.qbic.xml.properties.Unit;
+import net.bytebuddy.description.modifier.SynchronizationState;
 
 /**
  * Helper functions used for sample creation
@@ -33,6 +34,17 @@ public class ParserHelpers {
     XMLParser p = new XMLParser();
     LociParser lp = new LociParser();
     List<Property> factors = new ArrayList<Property>();
+    
+    if(metadata.get("Factors")!=null) {
+      factors = (List<Property>) metadata.get("Factors");
+      try {
+        metadata.put("Q_PROPERTIES", p.toString(p.createXMLFromProperties(factors)));
+      } catch (JAXBException e) {
+        e.printStackTrace();
+      }
+      factors = new ArrayList<Property>();
+    }
+    
     if (metadata.get("XML_FACTORS") != null) {
       String[] fStrings = semicolon.split((String) metadata.get("XML_FACTORS"));
       for (String factor : fStrings) {
