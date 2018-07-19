@@ -16,7 +16,6 @@ import life.qbic.xml.manager.XMLParser;
 import life.qbic.xml.properties.Property;
 import life.qbic.xml.properties.PropertyType;
 import life.qbic.xml.properties.Unit;
-import net.bytebuddy.description.modifier.SynchronizationState;
 
 /**
  * Helper functions used for sample creation
