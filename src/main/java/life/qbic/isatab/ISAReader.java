@@ -71,16 +71,45 @@ public class ISAReader implements IExperimentalDesignReader {
     this.selectedStudy = study;
   }
 
-  public static void main(String[] args) throws IOException, JAXBException {
-    ISAReader i = new ISAReader();
-    // i.createAllGraphs(new File("/Users/frieda/Downloads/isatab"));
-    File test = new File("/Users/frieda/Downloads/BII-I-1");
-    List<Study> studies = i.listStudies(test);
-    i.selectStudyToParse(studies.get(0).getStudyId());
-    SamplePreparator prep = new SamplePreparator();
-    System.out.println(prep.processTSV(test, i, true));
-    System.out.println(prep.getProcessed());
-  }
+//  public static void main(String[] args) throws IOException, JAXBException {
+//    ISAReader i = new ISAReader();
+//    // i.createAllGraphs(new File("/Users/frieda/Downloads/isatab"));
+//    File test = new File("/Users/frieda/Downloads/BII-I-1/i");
+//    List<Study> studies = i.listStudies(test);
+//    System.out.println(i.getError());
+//    if (studies.size() > 0) {
+//      i.selectStudyToParse(studies.get(0).getStudyId());
+//      SamplePreparator prep = new SamplePreparator();
+//      if (!prep.processTSV(test, i, true))
+//        System.out.println(prep.getError());
+//    }
+//
+//    i = new ISAReader();
+//    // i.createAllGraphs(new File("/Users/frieda/Downloads/isatab"));
+//    test = new File("/Users/frieda/Downloads/BII-I-1/a");
+//    studies = i.listStudies(test);
+//    System.out.println(i.getError());
+//    if (studies.size() > 0) {
+//
+//      i.selectStudyToParse(studies.get(0).getStudyId());
+//      SamplePreparator prep = new SamplePreparator();
+//      if (!prep.processTSV(test, i, true))
+//        System.out.println(prep.getError());
+//    }
+//
+//    i = new ISAReader();
+//    // i.createAllGraphs(new File("/Users/frieda/Downloads/isatab"));
+//    test = new File("/Users/frieda/Downloads/BII-I-1/s");
+//    studies = i.listStudies(test);
+//    System.out.println(i.getError());
+//    if (studies.size() > 0) {
+//
+//      i.selectStudyToParse(studies.get(0).getStudyId());
+//      SamplePreparator prep = new SamplePreparator();
+//      if (!prep.processTSV(test, i, true))
+//        System.out.println(prep.getError());
+//    }
+//  }
 
   public List<Study> listStudies(File file) {
     error = null;
@@ -91,14 +120,33 @@ public class ISAReader implements IExperimentalDesignReader {
     investigation = importer.getInvestigation();
 
     for (ISAFileErrorReport report : importer.getMessages()) {
-      // System.out.println(report.getFileName());
       for (ErrorMessage message : report.getMessages()) {
-        error = message.getMessage();
+        error = mapError(message.getMessage());
         log.error(message.getErrorLevel().toString() + " > " + message.getMessage());
       }
     }
     List<Study> res = new ArrayList<Study>();
-    res.addAll(investigation.getStudies().values());
+    if (error == null)
+      res.addAll(investigation.getStudies().values());
+    return res;
+  }
+
+  private String mapError(String message) {
+    String res = message;
+    if (message.startsWith("Investigation file does not exist"))
+      res = "No Investigation file could be found.";
+    if (message.contains(
+        "Please ensure that the file exists within the folder and that the name referred to in the investigation file is correct!")) {
+      String file = message.split(" was not found")[0];
+      if (file.contains("/")) {
+        String[] splt = file.split("/");
+        file = splt[splt.length - 1];
+      } else {
+        file = file.split("The file ")[1];
+      }
+      res = file
+          + " not found. Please ensure that the file exists within the folder and that the name referred to in the investigation file is correct.";
+    }
     return res;
   }
 
