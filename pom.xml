@@ -18,7 +18,7 @@
 		<dependency>
 			<groupId>life.qbic</groupId>
 			<artifactId>xml-manager-lib</artifactId>
-			<version>1.0.0</version>
+			<version>1.1.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>life.qbic</groupId>
