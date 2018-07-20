@@ -570,8 +570,9 @@ public class ISAReader implements IExperimentalDesignReader {
           extractID = extractID + "-" + (String) assayMatrix[rowID][assayExtractIDCol];
         }
         TSVSampleBean eSample = sampleIDToSample.get(sampleID);
-        Map<String, Object> metadata = eSample.getMetadata();
-        // metadata.put("Factors", new ArrayList<Property>());
+        Map<String, Object> metadata = new HashMap<String, Object>();
+        metadata.put("Factors", eSample.getMetadata().get("Factors"));
+
         TSVSampleBean tSample = new TSVSampleBean(extractID, "Q_TEST_SAMPLE", extractID, metadata);
 
         tSample.addProperty("Q_SAMPLE_TYPE", analyte);
@@ -591,8 +592,7 @@ public class ISAReader implements IExperimentalDesignReader {
 
     Map<String, List<SampleSummary>> nodeListsPerLabel = new HashMap<String, List<SampleSummary>>();
     for (String label : nodesForFactorPerLabel.keySet()) {
-      nodeListsPerLabel.put(label,
-          new ArrayList<SampleSummary>(nodesForFactorPerLabel.get(label)));
+      nodeListsPerLabel.put(label, new ArrayList<SampleSummary>(nodesForFactorPerLabel.get(label)));
     }
     currentGraphStructure = new StructuredExperiment(nodeListsPerLabel, study);
 
