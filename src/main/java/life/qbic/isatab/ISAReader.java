@@ -78,10 +78,12 @@ public class ISAReader implements IExperimentalDesignReader {
     List<Study> studies = i.listStudies(test);
     i.selectStudyToParse(studies.get(0).getStudyId());
     SamplePreparator prep = new SamplePreparator();
-    prep.processTSV(test, i, true);
+    System.out.println(prep.processTSV(test, i, true));
+    System.out.println(prep.getProcessed());
   }
 
   public List<Study> listStudies(File file) {
+    error = null;
     final String configDir = resolveConfigurationFilesPath();
     importer = new ISAtabFilesImporter(configDir);
     isatabParentDir = file.toString();
@@ -91,6 +93,7 @@ public class ISAReader implements IExperimentalDesignReader {
     for (ISAFileErrorReport report : importer.getMessages()) {
       // System.out.println(report.getFileName());
       for (ErrorMessage message : report.getMessages()) {
+        error = message.getMessage();
         log.error(message.getErrorLevel().toString() + " > " + message.getMessage());
       }
     }
@@ -541,6 +544,7 @@ public class ISAReader implements IExperimentalDesignReader {
         metadata.put("Factors", factors);
         eSample = new TSVSampleBean(sampleID, "Q_BIOLOGICAL_SAMPLE", sampleID, metadata);
         eSample.addProperty("Q_PRIMARY_TISSUE", tissue);
+        eSample.addProperty("Q_EXTERNALDB_ID", sampleID);
         sampleIDToSample.put(sampleID, eSample);
         eSample.addParentID(sourceID);
 
@@ -551,6 +555,7 @@ public class ISAReader implements IExperimentalDesignReader {
         metadata.put("Factors", new ArrayList<Property>());
         sSample = new TSVSampleBean(sourceID, "Q_BIOLOGICAL_ENTITY", sourceID, metadata);
         sSample.addProperty("Q_NCBI_ORGANISM", organism);
+        sSample.addProperty("Q_EXTERNALDB_ID", sourceID);
         sourceIDToSample.put(sourceID, sSample);
       }
     }
@@ -582,6 +587,7 @@ public class ISAReader implements IExperimentalDesignReader {
         TSVSampleBean tSample = new TSVSampleBean(extractID, "Q_TEST_SAMPLE", extractID, metadata);
 
         tSample.addProperty("Q_SAMPLE_TYPE", analyte);
+        tSample.addProperty("Q_EXTERNALDB_ID", extractID);
         analyteIDToSample.put(extractID, tSample);
         tSample.addParentID(sampleID);
 
