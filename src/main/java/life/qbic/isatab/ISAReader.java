@@ -12,7 +12,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 import javax.xml.bind.JAXBException;
 
@@ -28,6 +27,7 @@ import org.isatools.isacreator.model.Study;
 import life.qbic.datamodel.samples.ISampleBean;
 import life.qbic.datamodel.samples.SampleSummary;
 import life.qbic.datamodel.samples.TSVSampleBean;
+import life.qbic.expdesign.ParserHelpers;
 import life.qbic.expdesign.SamplePreparator;
 import life.qbic.expdesign.io.IExperimentalDesignReader;
 import life.qbic.expdesign.model.StructuredExperiment;
@@ -276,19 +276,6 @@ public class ISAReader implements IExperimentalDesignReader {
         "Required configuration files were not found at any of the default folders.");
   }
 
-  private String factorNameForXML(String label, boolean validate) {
-    Pattern p = Pattern.compile("([a-z]+_?[a-z]*)+([a-z]|[0-9]*)");
-    if (!validate || p.matcher(label).matches())
-      return label;
-
-    label = label.trim();
-    label = label.replace(" ", "_");
-    char first = label.charAt(0);
-    if (Character.isDigit(first))
-      label = label.replaceFirst(Character.toString(first), "factor_" + first);
-    return label;
-  }
-
   private int findStudyColumnID(Study study, String label) {
     Object[][] matrix = study.getStudySampleDataMatrix();
     for (int j = 0; j < matrix[0].length; j++) {
@@ -508,6 +495,7 @@ public class ISAReader implements IExperimentalDesignReader {
       Set<String> unknownUnits = new HashSet<String>();
       for (String factorLabel : nodesForFactorPerLabel.keySet()) {
         String colLabel = "Factor Value[" + factorLabel + "]";
+        factorLabel = ParserHelpers.factorNameForXML(factorLabel);
         int factorCol = findStudyColumnID(study, colLabel);
         if (factorCol != -1) {
           Property factor = null;
@@ -603,9 +591,7 @@ public class ISAReader implements IExperimentalDesignReader {
 
     Map<String, List<SampleSummary>> nodeListsPerLabel = new HashMap<String, List<SampleSummary>>();
     for (String label : nodesForFactorPerLabel.keySet()) {
-      // needed to register experiment at qbic
-      String newLabel = factorNameForXML(label, true);
-      nodeListsPerLabel.put(newLabel,
+      nodeListsPerLabel.put(label,
           new ArrayList<SampleSummary>(nodesForFactorPerLabel.get(label)));
     }
     currentGraphStructure = new StructuredExperiment(nodeListsPerLabel, study);

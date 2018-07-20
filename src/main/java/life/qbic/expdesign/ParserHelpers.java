@@ -90,4 +90,22 @@ public class ParserHelpers {
     }
     metadata.remove("XML_LOCI");
   }
+  
+  /**
+   * checks if a string matches the xml schema for properties factor labels, changes it otherwise
+   * @param label A String to be used as factor label in the properties xml
+   * @return the label if it matches, a similar, matching label, otherwise
+   */
+  public static String factorNameForXML(String label) {
+    Pattern p = Pattern.compile("([a-z]+_?[a-z]*)+([a-z]|[0-9]*)");
+    if (p.matcher(label).matches())
+      return label;
+
+    label = label.trim();
+    label = label.replace(" ", "_");
+    char first = label.charAt(0);
+    if (Character.isDigit(first))
+      label = label.replaceFirst(Character.toString(first), "factor_" + first);
+    return label;
+  }
 }
