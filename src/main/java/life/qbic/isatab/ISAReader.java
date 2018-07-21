@@ -71,45 +71,13 @@ public class ISAReader implements IExperimentalDesignReader {
     this.selectedStudy = study;
   }
 
-//  public static void main(String[] args) throws IOException, JAXBException {
-//    ISAReader i = new ISAReader();
-//    // i.createAllGraphs(new File("/Users/frieda/Downloads/isatab"));
-//    File test = new File("/Users/frieda/Downloads/BII-I-1/i");
-//    List<Study> studies = i.listStudies(test);
-//    System.out.println(i.getError());
-//    if (studies.size() > 0) {
-//      i.selectStudyToParse(studies.get(0).getStudyId());
-//      SamplePreparator prep = new SamplePreparator();
-//      if (!prep.processTSV(test, i, true))
-//        System.out.println(prep.getError());
-//    }
-//
-//    i = new ISAReader();
-//    // i.createAllGraphs(new File("/Users/frieda/Downloads/isatab"));
-//    test = new File("/Users/frieda/Downloads/BII-I-1/a");
-//    studies = i.listStudies(test);
-//    System.out.println(i.getError());
-//    if (studies.size() > 0) {
-//
-//      i.selectStudyToParse(studies.get(0).getStudyId());
-//      SamplePreparator prep = new SamplePreparator();
-//      if (!prep.processTSV(test, i, true))
-//        System.out.println(prep.getError());
-//    }
-//
-//    i = new ISAReader();
-//    // i.createAllGraphs(new File("/Users/frieda/Downloads/isatab"));
-//    test = new File("/Users/frieda/Downloads/BII-I-1/s");
-//    studies = i.listStudies(test);
-//    System.out.println(i.getError());
-//    if (studies.size() > 0) {
-//
-//      i.selectStudyToParse(studies.get(0).getStudyId());
-//      SamplePreparator prep = new SamplePreparator();
-//      if (!prep.processTSV(test, i, true))
-//        System.out.println(prep.getError());
-//    }
-//  }
+  public static void main(String[] args) throws IOException, JAXBException {
+    ISAReader i = new ISAReader();
+    // i.createAllGraphs(new File("/Users/frieda/Downloads/isatab"));
+    File test = new File("/Users/frieda/Downloads/BII-I-1/");
+    i.createAllGraphs(test);
+    System.out.println(i.getGraphsByStudy());
+  }
 
   public List<Study> listStudies(File file) {
     error = null;
@@ -362,7 +330,7 @@ public class ISAReader implements IExperimentalDesignReader {
   }
 
   private void createGraphSummariesForRow(List<TSVSampleBean> levels, int nodeID) {
-    nodeID *= levels.size();
+//    nodeID *= levels.size();
     // create summary for this each node based on each experimental factor as well as "none"
     for (String label : nodesForFactorPerLabel.keySet()) {
       SampleSummary currentSummary = null;
@@ -374,12 +342,12 @@ public class ISAReader implements IExperimentalDesignReader {
         boolean leaf = levels.size() == next || levels.get(next) == null;
         // sample on this level does exist
         if (s != null) {
-          nodeID++;
+          nodeID = nodeID*next;
           Set<SampleSummary> parentSummaries = new LinkedHashSet<SampleSummary>();
           if (currentSummary != null)
             parentSummaries.add(currentSummary);
           currentSummary = createNodeSummary(s, parentSummaries, label, nodeID, leaf);
-          // check for hashcode and add current sample s if node exists
+          // check for hashcode and add current sample s if node exists and doesn't contain code yet
           boolean exists = false;
           for (SampleSummary oldNode : nodesForFactorPerLabel.get(label)) {
             if (oldNode.equals(currentSummary)) {
@@ -459,10 +427,6 @@ public class ISAReader implements IExperimentalDesignReader {
         source = (String) props.get("Q_SAMPLE_TYPE");
         value = source + " " + value;
         break;
-      // case "Q_MHC_LIGAND_EXTRACT":
-      // source = (String) props.get("Q_MHC_CLASS");
-      // value = source;
-      // break;
     }
     return new SampleSummary(currentID, parentIDs, new ArrayList<ISampleBean>(Arrays.asList(s)),
         factor.getValue(), tryShortenName(value, s).trim(), type, leaf);

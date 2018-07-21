@@ -418,7 +418,6 @@ public class EasyDesignReader implements IExperimentalDesignReader {
 
   private void createGraphSummariesForRow(List<TSVSampleBean> levels, int nodeID)
       throws JAXBException {
-    nodeID *= levels.size();
     // create summary for this each node based on each experimental factor as well as "none"
     for (String label : nodesForFactorPerLabel.keySet()) {
       SampleSummary currentSummary = null;
@@ -430,7 +429,7 @@ public class EasyDesignReader implements IExperimentalDesignReader {
         boolean leaf = levels.size() == next || levels.get(next) == null;
         // sample on this level does exist
         if (s != null) {
-          nodeID++;
+          nodeID = nodeID*next;
           Set<SampleSummary> parentSummaries = new LinkedHashSet<SampleSummary>();
           if (currentSummary != null)
             parentSummaries.add(currentSummary);

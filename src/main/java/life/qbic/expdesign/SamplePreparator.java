@@ -56,24 +56,6 @@ public class SamplePreparator {
   public boolean processTSV(File file, IExperimentalDesignReader reader, boolean parseGraph)
       throws IOException, JAXBException {
     this.reader = reader;
-//    switch (designType) {
-//      case QBIC:
-//        reader = new QBiCDesignReader();
-//        break;
-//      case Standard:
-//        reader = new EasyDesignReader();
-//        int size = reader.countEntities(file);
-//        //TODO figure something out
-//        if(size > 300)
-//          parseGraph = false;
-//        break;
-//      case MHC_Ligands_Finished:
-//        reader = new MHCLigandDesignReader();
-//      case ISA:
-//        reader = new ISAReader();
-//      default:
-//        break;
-//    }
 
     List<ISampleBean> rawSamps = reader.readSamples(file, parseGraph);
     if (reader instanceof QBiCDesignReader) {
