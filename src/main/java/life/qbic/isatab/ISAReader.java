@@ -342,7 +342,7 @@ public class ISAReader implements IExperimentalDesignReader {
         boolean leaf = levels.size() == next || levels.get(next) == null;
         // sample on this level does exist
         if (s != null) {
-          nodeID = nodeID*next;
+          nodeID = nodeID*next+1;
           Set<SampleSummary> parentSummaries = new LinkedHashSet<SampleSummary>();
           if (currentSummary != null)
             parentSummaries.add(currentSummary);

@@ -78,10 +78,11 @@ public class EasyDesignReader implements IExperimentalDesignReader {
   public static void main(String[] args) throws JAXBException {
     try {
       SamplePreparator p = new SamplePreparator();
-      p.processTSV(new File("/Users/frieda/Downloads/BiglistTest.tsv"),
-          new EasyDesignReader(), false);
+      p.processTSV(new File("/Users/frieda/git/experiment-graph-gui/sample-files/qbic_design_sample.tsv"),
+          new EasyDesignReader(), true);
+      System.out.println(p.getSampleGraph());
       System.out.println(p.getSummary());
-      // System.out.println(p.getProcessed());
+       System.out.println(p.getProcessed());
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -429,7 +430,7 @@ public class EasyDesignReader implements IExperimentalDesignReader {
         boolean leaf = levels.size() == next || levels.get(next) == null;
         // sample on this level does exist
         if (s != null) {
-          nodeID = nodeID*next;
+          nodeID = nodeID*next+1;
           Set<SampleSummary> parentSummaries = new LinkedHashSet<SampleSummary>();
           if (currentSummary != null)
             parentSummaries.add(currentSummary);
