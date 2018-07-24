@@ -10,7 +10,7 @@
 
 	<artifactId>experimental-design-lib</artifactId>
 	<packaging>jar</packaging>
-	<version>0.10.2</version>
+	<version>0.10.2-SNAPSHOT</version>
 	<name>Experimental Design Library</name>
 	<url>http://maven.apache.org</url>
 
