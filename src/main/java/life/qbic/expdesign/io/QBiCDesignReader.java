@@ -71,19 +71,7 @@ public class QBiCDesignReader implements IExperimentalDesignReader {
   public String getSecondaryName() {
     return secondaryName;
   }
-
-  public static void main(String[] args) throws JAXBException {
-    try {
-      SamplePreparator p = new SamplePreparator();
-      p.processTSV(new File("/Users/frieda/Downloads/Internal_QBiC_Format.tsv"),
-          ExperimentalDesignType.QBIC, false);
-      System.out.println(p.getSummary());
-    } catch (IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
-  }
-
+  
   public static final String UTF8_BOM = "\uFEFF";
 
   private static String removeUTF8BOM(String s) {
