@@ -25,11 +25,11 @@ import life.qbic.xml.properties.Unit;
  */
 public class ParserHelpers {
 
+  private static final Pattern colon = Pattern.compile(":");
+  private static final Pattern semicolon = Pattern.compile(";");
+  private static final Pattern whitespace = Pattern.compile(" ");
+  
   public static void fixXMLProps(Map<String, Object> metadata) {
-    final Pattern colon = Pattern.compile(":");
-    final Pattern semicolon = Pattern.compile(";");
-    final Pattern whitespace = Pattern.compile(" ");
-    
     XMLParser p = new XMLParser();
     LociParser lp = new LociParser();
     List<Property> factors = new ArrayList<Property>();
