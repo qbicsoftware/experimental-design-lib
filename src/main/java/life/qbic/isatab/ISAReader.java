@@ -27,7 +27,7 @@ import org.isatools.isacreator.model.Study;
 import life.qbic.datamodel.samples.ISampleBean;
 import life.qbic.datamodel.samples.SampleSummary;
 import life.qbic.datamodel.samples.TSVSampleBean;
-import life.qbic.expdesign.ParserHelpers;
+import life.qbic.expdesign.SamplePreparator;
 import life.qbic.expdesign.io.IExperimentalDesignReader;
 import life.qbic.expdesign.model.StructuredExperiment;
 import life.qbic.xml.properties.Property;
@@ -85,11 +85,15 @@ public class ISAReader implements IExperimentalDesignReader {
   }
 
   public static void main(String[] args) throws IOException, JAXBException {
+    SamplePreparator p = new SamplePreparator();
     ISAReader i = new ISAReader();
-    // i.createAllGraphs(new File("/Users/frieda/Downloads/isatab"));
     File test = new File("/Users/frieda/Downloads/BII-I-1/");
+    i.selectStudyToParse(i.listStudies(test).get(0).getStudyId());
+    p.processTSV(test, i, true);
+
+    // i.createAllGraphs(new File("/Users/frieda/Downloads/isatab"));
+
     i.createAllGraphs(test);
-    System.out.println(i.getGraphsByStudy());
   }
 
   public List<Study> listStudies(File file) {
@@ -167,9 +171,6 @@ public class ISAReader implements IExperimentalDesignReader {
 
       for (Factor factor : study.getFactors()) {
         String label = factor.getFactorName();
-        // String colLabel = "Factor Value[" + label + "]";
-        // label = factorNameForXML(label, validateForDataModel); needed to register experiment at
-        // qbic
         nodesForFactorPerLabel.put(label, new LinkedHashSet<SampleSummary>());
       }
       nodesForFactorPerLabel.put("None", new LinkedHashSet<SampleSummary>());
@@ -260,8 +261,8 @@ public class ISAReader implements IExperimentalDesignReader {
             extractID = extractID + "-" + (String) assayMatrix[rowID][assayExtractIDCol];
           }
           TSVSampleBean eSample = sampleIDToSample.get(sampleID);
-          Map<String, Object> metadata = eSample.getMetadata();
-          // metadata.put("Factors", new ArrayList<Property>());
+          Map<String, Object> metadata = new HashMap<String,Object>();
+          metadata.put("Factors", eSample.getMetadata().get("Factors"));
           TSVSampleBean tSample =
               new TSVSampleBean(extractID, "Q_TEST_SAMPLE", extractID, metadata);
 
@@ -522,7 +523,6 @@ public class ISAReader implements IExperimentalDesignReader {
       Set<String> unknownUnits = new HashSet<String>();
       for (String factorLabel : nodesForFactorPerLabel.keySet()) {
         String colLabel = "Factor Value[" + factorLabel + "]";
-        factorLabel = ParserHelpers.factorNameForXML(factorLabel);
         int factorCol = findStudyColumnID(study, colLabel);
         if (factorCol != -1) {
           Property factor = null;
@@ -597,7 +597,7 @@ public class ISAReader implements IExperimentalDesignReader {
           extractID = extractID + "-" + (String) assayMatrix[rowID][assayExtractIDCol];
         }
         TSVSampleBean eSample = sampleIDToSample.get(sampleID);
-        Map<String, Object> metadata = new HashMap<String, Object>();
+        Map<String, Object> metadata = new HashMap<String,Object>();
         metadata.put("Factors", eSample.getMetadata().get("Factors"));
 
         TSVSampleBean tSample = new TSVSampleBean(extractID, "Q_TEST_SAMPLE", extractID, metadata);
