@@ -28,7 +28,6 @@ import life.qbic.datamodel.samples.ISampleBean;
 import life.qbic.datamodel.samples.SampleSummary;
 import life.qbic.datamodel.samples.TSVSampleBean;
 import life.qbic.expdesign.ParserHelpers;
-import life.qbic.expdesign.SamplePreparator;
 import life.qbic.expdesign.io.IExperimentalDesignReader;
 import life.qbic.expdesign.model.StructuredExperiment;
 import life.qbic.xml.properties.Property;
@@ -54,6 +53,20 @@ public class ISAReader implements IExperimentalDesignReader {
   private Set<String> tissueSet;
   private Set<String> analyteSet;
   private String error;
+  private String CONFIG_PATH;
+  
+  /**
+   * Creates a new Reader using the Config at the given path
+   * @param ISAConfigPath Path to the ISA config
+   */
+  public ISAReader(String ISAConfigPath) {
+    CONFIG_PATH = ISAConfigPath;
+  }
+  
+  /**
+   * Creates a new Reader, expects ISA config in one of the default paths
+   */
+  public ISAReader() {}
 
   private String getAnalyteFromMeasureEndpoint(String technologyType) {
     return KeywordTranslator.getQBiCKeyword(technologyType);
@@ -278,6 +291,8 @@ public class ISAReader implements IExperimentalDesignReader {
   }
 
   private String resolveConfigurationFilesPath() {
+    if(CONFIG_PATH!=null)
+      return CONFIG_PATH;
     for (int i = 0; i < DEFAULT_CONFIG_PATHS.length; i++) {
       final File possibleConfigFolder = DEFAULT_CONFIG_PATHS[i].toFile();
       if (possibleConfigFolder.exists() && possibleConfigFolder.isDirectory()) {
