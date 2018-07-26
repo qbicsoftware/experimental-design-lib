@@ -23,6 +23,7 @@ import life.qbic.datamodel.samples.SampleSummary;
 import life.qbic.datamodel.samples.TSVSampleBean;
 import life.qbic.expdesign.SamplePreparator;
 import life.qbic.expdesign.model.ExperimentalDesignType;
+import life.qbic.expdesign.model.StructuredExperiment;
 import life.qbic.xml.properties.Unit;
 
 public class QBiCDesignReader implements IExperimentalDesignReader {
@@ -71,7 +72,7 @@ public class QBiCDesignReader implements IExperimentalDesignReader {
   public String getSecondaryName() {
     return secondaryName;
   }
-  
+
   public static final String UTF8_BOM = "\uFEFF";
 
   private static String removeUTF8BOM(String s) {
@@ -498,7 +499,7 @@ public class QBiCDesignReader implements IExperimentalDesignReader {
   }
 
   @Override
-  public Map<String, List<SampleSummary>> getSampleGraphNodes() {
+  public StructuredExperiment getGraphStructure() {
     // TODO Auto-generated method stub
     return null;
   }

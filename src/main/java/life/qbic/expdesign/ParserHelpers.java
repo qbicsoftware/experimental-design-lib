@@ -25,14 +25,32 @@ import life.qbic.xml.properties.Unit;
  */
 public class ParserHelpers {
 
+  private static final Pattern colon = Pattern.compile(":");
+  private static final Pattern semicolon = Pattern.compile(";");
+  private static final Pattern whitespace = Pattern.compile(" ");
+
   public static void fixXMLProps(Map<String, Object> metadata) {
-    final Pattern colon = Pattern.compile(":");
-    final Pattern semicolon = Pattern.compile(";");
-    final Pattern whitespace = Pattern.compile(" ");
-    
     XMLParser p = new XMLParser();
     LociParser lp = new LociParser();
     List<Property> factors = new ArrayList<Property>();
+
+    if (metadata.get("Factors") != null) {
+      for (Property f : (List<Property>) metadata.get("Factors")) {
+        String factorLabel = factorNameForXML(f.getLabel());
+        if (f.hasUnit())
+          factors.add(new Property(factorLabel, f.getValue(), f.getUnit(), f.getType()));
+        else
+          factors.add(new Property(factorLabel, f.getValue(), f.getType()));
+      }
+      try {
+        metadata.put("Q_PROPERTIES", p.toString(p.createXMLFromProperties(factors)));
+      } catch (JAXBException e) {
+        e.printStackTrace();
+      }
+      factors = new ArrayList<Property>();
+    }
+    metadata.remove("Factors");
+
     if (metadata.get("XML_FACTORS") != null) {
       String[] fStrings = semicolon.split((String) metadata.get("XML_FACTORS"));
       for (String factor : fStrings) {
@@ -77,5 +95,24 @@ public class ParserHelpers {
       }
     }
     metadata.remove("XML_LOCI");
+  }
+
+  /**
+   * checks if a string matches the xml schema for properties factor labels, changes it otherwise
+   * 
+   * @param label A String to be used as factor label in the properties xml
+   * @return the label if it matches, a similar, matching label, otherwise
+   */
+  public static String factorNameForXML(String label) {
+    Pattern p = Pattern.compile("([a-z]+_?[a-z]*)+([a-z]|[0-9]*)");
+    if (p.matcher(label).matches())
+      return label;
+
+    label = label.trim();
+    label = label.replace(" ", "_");
+    char first = label.charAt(0);
+    if (Character.isDigit(first))
+      label = label.replaceFirst(Character.toString(first), "factor_" + first);
+    return label;
   }
 }

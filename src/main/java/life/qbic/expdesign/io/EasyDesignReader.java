@@ -24,6 +24,7 @@ import life.qbic.datamodel.samples.TSVSampleBean;
 import life.qbic.expdesign.ParserHelpers;
 import life.qbic.expdesign.SamplePreparator;
 import life.qbic.expdesign.model.ExperimentalDesignType;
+import life.qbic.expdesign.model.StructuredExperiment;
 import life.qbic.xml.manager.XMLParser;
 import life.qbic.xml.properties.Property;
 import life.qbic.xml.properties.PropertyType;
@@ -77,10 +78,11 @@ public class EasyDesignReader implements IExperimentalDesignReader {
   public static void main(String[] args) throws JAXBException {
     try {
       SamplePreparator p = new SamplePreparator();
-      p.processTSV(new File("/Users/frieda/Downloads/BiglistTest.tsv"),
-          ExperimentalDesignType.Standard, false);
+      p.processTSV(new File("/Users/frieda/git/experiment-graph-gui/sample-files/qbic_design_sample.tsv"),
+          new EasyDesignReader(), true);
+      System.out.println(p.getSampleGraph());
       System.out.println(p.getSummary());
-      // System.out.println(p.getProcessed());
+       System.out.println(p.getProcessed());
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -417,7 +419,6 @@ public class EasyDesignReader implements IExperimentalDesignReader {
 
   private void createGraphSummariesForRow(List<TSVSampleBean> levels, int nodeID)
       throws JAXBException {
-    nodeID *= levels.size();
     // create summary for this each node based on each experimental factor as well as "none"
     for (String label : nodesForFactorPerLabel.keySet()) {
       SampleSummary currentSummary = null;
@@ -429,7 +430,7 @@ public class EasyDesignReader implements IExperimentalDesignReader {
         boolean leaf = levels.size() == next || levels.get(next) == null;
         // sample on this level does exist
         if (s != null) {
-          nodeID++;
+          nodeID = nodeID*next+1;
           Set<SampleSummary> parentSummaries = new LinkedHashSet<SampleSummary>();
           if (currentSummary != null)
             parentSummaries.add(currentSummary);
@@ -460,13 +461,13 @@ public class EasyDesignReader implements IExperimentalDesignReader {
   }
 
   @Override
-  public Map<String, List<SampleSummary>> getSampleGraphNodes() {
+  public StructuredExperiment getGraphStructure() {
     Map<String, List<SampleSummary>> factorsToSamples = new HashMap<String, List<SampleSummary>>();
     for (String label : nodesForFactorPerLabel.keySet()) {
       Set<SampleSummary> nodes = nodesForFactorPerLabel.get(label);
       factorsToSamples.put(label, new ArrayList<SampleSummary>(nodes));
     }
-    return factorsToSamples;
+    return new StructuredExperiment(factorsToSamples);
   }
 
   public Set<String> getSpeciesSet() {
@@ -573,21 +574,6 @@ public class EasyDesignReader implements IExperimentalDesignReader {
     return key;
   }
 
-  // private String shortenInfo(String info) {
-  // switch (info) {
-  // case "CARBOHYDRATES":
-  // return "Carbohydrates";
-  // case "SMALLMOLECULES":
-  // return "Smallmolecules";
-  // case "DNA":
-  // return "DNA";
-  // case "RNA":
-  // return "RNA";
-  // default:
-  // return WordUtils.capitalizeFully(info.replace("_", " "));
-  // }
-  // }
-
   private boolean checkUniqueIDsBetweenSets(Set<String> speciesSet, Set<String> tissueSet,
       Set<String> analyteSet) {
     Set<String> intersection1 = new HashSet<String>(speciesSet);
@@ -647,18 +633,6 @@ public class EasyDesignReader implements IExperimentalDesignReader {
     label = label.substring(0, label.indexOf("]"));
     return label;
   }
-
-  // private String trySplitMetadata(String line, String keyword) {
-  // try {
-  // return line.split(keyword)[1].trim();
-  // } catch (ArrayIndexOutOfBoundsException e) {
-  // return "";
-  // }
-  // }
-  //
-  // private String replaceSpecials(String s) {
-  // return s.replace("%%%", "#").replace(">>>", "=");
-  // }
 
   private HashMap<String, Object> fillMetadata(String[] header, String[] data, List<Integer> meta,
       Set<Integer> factors, List<Integer> loci, String sampleType) {

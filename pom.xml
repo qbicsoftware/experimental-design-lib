@@ -10,7 +10,7 @@
 
 	<artifactId>experimental-design-lib</artifactId>
 	<packaging>jar</packaging>
-	<version>0.10.2</version>
+	<version>0.11.0</version>
 	<name>Experimental Design Library</name>
 	<url>http://maven.apache.org</url>
 
@@ -18,7 +18,7 @@
 		<dependency>
 			<groupId>life.qbic</groupId>
 			<artifactId>data-model-lib</artifactId>
-			<version>0.2.2</version>
+			<version>0.2.3</version>
 		</dependency>
 		<dependency>
 			<groupId>life.qbic</groupId>

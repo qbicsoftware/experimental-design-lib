@@ -10,6 +10,7 @@ import javax.xml.bind.JAXBException;
 
 import life.qbic.datamodel.samples.ISampleBean;
 import life.qbic.datamodel.samples.SampleSummary;
+import life.qbic.expdesign.model.StructuredExperiment;
 
 public interface IExperimentalDesignReader {
 
@@ -18,13 +19,16 @@ public interface IExperimentalDesignReader {
   String getError();
 
   Map<String, List<Map<String, Object>>> getExperimentInfos();
-  
+
   Set<String> getSpeciesSet();
+
   Set<String> getTissueSet();
+
   Set<String> getAnalyteSet();
+
   List<String> getTSVByRows();
 
-  Map<String, List<SampleSummary>> getSampleGraphNodes();
+  StructuredExperiment getGraphStructure();
 
   int countEntities(File file) throws IOException;
 

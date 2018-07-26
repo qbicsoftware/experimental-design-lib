@@ -27,6 +27,7 @@ import life.qbic.datamodel.samples.SampleSummary;
 import life.qbic.datamodel.samples.TSVSampleBean;
 import life.qbic.expdesign.SamplePreparator;
 import life.qbic.expdesign.model.ExperimentalDesignType;
+import life.qbic.expdesign.model.StructuredExperiment;
 import life.qbic.xml.properties.Unit;
 
 public class MSDesignReader implements IExperimentalDesignReader {
@@ -579,7 +580,7 @@ System.out.println(expIDToLigandExp.keySet());
     try {
       SamplePreparator p = new SamplePreparator();
       p.processTSV(new File("/Users/frieda/Downloads/Ligandosphere_large_example.csv"),
-          ExperimentalDesignType.MHC_Ligands_Finished, false);
+          new MHCLigandDesignReader(), false);
     } catch (IOException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
@@ -726,7 +727,7 @@ System.out.println(expIDToLigandExp.keySet());
   }
 
   @Override
-  public Map<String, List<SampleSummary>> getSampleGraphNodes() {
+  public StructuredExperiment getGraphStructure() {
     // TODO Auto-generated method stub
     return null;
   }
