@@ -25,9 +25,9 @@ import life.qbic.xml.properties.Unit;
  */
 public class ParserHelpers {
 
-  private static final Pattern colon = Pattern.compile(":");
-  private static final Pattern semicolon = Pattern.compile(";");
-  private static final Pattern whitespace = Pattern.compile(" ");
+  private static final Pattern COLON = Pattern.compile(":");
+  private static final Pattern SEMICOLON = Pattern.compile(";");
+  private static final Pattern WHITESPACE = Pattern.compile(" ");
 
   public static void fixXMLProps(Map<String, Object> metadata) {
     XMLParser p = new XMLParser();
@@ -52,13 +52,13 @@ public class ParserHelpers {
     metadata.remove("Factors");
 
     if (metadata.get("XML_FACTORS") != null) {
-      String[] fStrings = semicolon.split((String) metadata.get("XML_FACTORS"));
+      String[] fStrings = SEMICOLON.split((String) metadata.get("XML_FACTORS"));
       for (String factor : fStrings) {
         if (factor.length() > 1) {
-          String[] fields = colon.split(factor);
+          String[] fields = COLON.split(factor);
           for (int i = 0; i < fields.length; i++)
             fields[i] = fields[i].trim();
-          Matcher matcher = whitespace.matcher(fields[0]);
+          Matcher matcher = WHITESPACE.matcher(fields[0]);
           String lab = matcher.replaceAll("");
           String val = fields[1];
           if (fields.length > 2)
