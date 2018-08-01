@@ -54,22 +54,27 @@ public class ISAReader implements IExperimentalDesignReader {
   private Set<String> analyteSet;
   private String error;
   private String CONFIG_PATH;
-  
+  private IKeywordToInterfaceTextMapper mapper;
+
   /**
    * Creates a new Reader using the Config at the given path
+   * 
    * @param ISAConfigPath Path to the ISA config
    */
-  public ISAReader(String ISAConfigPath) {
+  public ISAReader(String ISAConfigPath, IKeywordToInterfaceTextMapper mapper) {
     CONFIG_PATH = ISAConfigPath;
+    this.mapper = mapper;
   }
-  
+
   /**
    * Creates a new Reader, expects ISA config in one of the default paths
    */
-  public ISAReader() {}
+  public ISAReader(IKeywordToInterfaceTextMapper mapper) {
+    this.mapper = mapper;
+  }
 
   private String getAnalyteFromMeasureEndpoint(String technologyType) {
-    return KeywordTranslator.getQBiCKeyword(technologyType);
+    return mapper.translate(technologyType);
   }
 
   public List<StructuredExperiment> getGraphsByStudy() {
@@ -84,17 +89,15 @@ public class ISAReader implements IExperimentalDesignReader {
     this.selectedStudy = study;
   }
 
-  public static void main(String[] args) throws IOException, JAXBException {
-    SamplePreparator p = new SamplePreparator();
-    ISAReader i = new ISAReader();
-    File test = new File("/Users/frieda/Downloads/BII-I-1/");
-    i.selectStudyToParse(i.listStudies(test).get(0).getStudyId());
-    p.processTSV(test, i, true);
-
-    // i.createAllGraphs(new File("/Users/frieda/Downloads/isatab"));
-
-    i.createAllGraphs(test);
-  }
+//  public static void main(String[] args) throws IOException, JAXBException {
+//    SamplePreparator p = new SamplePreparator();
+//    ISAReader i = new ISAReader(new ISAToQBIC());
+//    File test = new File("/Users/frieda/Downloads/BII-I-1/");
+//    i.createAllGraphs(test);
+//
+//    i = new ISAReader(new ISAToReadable()); 
+//    i.createAllGraphs(test);
+//  }
 
   public List<Study> listStudies(File file) {
     error = null;
@@ -183,6 +186,8 @@ public class ISAReader implements IExperimentalDesignReader {
         String tissue = "unspecified organ";
         if (organCol != -1)
           tissue = removeOntologyPrefix((String) matrix[rowID][organCol]);
+        organism = mapper.translate(organism);
+        tissue = mapper.translate(tissue);
         String sourceID = (String) matrix[rowID][sourceCol];
         String sampleID = (String) matrix[rowID][sampleCol];
         List<Property> factors = new ArrayList<Property>();
@@ -261,7 +266,7 @@ public class ISAReader implements IExperimentalDesignReader {
             extractID = extractID + "-" + (String) assayMatrix[rowID][assayExtractIDCol];
           }
           TSVSampleBean eSample = sampleIDToSample.get(sampleID);
-          Map<String, Object> metadata = new HashMap<String,Object>();
+          Map<String, Object> metadata = new HashMap<String, Object>();
           metadata.put("Factors", eSample.getMetadata().get("Factors"));
           TSVSampleBean tSample =
               new TSVSampleBean(extractID, "Q_TEST_SAMPLE", extractID, metadata);
@@ -292,7 +297,7 @@ public class ISAReader implements IExperimentalDesignReader {
   }
 
   private String resolveConfigurationFilesPath() {
-    if(CONFIG_PATH!=null)
+    if (CONFIG_PATH != null)
       return CONFIG_PATH;
     for (int i = 0; i < DEFAULT_CONFIG_PATHS.length; i++) {
       final File possibleConfigFolder = DEFAULT_CONFIG_PATHS[i].toFile();
@@ -346,7 +351,7 @@ public class ISAReader implements IExperimentalDesignReader {
   }
 
   private void createGraphSummariesForRow(List<TSVSampleBean> levels, int nodeID) {
-//    nodeID *= levels.size();
+    // nodeID *= levels.size();
     // create summary for this each node based on each experimental factor as well as "none"
     for (String label : nodesForFactorPerLabel.keySet()) {
       SampleSummary currentSummary = null;
@@ -358,7 +363,7 @@ public class ISAReader implements IExperimentalDesignReader {
         boolean leaf = levels.size() == next || levels.get(next) == null;
         // sample on this level does exist
         if (s != null) {
-          nodeID = nodeID*next+1;
+          nodeID = nodeID * next + 1;
           Set<SampleSummary> parentSummaries = new LinkedHashSet<SampleSummary>();
           if (currentSummary != null)
             parentSummaries.add(currentSummary);
@@ -430,6 +435,8 @@ public class ISAReader implements IExperimentalDesignReader {
       case "Q_BIOLOGICAL_ENTITY":
         source = (String) props.get("Q_NCBI_ORGANISM");
         value = source + " " + value;
+        if(value.isEmpty())
+          value = "unspecified source";
         break;
       case "Q_BIOLOGICAL_SAMPLE":
         source = (String) props.get("Q_PRIMARY_TISSUE");
@@ -438,6 +445,8 @@ public class ISAReader implements IExperimentalDesignReader {
         } else {
           value = source + " " + value;
         }
+        if(value.isEmpty())
+          value = "unspecified extract";
         break;
       case "Q_TEST_SAMPLE":
         source = (String) props.get("Q_SAMPLE_TYPE");
@@ -515,6 +524,8 @@ public class ISAReader implements IExperimentalDesignReader {
       String tissue = "unspecified organ";
       if (organCol != -1)
         tissue = removeOntologyPrefix((String) matrix[rowID][organCol]);
+      organism = mapper.translate(organism);
+      tissue = mapper.translate(tissue);
       speciesSet.add(organism);
       tissueSet.add(tissue);
       String sourceID = (String) matrix[rowID][sourceCol];
@@ -597,7 +608,7 @@ public class ISAReader implements IExperimentalDesignReader {
           extractID = extractID + "-" + (String) assayMatrix[rowID][assayExtractIDCol];
         }
         TSVSampleBean eSample = sampleIDToSample.get(sampleID);
-        Map<String, Object> metadata = new HashMap<String,Object>();
+        Map<String, Object> metadata = new HashMap<String, Object>();
         metadata.put("Factors", eSample.getMetadata().get("Factors"));
 
         TSVSampleBean tSample = new TSVSampleBean(extractID, "Q_TEST_SAMPLE", extractID, metadata);
