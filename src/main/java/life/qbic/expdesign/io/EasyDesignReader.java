@@ -23,7 +23,6 @@ import life.qbic.datamodel.samples.SampleSummary;
 import life.qbic.datamodel.samples.TSVSampleBean;
 import life.qbic.expdesign.ParserHelpers;
 import life.qbic.expdesign.SamplePreparator;
-import life.qbic.expdesign.model.ExperimentalDesignType;
 import life.qbic.expdesign.model.StructuredExperiment;
 import life.qbic.xml.manager.XMLParser;
 import life.qbic.xml.properties.Property;
@@ -78,7 +77,7 @@ public class EasyDesignReader implements IExperimentalDesignReader {
   public static void main(String[] args) throws JAXBException {
     try {
       SamplePreparator p = new SamplePreparator();
-      p.processTSV(new File("/Users/frieda/git/experiment-graph-gui/sample-files/qbic_design_sample.tsv"),
+      p.processTSV(new File("/Users/frieda/Desktop/allmols.txt"),
           new EasyDesignReader(), true);
       System.out.println(p.getSampleGraph());
       System.out.println(p.getSummary());
@@ -205,6 +204,7 @@ public class EasyDesignReader implements IExperimentalDesignReader {
 
     String[] header = data.get(0);
     data.remove(0);
+    int rowCount = data.size();
     // find out where the mandatory and other metadata data is
     Map<String, Integer> headerMapping = new HashMap<String, Integer>();
     List<Integer> meta = new ArrayList<Integer>();
@@ -394,7 +394,7 @@ public class EasyDesignReader implements IExperimentalDesignReader {
               Arrays.asList(sourceIDToSample.get(sourceID), extractIDToSample.get(extractID)));
           if (analytesIncluded)
             sampleRow.add(analyteIDToSample.get(analyteID));
-          createGraphSummariesForRow(sampleRow, new Integer(rowID));
+          createGraphSummariesForRow(sampleRow, new Integer(rowID), rowCount);
         }
       }
       // }
@@ -417,7 +417,7 @@ public class EasyDesignReader implements IExperimentalDesignReader {
         .replace("Property: ", "");
   }
 
-  private void createGraphSummariesForRow(List<TSVSampleBean> levels, int nodeID)
+  private void createGraphSummariesForRow(List<TSVSampleBean> levels, int rowID, int rowCount)
       throws JAXBException {
     // create summary for this each node based on each experimental factor as well as "none"
     for (String label : nodesForFactorPerLabel.keySet()) {
@@ -430,11 +430,12 @@ public class EasyDesignReader implements IExperimentalDesignReader {
         boolean leaf = levels.size() == next || levels.get(next) == null;
         // sample on this level does exist
         if (s != null) {
-          nodeID = nodeID*next+1;
+          // there can be rowCount number of entities/samples in each tier, so we offset the ID for each level by that much
+          int locNodeID = rowID+(rowCount*level);
           Set<SampleSummary> parentSummaries = new LinkedHashSet<SampleSummary>();
           if (currentSummary != null)
             parentSummaries.add(currentSummary);
-          currentSummary = createNodeSummary(s, parentSummaries, label, nodeID, leaf);
+          currentSummary = createNodeSummary(s, parentSummaries, label, locNodeID, leaf);
           // check for hashcode and add current sample s if node exists
           boolean exists = false;
           for (SampleSummary oldNode : nodesForFactorPerLabel.get(label)) {
