@@ -2,17 +2,17 @@ package life.qbic.expdesign;
 
 import life.qbic.datamodel.projects.ProjectInfo;
 import life.qbic.datamodel.samples.ISampleBean;
-import life.qbic.expdesign.io.EasyDesignReader;
 import life.qbic.expdesign.io.IExperimentalDesignReader;
-import life.qbic.expdesign.io.MHCLigandDesignReader;
 import life.qbic.expdesign.io.QBiCDesignReader;
-import life.qbic.expdesign.model.ExperimentalDesignType;
 import life.qbic.expdesign.model.SampleSummaryBean;
 import life.qbic.expdesign.model.StructuredExperiment;
 import life.qbic.isatab.ISAReader;
+import life.qbic.isatab.ISAToQBIC;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -33,10 +33,27 @@ public class SamplePreparator {
   private ArrayList<SampleSummaryBean> summary;
   private ProjectInfo projectinfo;
   private Map<String, ISampleBean> idsToSamples;
+  private String experimentalDesignXML;
 
   public SamplePreparator() {
     processed = new ArrayList<List<ISampleBean>>();
     summary = new ArrayList<SampleSummaryBean>();
+  }
+  
+  public static void main(String[] args) throws IOException, JAXBException {
+    SamplePreparator p = new SamplePreparator();
+    
+    Instant start = Instant.now();
+    ISAReader i = new ISAReader(new ISAToQBIC());
+    File f = new File("/Users/frieda/Downloads/BII-I-1/");
+    i.selectStudyToParse(i.listStudies(f).get(1).getStudyId());
+    p.processTSV(f, i, false);
+
+    
+    Instant end = Instant.now();
+    System.out.println(Duration.between(start, end));
+    System.out.println(p.getSummary());
+
   }
 
   public List<String> getOriginalTSV() {
@@ -70,10 +87,12 @@ public class SamplePreparator {
     // beans
     Map<String, List<ISampleBean>> sampleToChildrenMap = new HashMap<String, List<ISampleBean>>();
     idsToSamples = new HashMap<String, ISampleBean>();
+    List<String> techTypes = reader.getTechnologyTypes();
+    experimentalDesignXML = ParserHelpers.samplesWithMetadataToDesignXML(rawSamps, techTypes);
     for (ISampleBean b : rawSamps) {
       idsToSamples.put(b.getCode(), b);
       // translate tsv presentation of special metadata to xml
-      ParserHelpers.fixXMLProps(b.getMetadata());
+//      ParserHelpers.fixXMLProps(b.getMetadata());
 
       // fill children map
       for (String parent : b.getParentIDs()) {
@@ -320,6 +339,10 @@ public class SamplePreparator {
 
   public Map<String, ISampleBean> getIDsToSamples() {
     return idsToSamples;
+  }
+  
+  public String getExperimentalDesignXML() {
+    return experimentalDesignXML;
   }
   
 }

@@ -13,8 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.xml.bind.JAXBException;
-
 import org.apache.log4j.Logger;
 import org.isatools.errorreporter.model.ErrorMessage;
 import org.isatools.errorreporter.model.ISAFileErrorReport;
@@ -27,7 +25,6 @@ import org.isatools.isacreator.model.Study;
 import life.qbic.datamodel.samples.ISampleBean;
 import life.qbic.datamodel.samples.SampleSummary;
 import life.qbic.datamodel.samples.TSVSampleBean;
-import life.qbic.expdesign.SamplePreparator;
 import life.qbic.expdesign.io.IExperimentalDesignReader;
 import life.qbic.expdesign.model.StructuredExperiment;
 import life.qbic.xml.properties.Property;
@@ -46,6 +43,7 @@ public class ISAReader implements IExperimentalDesignReader {
   private HashMap<String, Set<SampleSummary>> nodesForFactorPerLabel;
   private List<StructuredExperiment> graphsByStudy;
   private StructuredExperiment currentGraphStructure;
+  private Set<String> technologyTypes;
   private Investigation investigation;
   private String selectedStudy;
   private List<String> datasetTSV;
@@ -104,8 +102,12 @@ public class ISAReader implements IExperimentalDesignReader {
     final String configDir = resolveConfigurationFilesPath();
     importer = new ISAtabFilesImporter(configDir);
     isatabParentDir = file.toString();
-    importer.importFile(isatabParentDir);
-    investigation = importer.getInvestigation();
+    try {
+      importer.importFile(isatabParentDir);
+      investigation = importer.getInvestigation();
+    } catch (NullPointerException e) {
+      error = "Investigation file not found or not the right format.";
+    }
 
     for (ISAFileErrorReport report : importer.getMessages()) {
       for (ErrorMessage message : report.getMessages()) {
@@ -476,12 +478,13 @@ public class ISAReader implements IExperimentalDesignReader {
 
   @Override
   public List<ISampleBean> readSamples(File file, boolean parseGraph)
-      throws IOException, JAXBException {
+      throws IOException {
     log.debug("reading samples of selected study " + selectedStudy);
     List<ISampleBean> res = new ArrayList<ISampleBean>();
     speciesSet = new HashSet<String>();
     tissueSet = new HashSet<String>();
     analyteSet = new HashSet<String>();
+    technologyTypes = new HashSet<String>();
 
     final String configDir = resolveConfigurationFilesPath();
 
@@ -596,6 +599,7 @@ public class ISAReader implements IExperimentalDesignReader {
       int assayExtractIDCol = findAssayColumnID(assay, "Extract Name");
       // Analyte
       String endpoint = assay.getMeasurementEndpoint();
+      technologyTypes.add(endpoint);
       String analyte = getAnalyteFromMeasureEndpoint(endpoint);
       analyteSet.add(analyte);
 
@@ -672,5 +676,10 @@ public class ISAReader implements IExperimentalDesignReader {
   @Override
   public List<String> getTSVByRows() {
     return datasetTSV;
+  }
+
+  @Override
+  public List<String> getTechnologyTypes() {
+    return new ArrayList<String>(technologyTypes);
   }
 }

@@ -32,4 +32,6 @@ public interface IExperimentalDesignReader {
 
   int countEntities(File file) throws IOException;
 
+  List<String> getTechnologyTypes();
+
 }

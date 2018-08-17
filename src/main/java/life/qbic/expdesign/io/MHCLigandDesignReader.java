@@ -702,7 +702,12 @@ public class MHCLigandDesignReader implements IExperimentalDesignReader {
   @Override
   public int countEntities(File file) throws IOException {
     // TODO Auto-generated method stub
-    return 0;
+    return -1;
+  }
+
+  @Override
+  public List<String> getTechnologyTypes() {
+    return new ArrayList<String>(Arrays.asList("Ligandomics", "HLA Typing"));
   }
 
 }

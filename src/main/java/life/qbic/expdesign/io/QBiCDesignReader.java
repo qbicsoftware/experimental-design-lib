@@ -12,17 +12,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.xml.bind.JAXBException;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import life.qbic.datamodel.identifiers.SampleCodeFunctions;
 import life.qbic.datamodel.samples.ISampleBean;
-import life.qbic.datamodel.samples.SampleSummary;
 import life.qbic.datamodel.samples.TSVSampleBean;
-import life.qbic.expdesign.SamplePreparator;
-import life.qbic.expdesign.model.ExperimentalDesignType;
 import life.qbic.expdesign.model.StructuredExperiment;
 import life.qbic.xml.properties.Unit;
 
@@ -50,6 +45,23 @@ public class QBiCDesignReader implements IExperimentalDesignReader {
   private String project;
   private Map<String, List<Map<String, Object>>> experimentInfos;
   private List<String> tsvByRows;
+  private Set<String> technologyTypes;
+  private final Map<String, String> typeToTechnology = new HashMap<String, String>() {
+    {
+      put("CARBOHYDRATES", "Metabolite Profiling");
+      put("SMALLMOLECULES", "Metabolite Profiling");
+      put("LIPIDS", "Lipidomics");
+      put("M_RNA", "mRNA Profiling");
+      put("PEPTIDES", "Peptidomics");
+      put("PHOSPHOLIPIDS", "Lipidomics");
+      put("PHOSPHOPEPTIDES", "Peptidomics");
+      put("PHOSPHOPROTEINS", "Proteomics");
+      put("R_RNA", "rRNA Profiling");
+      put("PROTEINS", "Proteomics");
+      put("RNA", "Transcriptomics");
+      put("DNA", "Genomics");
+    };
+  };
 
   private static final Logger logger = LogManager.getLogger(QBiCDesignReader.class);
 
@@ -269,8 +281,15 @@ public class QBiCDesignReader implements IExperimentalDesignReader {
         List<String> parentIDs = parseParentCodes(row[mapping.get(5)]);
         if (parentIDs == null)
           return null;
-        order.get(experimentLevel).add(new TSVSampleBean(code, exp, project, space, type,
-            row[mapping.get(4)], parentIDs, metadata));
+        TSVSampleBean b = new TSVSampleBean(code, exp, project, space, type, row[mapping.get(4)],
+            parentIDs, metadata);
+        if (type.equals("Q_TEST_SAMPLE")) {
+          Object sType = b.getMetadata().get("Q_SAMPLE_TYPE");
+          if (typeToTechnology.containsKey(sType)) {
+            technologyTypes.add(typeToTechnology.get(sType));
+          }
+        }
+        order.get(experimentLevel).add(b);
       }
     }
     for (List<ISampleBean> level : order)
@@ -507,7 +526,12 @@ public class QBiCDesignReader implements IExperimentalDesignReader {
   @Override
   public int countEntities(File file) throws IOException {
     // TODO Auto-generated method stub
-    return 0;
+    return -1;
+  }
+
+  @Override
+  public List<String> getTechnologyTypes() {
+    return new ArrayList<String>(technologyTypes);
   }
 
 }

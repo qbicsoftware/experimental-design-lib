@@ -80,8 +80,6 @@ public class EasyDesignReader implements IExperimentalDesignReader {
       p.processTSV(new File("/Users/frieda/Desktop/allmols.txt"),
           new EasyDesignReader(), true);
       System.out.println(p.getSampleGraph());
-      System.out.println(p.getSummary());
-       System.out.println(p.getProcessed());
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -482,6 +480,14 @@ public class EasyDesignReader implements IExperimentalDesignReader {
   public Set<String> getAnalyteSet() {
     return analyteSet;
   }
+  
+  private Property getFactorOfSampleOrNull(List<Property> factors, String label) {
+    for (Property p : factors) {
+      if (p.getLabel().equals(label))
+        return p;
+    }
+    return null;
+  }
 
   private Property getFactorOfSampleOrNull(String xml, String factorLabel) throws JAXBException {
     XMLParser xmlParser = new XMLParser();
@@ -511,9 +517,11 @@ public class EasyDesignReader implements IExperimentalDesignReader {
     String type = s.getType();
     String source = "unknown";
     Map<String, Object> props = s.getMetadata();
+//    List<Property> factors = ParserHelpers.getPropsFromString(props);
     ParserHelpers.fixXMLProps(props);
-
     Property factor = getFactorOfSampleOrNull((String) props.get("Q_PROPERTIES"), label);
+    
+//    Property factor = getFactorOfSampleOrNull(factors, label);
     boolean newFactor = true;
     Set<String> parentSources = new HashSet<String>();
     Set<Integer> parentIDs = new HashSet<Integer>();
@@ -700,6 +708,12 @@ public class EasyDesignReader implements IExperimentalDesignReader {
   @Override
   public List<String> getTSVByRows() {
     return tsvByRows;
+  }
+
+  @Override
+  //TODO can't be sure at this point, should be handled in import view/controller
+  public List<String> getTechnologyTypes() {
+    return new ArrayList<String>();
   }
 
 }
