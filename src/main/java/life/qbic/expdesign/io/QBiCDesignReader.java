@@ -18,8 +18,10 @@ import org.apache.logging.log4j.Logger;
 import life.qbic.datamodel.identifiers.SampleCodeFunctions;
 import life.qbic.datamodel.samples.ISampleBean;
 import life.qbic.datamodel.samples.TSVSampleBean;
+import life.qbic.expdesign.ParserHelpers;
 import life.qbic.expdesign.model.StructuredExperiment;
 import life.qbic.xml.properties.Unit;
+import life.qbic.xml.study.TechnologyType;
 
 public class QBiCDesignReader implements IExperimentalDesignReader {
 
@@ -45,23 +47,7 @@ public class QBiCDesignReader implements IExperimentalDesignReader {
   private String project;
   private Map<String, List<Map<String, Object>>> experimentInfos;
   private List<String> tsvByRows;
-  private Set<String> technologyTypes;
-  private final Map<String, String> typeToTechnology = new HashMap<String, String>() {
-    {
-      put("CARBOHYDRATES", "Metabolite Profiling");
-      put("SMALLMOLECULES", "Metabolite Profiling");
-      put("LIPIDS", "Lipidomics");
-      put("M_RNA", "mRNA Profiling");
-      put("PEPTIDES", "Peptidomics");
-      put("PHOSPHOLIPIDS", "Lipidomics");
-      put("PHOSPHOPEPTIDES", "Peptidomics");
-      put("PHOSPHOPROTEINS", "Proteomics");
-      put("R_RNA", "rRNA Profiling");
-      put("PROTEINS", "Proteomics");
-      put("RNA", "Transcriptomics");
-      put("DNA", "Genomics");
-    };
-  };
+  private List<TechnologyType> technologyTypes;
 
   private static final Logger logger = LogManager.getLogger(QBiCDesignReader.class);
 
@@ -285,8 +271,8 @@ public class QBiCDesignReader implements IExperimentalDesignReader {
             parentIDs, metadata);
         if (type.equals("Q_TEST_SAMPLE")) {
           Object sType = b.getMetadata().get("Q_SAMPLE_TYPE");
-          if (typeToTechnology.containsKey(sType)) {
-            technologyTypes.add(typeToTechnology.get(sType));
+          if (ParserHelpers.typeToTechnology.containsKey(sType)) {
+            technologyTypes.add(ParserHelpers.typeToTechnology.get(sType));
           }
         }
         order.get(experimentLevel).add(b);
@@ -530,8 +516,8 @@ public class QBiCDesignReader implements IExperimentalDesignReader {
   }
 
   @Override
-  public List<String> getTechnologyTypes() {
-    return new ArrayList<String>(technologyTypes);
+  public List<TechnologyType> getTechnologyTypes() {
+    return technologyTypes;
   }
 
 }

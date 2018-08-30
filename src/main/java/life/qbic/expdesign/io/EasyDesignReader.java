@@ -28,6 +28,7 @@ import life.qbic.xml.manager.XMLParser;
 import life.qbic.xml.properties.Property;
 import life.qbic.xml.properties.PropertyType;
 import life.qbic.xml.properties.Unit;
+import life.qbic.xml.study.TechnologyType;
 
 public class EasyDesignReader implements IExperimentalDesignReader {
 
@@ -46,7 +47,6 @@ public class EasyDesignReader implements IExperimentalDesignReader {
   private Map<String, Set<SampleSummary>> nodesForFactorPerLabel;
 
   public EasyDesignReader() {
-    // this.designType = type;
     Set<String> mandatory =
         new HashSet<String>(Arrays.asList("Organism", "Organism ID", "Tissue", "Extract ID"));
     // "Analyte", "Analyte ID"));
@@ -712,8 +712,8 @@ public class EasyDesignReader implements IExperimentalDesignReader {
 
   @Override
   //TODO can't be sure at this point, should be handled in import view/controller
-  public List<String> getTechnologyTypes() {
-    return new ArrayList<String>();
+  public List<TechnologyType> getTechnologyTypes() {
+    return new ArrayList<TechnologyType>();
   }
 
 }

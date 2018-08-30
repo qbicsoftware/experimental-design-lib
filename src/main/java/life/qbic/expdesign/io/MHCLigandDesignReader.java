@@ -22,10 +22,10 @@ import org.apache.logging.log4j.Logger;
 import life.qbic.datamodel.ms.LigandPrepRun;
 import life.qbic.datamodel.ms.MSRunCollection;
 import life.qbic.datamodel.samples.ISampleBean;
-import life.qbic.datamodel.samples.SampleSummary;
 import life.qbic.datamodel.samples.TSVSampleBean;
 import life.qbic.expdesign.model.StructuredExperiment;
 import life.qbic.xml.properties.Unit;
+import life.qbic.xml.study.TechnologyType;
 
 public class MHCLigandDesignReader implements IExperimentalDesignReader {
 
@@ -706,8 +706,8 @@ public class MHCLigandDesignReader implements IExperimentalDesignReader {
   }
 
   @Override
-  public List<String> getTechnologyTypes() {
-    return new ArrayList<String>(Arrays.asList("Ligandomics", "HLA Typing"));
+  public List<TechnologyType> getTechnologyTypes() {
+    return new ArrayList<TechnologyType>(Arrays.asList(new TechnologyType("Ligandomics"), new TechnologyType("HLA Typing")));
   }
 
 }
