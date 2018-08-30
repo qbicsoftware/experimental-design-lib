@@ -30,6 +30,7 @@ import life.qbic.expdesign.model.StructuredExperiment;
 import life.qbic.xml.properties.Property;
 import life.qbic.xml.properties.PropertyType;
 import life.qbic.xml.properties.Unit;
+import life.qbic.xml.study.TechnologyType;
 
 public class ISAReader implements IExperimentalDesignReader {
 
@@ -43,7 +44,7 @@ public class ISAReader implements IExperimentalDesignReader {
   private HashMap<String, Set<SampleSummary>> nodesForFactorPerLabel;
   private List<StructuredExperiment> graphsByStudy;
   private StructuredExperiment currentGraphStructure;
-  private Set<String> technologyTypes;
+  private List<TechnologyType> technologyTypes;
   private Investigation investigation;
   private String selectedStudy;
   private List<String> datasetTSV;
@@ -484,7 +485,7 @@ public class ISAReader implements IExperimentalDesignReader {
     speciesSet = new HashSet<String>();
     tissueSet = new HashSet<String>();
     analyteSet = new HashSet<String>();
-    technologyTypes = new HashSet<String>();
+    technologyTypes = new ArrayList<TechnologyType>();
 
     final String configDir = resolveConfigurationFilesPath();
 
@@ -599,7 +600,7 @@ public class ISAReader implements IExperimentalDesignReader {
       int assayExtractIDCol = findAssayColumnID(assay, "Extract Name");
       // Analyte
       String endpoint = assay.getMeasurementEndpoint();
-      technologyTypes.add(endpoint);
+      technologyTypes.add(new TechnologyType(endpoint));
       String analyte = getAnalyteFromMeasureEndpoint(endpoint);
       analyteSet.add(analyte);
 
@@ -679,7 +680,7 @@ public class ISAReader implements IExperimentalDesignReader {
   }
 
   @Override
-  public List<String> getTechnologyTypes() {
-    return new ArrayList<String>(technologyTypes);
+  public List<TechnologyType> getTechnologyTypes() {
+    return technologyTypes;
   }
 }
