@@ -279,7 +279,7 @@ public class QBiCDesignReader implements IExperimentalDesignReader {
         order.get(experimentLevel).add(b);
       }
     }
-    technologyTypes.addAll(techTypes);
+    technologyTypes = new ArrayList<>(techTypes);
     for (List<ISampleBean> level : order)
       beans.addAll(level);
     return beans;
