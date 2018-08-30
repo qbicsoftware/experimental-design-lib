@@ -88,8 +88,12 @@ public class ParserHelpers {
 
     String res = null;
     StudyXMLParser xmlParser = new StudyXMLParser();
+    
     try {
       JAXBElement<Qexperiment> existing = xmlParser.parseXMLString(oldXML);
+      if(existing==null) {
+        existing = xmlParser.getEmptyXML();
+      }
       JAXBElement<Qexperiment> mergedDesign =
           xmlParser.mergeDesigns(existing, techTypes, design, props);
       res = xmlParser.toString(mergedDesign);
