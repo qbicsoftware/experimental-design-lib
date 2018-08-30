@@ -24,7 +24,6 @@ import life.qbic.datamodel.samples.TSVSampleBean;
 import life.qbic.expdesign.ParserHelpers;
 import life.qbic.expdesign.SamplePreparator;
 import life.qbic.expdesign.model.StructuredExperiment;
-import life.qbic.xml.manager.XMLParser;
 import life.qbic.xml.properties.Property;
 import life.qbic.xml.properties.PropertyType;
 import life.qbic.xml.properties.Unit;
@@ -77,8 +76,7 @@ public class EasyDesignReader implements IExperimentalDesignReader {
   public static void main(String[] args) throws JAXBException {
     try {
       SamplePreparator p = new SamplePreparator();
-      p.processTSV(new File("/Users/frieda/Desktop/allmols.txt"),
-          new EasyDesignReader(), true);
+      p.processTSV(new File("/Users/frieda/Downloads/GSE8397_patient_groups_with_barcodes.tsv"), new EasyDesignReader(), true);
       System.out.println(p.getSampleGraph());
     } catch (IOException e) {
       e.printStackTrace();
@@ -428,8 +426,9 @@ public class EasyDesignReader implements IExperimentalDesignReader {
         boolean leaf = levels.size() == next || levels.get(next) == null;
         // sample on this level does exist
         if (s != null) {
-          // there can be rowCount number of entities/samples in each tier, so we offset the ID for each level by that much
-          int locNodeID = rowID+(rowCount*level);
+          // there can be rowCount number of entities/samples in each tier, so we offset the ID for
+          // each level by that much
+          int locNodeID = rowID + (rowCount * level);
           Set<SampleSummary> parentSummaries = new LinkedHashSet<SampleSummary>();
           if (currentSummary != null)
             parentSummaries.add(currentSummary);
@@ -480,23 +479,14 @@ public class EasyDesignReader implements IExperimentalDesignReader {
   public Set<String> getAnalyteSet() {
     return analyteSet;
   }
-  
-  private Property getFactorOfSampleOrNull(List<Property> factors, String label) {
-    for (Property p : factors) {
-      if (p.getLabel().equals(label))
-        return p;
-    }
-    return null;
-  }
 
-  private Property getFactorOfSampleOrNull(String xml, String factorLabel) throws JAXBException {
-    XMLParser xmlParser = new XMLParser();
-    List<Property> factors = new ArrayList<Property>();
-    if (xml != null)
-      factors = xmlParser.getAllProperties(xmlParser.parseXMLString(xml));
-    for (Property f : factors) {
-      if (f.getLabel().equals(factorLabel))
-        return f;
+  private Property getFactorOfSampleOrNull(List<Property> props, String factorLabel)
+      throws JAXBException {
+    if (props != null) {
+      for (Property f : props) {
+        if (f.getLabel().equals(factorLabel))
+          return f;
+      }
     }
     return null;
   }
@@ -517,11 +507,11 @@ public class EasyDesignReader implements IExperimentalDesignReader {
     String type = s.getType();
     String source = "unknown";
     Map<String, Object> props = s.getMetadata();
-//    List<Property> factors = ParserHelpers.getPropsFromString(props);
-    ParserHelpers.fixXMLProps(props);
-    Property factor = getFactorOfSampleOrNull((String) props.get("Q_PROPERTIES"), label);
-    
-//    Property factor = getFactorOfSampleOrNull(factors, label);
+    // List<Property> factors = ParserHelpers.getPropsFromString(props);
+    ParserHelpers.fixProps(props);
+    Property factor = getFactorOfSampleOrNull((List<Property>) props.get("Q_PROPERTIES"), label);
+
+    // Property factor = getFactorOfSampleOrNull(factors, label);
     boolean newFactor = true;
     Set<String> parentSources = new HashSet<String>();
     Set<Integer> parentIDs = new HashSet<Integer>();
@@ -711,7 +701,7 @@ public class EasyDesignReader implements IExperimentalDesignReader {
   }
 
   @Override
-  //TODO can't be sure at this point, should be handled in import view/controller
+  // TODO can't be sure at this point, should be handled in import view/controller
   public List<TechnologyType> getTechnologyTypes() {
     return new ArrayList<TechnologyType>();
   }

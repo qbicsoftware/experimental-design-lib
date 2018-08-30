@@ -22,7 +22,6 @@ import life.qbic.expdesign.model.ExperimentalDesignPropertyWrapper;
 import life.qbic.xml.loci.GeneLocus;
 import life.qbic.xml.manager.LociParser;
 import life.qbic.xml.manager.StudyXMLParser;
-import life.qbic.xml.manager.XMLParser;
 import life.qbic.xml.properties.Property;
 import life.qbic.xml.properties.PropertyType;
 import life.qbic.xml.properties.Unit;
@@ -42,22 +41,23 @@ public class ParserHelpers {
   private static final Pattern SEMICOLON = Pattern.compile(";");
   private static final Pattern WHITESPACE = Pattern.compile(" ");
 
-  public static final Map<String, TechnologyType> typeToTechnology = new HashMap<String, TechnologyType>() {
-    {
-      put("CARBOHYDRATES", new TechnologyType("Metabolite Profiling"));
-      put("SMALLMOLECULES", new TechnologyType("Metabolite Profiling"));
-      put("LIPIDS", new TechnologyType("Lipidomics"));
-      put("M_RNA", new TechnologyType("mRNA Profiling"));
-      put("PEPTIDES", new TechnologyType("Peptidomics"));
-      put("PHOSPHOLIPIDS", new TechnologyType("Lipidomics"));
-      put("PHOSPHOPEPTIDES", new TechnologyType("Peptidomics"));
-      put("PHOSPHOPROTEINS", new TechnologyType("Proteomics"));
-      put("R_RNA", new TechnologyType("rRNA Profiling"));
-      put("PROTEINS", new TechnologyType("Proteomics"));
-      put("RNA", new TechnologyType("Transcriptomics"));
-      put("DNA", new TechnologyType("Genomics"));
-    };
-  };
+  public static final Map<String, TechnologyType> typeToTechnology =
+      new HashMap<String, TechnologyType>() {
+        {
+          put("CARBOHYDRATES", new TechnologyType("Metabolite Profiling"));
+          put("SMALLMOLECULES", new TechnologyType("Metabolite Profiling"));
+          put("LIPIDS", new TechnologyType("Lipidomics"));
+          put("M_RNA", new TechnologyType("mRNA Profiling"));
+          put("PEPTIDES", new TechnologyType("Peptidomics"));
+          put("PHOSPHOLIPIDS", new TechnologyType("Lipidomics"));
+          put("PHOSPHOPEPTIDES", new TechnologyType("Peptidomics"));
+          put("PHOSPHOPROTEINS", new TechnologyType("Proteomics"));
+          put("R_RNA", new TechnologyType("rRNA Profiling"));
+          put("PROTEINS", new TechnologyType("Proteomics"));
+          put("RNA", new TechnologyType("Transcriptomics"));
+          put("DNA", new TechnologyType("Genomics"));
+        };
+      };
 
   public static String createDesignXML(ExperimentalDesignPropertyWrapper sampleInfos,
       List<TechnologyType> omicsTypes) throws JAXBException {
@@ -78,7 +78,7 @@ public class ParserHelpers {
    * @param techTypes technology types of the newly registered experiments
    * @return map containing the openbis property key and xml string to be registered in openbis
    */
-  public static Map<String,Object> getExperimentalDesignMap(Map<String,String> currentDesign,
+  public static Map<String, Object> getExperimentalDesignMap(Map<String, String> currentDesign,
       ExperimentalDesignPropertyWrapper importedDesignProperties, List<TechnologyType> techTypes) {
     final String SETUP_PROPERTY_CODE = "Q_EXPERIMENTAL_SETUP";
     String oldXML = currentDesign.get(SETUP_PROPERTY_CODE);
@@ -88,10 +88,10 @@ public class ParserHelpers {
 
     String res = null;
     StudyXMLParser xmlParser = new StudyXMLParser();
-    
+
     try {
       JAXBElement<Qexperiment> existing = xmlParser.parseXMLString(oldXML);
-      if(existing==null) {
+      if (existing == null) {
         existing = xmlParser.getEmptyXML();
       }
       JAXBElement<Qexperiment> mergedDesign =
@@ -100,11 +100,11 @@ public class ParserHelpers {
     } catch (JAXBException e) {
       e.printStackTrace();
     }
-    Map<String,Object> map = new HashMap<String,Object>();
+    Map<String, Object> map = new HashMap<String, Object>();
     map.put(SETUP_PROPERTY_CODE, res);
     return map;
   }
-  
+
   /**
    * collects experimental factors and properties from preliminary sample objects and wraps them for
    * later conversion to xml. removes preliminary information from sample metadata.
@@ -196,9 +196,11 @@ public class ParserHelpers {
     return new ExperimentalDesignPropertyWrapper(expDesign, otherProps);
   }
 
-  @Deprecated
-  public static void fixXMLProps(Map<String, Object> metadata) {
-    XMLParser p = new XMLParser();
+  /**
+   * old function to convert intermediary experimental factors and properties found in a property map to usable objects. used by graph creator
+   * @param metadata
+   */
+  public static void fixProps(Map<String, Object> metadata) {
     LociParser lp = new LociParser();
     List<Property> factors = new ArrayList<Property>();
 
@@ -210,11 +212,7 @@ public class ParserHelpers {
         else
           factors.add(new Property(factorLabel, f.getValue(), f.getType()));
       }
-      try {
-        metadata.put("Q_PROPERTIES", p.toString(p.createXMLFromProperties(factors)));
-      } catch (JAXBException e) {
-        e.printStackTrace();
-      }
+      metadata.put("Q_PROPERTIES", factors);
       factors = new ArrayList<Property>();
     }
     metadata.remove("Factors");
@@ -235,11 +233,7 @@ public class ParserHelpers {
             factors.add(new Property(lab, val, PropertyType.Factor));
         }
       }
-      try {
-        metadata.put("Q_PROPERTIES", p.toString(p.createXMLFromProperties(factors)));
-      } catch (JAXBException e) {
-        e.printStackTrace();
-      }
+      metadata.put("Q_PROPERTIES", factors);
     }
     metadata.remove("XML_FACTORS");
 
