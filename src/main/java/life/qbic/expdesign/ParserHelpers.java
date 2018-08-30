@@ -18,14 +18,17 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
 import life.qbic.datamodel.samples.ISampleBean;
+import life.qbic.expdesign.model.ExperimentalDesignPropertyWrapper;
 import life.qbic.xml.loci.GeneLocus;
 import life.qbic.xml.manager.LociParser;
-import life.qbic.xml.manager.NewXMLParser;
+import life.qbic.xml.manager.StudyXMLParser;
 import life.qbic.xml.manager.XMLParser;
 import life.qbic.xml.properties.Property;
 import life.qbic.xml.properties.PropertyType;
 import life.qbic.xml.properties.Unit;
 import life.qbic.xml.study.Qexperiment;
+import life.qbic.xml.study.Qproperty;
+import life.qbic.xml.study.TechnologyType;
 
 /**
  * Helper functions used for sample creation
@@ -38,19 +41,81 @@ public class ParserHelpers {
   private static final Pattern COLON = Pattern.compile(":");
   private static final Pattern SEMICOLON = Pattern.compile(";");
   private static final Pattern WHITESPACE = Pattern.compile(" ");
+
+  public static final Map<String, TechnologyType> typeToTechnology = new HashMap<String, TechnologyType>() {
+    {
+      put("CARBOHYDRATES", new TechnologyType("Metabolite Profiling"));
+      put("SMALLMOLECULES", new TechnologyType("Metabolite Profiling"));
+      put("LIPIDS", new TechnologyType("Lipidomics"));
+      put("M_RNA", new TechnologyType("mRNA Profiling"));
+      put("PEPTIDES", new TechnologyType("Peptidomics"));
+      put("PHOSPHOLIPIDS", new TechnologyType("Lipidomics"));
+      put("PHOSPHOPEPTIDES", new TechnologyType("Peptidomics"));
+      put("PHOSPHOPROTEINS", new TechnologyType("Proteomics"));
+      put("R_RNA", new TechnologyType("rRNA Profiling"));
+      put("PROTEINS", new TechnologyType("Proteomics"));
+      put("RNA", new TechnologyType("Transcriptomics"));
+      put("DNA", new TechnologyType("Genomics"));
+    };
+  };
+
+  public static String createDesignXML(ExperimentalDesignPropertyWrapper sampleInfos,
+      List<TechnologyType> omicsTypes) throws JAXBException {
+    StudyXMLParser p = new StudyXMLParser();
+    JAXBElement<Qexperiment> res = p.createNewDesign(omicsTypes,
+        sampleInfos.getExperimentalDesign(), sampleInfos.getProperties());
+    String xml = p.toString(res);
+    return xml;
+  }
+
+
+  /**
+   * updates the existing experimental design xml of a project: deletes sample references to samples
+   * that don't exist in openbis, adds factors, properties for new samples to be registered.
+   * 
+   * @param currentDesign openbis experiment properties containing experimental design xml
+   * @param importedDesignProperties properties and factors of the new samples
+   * @param techTypes technology types of the newly registered experiments
+   * @return map containing the openbis property key and xml string to be registered in openbis
+   */
+  public static Map<String,Object> getExperimentalDesignMap(Map<String,String> currentDesign,
+      ExperimentalDesignPropertyWrapper importedDesignProperties, List<TechnologyType> techTypes) {
+    final String SETUP_PROPERTY_CODE = "Q_EXPERIMENTAL_SETUP";
+    String oldXML = currentDesign.get(SETUP_PROPERTY_CODE);
+    Map<String, Map<Pair<String, String>, List<String>>> design =
+        importedDesignProperties.getExperimentalDesign();
+    Map<String, List<Qproperty>> props = importedDesignProperties.getProperties();
+
+    String res = null;
+    StudyXMLParser xmlParser = new StudyXMLParser();
+    try {
+      JAXBElement<Qexperiment> existing = xmlParser.parseXMLString(oldXML);
+      JAXBElement<Qexperiment> mergedDesign =
+          xmlParser.mergeDesigns(existing, techTypes, design, props);
+      res = xmlParser.toString(mergedDesign);
+    } catch (JAXBException e) {
+      e.printStackTrace();
+    }
+    Map<String,Object> map = new HashMap<String,Object>();
+    map.put(SETUP_PROPERTY_CODE, res);
+    return map;
+  }
   
   /**
-   * collects experimental factors and properties from preliminary sample objects and creates an experiment-wide xml string. removes preliminary information from samples.
+   * collects experimental factors and properties from preliminary sample objects and wraps them for
+   * later conversion to xml. removes preliminary information from sample metadata.
+   * 
    * @param samples
    * @param omicsTypes
    * @return
    * @throws JAXBException
    */
-  public static String samplesWithMetadataToDesignXML(List<ISampleBean> samples, List<String> omicsTypes) throws JAXBException {
-    Map<String, Map<Pair<String,String>, List<String>>> expDesign =
-        new HashMap<String, Map<Pair<String,String>, List<String>>>();
+  public static ExperimentalDesignPropertyWrapper samplesWithMetadataToExperimentalFactorStructure(
+      List<ISampleBean> samples) {
+    Map<String, Map<Pair<String, String>, List<String>>> expDesign =
+        new HashMap<String, Map<Pair<String, String>, List<String>>>();
     Map<String, List<Property>> otherProps = new HashMap<String, List<Property>>();
-    //TODO all types?
+    // TODO all types?
     Set<String> types = new HashSet<String>(Arrays.asList("Q_BIOLOGICAL_SAMPLE",
         "Q_BIOLOGICAL_ENTITY", "Q_TEST_SAMPLE", "Q_MHC_LIGAND_EXTRACT"));
     for (ISampleBean s : samples) {
@@ -58,7 +123,7 @@ public class ParserHelpers {
         String code = s.getCode();
         List<Property> props = new ArrayList<Property>();
         Map<String, Object> metadata = s.getMetadata();
-      
+
         // collect properties from metadata map
         // isa-tab format
         if (metadata.get("Factors") != null) {
@@ -71,7 +136,7 @@ public class ParserHelpers {
           }
         }
         metadata.remove("Factors");
-        
+
         // other parsers
         if (metadata.get("XML_FACTORS") != null) {
           String[] fStrings = SEMICOLON.split((String) metadata.get("XML_FACTORS"));
@@ -91,7 +156,7 @@ public class ParserHelpers {
           }
         }
         metadata.remove("XML_FACTORS");
-        
+
         for (Property p : props) {
           if (p.getType().equals(PropertyType.Factor)) {
             String lab = p.getLabel();
@@ -99,16 +164,17 @@ public class ParserHelpers {
             String unit = "";
             if (p.hasUnit())
               unit = p.getUnit().getValue();
-            Pair<String,String> valunit = new ImmutablePair<String,String>(val, unit);
+            Pair<String, String> valunit = new ImmutablePair<String, String>(val, unit);
             if (expDesign.containsKey(lab)) {
-              Map<Pair<String,String>, List<String>> levels = expDesign.get(lab);
+              Map<Pair<String, String>, List<String>> levels = expDesign.get(lab);
               if (levels.containsKey(valunit)) {
                 levels.get(valunit).add(code);
               } else {
                 levels.put(valunit, new ArrayList<String>(Arrays.asList(code)));
               }
             } else {
-              Map<Pair<String,String>, List<String>> newLevel = new HashMap<Pair<String,String>, List<String>>();
+              Map<Pair<String, String>, List<String>> newLevel =
+                  new HashMap<Pair<String, String>, List<String>>();
               newLevel.put(valunit, new ArrayList<String>(Arrays.asList(code)));
               expDesign.put(lab, newLevel);
             }
@@ -123,14 +189,10 @@ public class ParserHelpers {
         }
       }
     }
-    NewXMLParser p = new NewXMLParser();
-    //TODO test for empty design
-    JAXBElement<Qexperiment> res = p.createNewDesign(
-        omicsTypes, expDesign, otherProps);
-    String xml = p.toString(res);
-    return xml;
+    return new ExperimentalDesignPropertyWrapper(expDesign, otherProps);
   }
 
+  @Deprecated
   public static void fixXMLProps(Map<String, Object> metadata) {
     XMLParser p = new XMLParser();
     LociParser lp = new LociParser();
@@ -198,7 +260,7 @@ public class ParserHelpers {
     }
     metadata.remove("XML_LOCI");
   }
-  
+
   public static List<Property> getPropsFromString(Map<String, Object> metadata) {
     List<Property> props = new ArrayList<Property>();
     if (metadata.get("XML_FACTORS") != null) {
