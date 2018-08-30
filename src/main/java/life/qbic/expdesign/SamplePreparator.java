@@ -4,10 +4,12 @@ import life.qbic.datamodel.projects.ProjectInfo;
 import life.qbic.datamodel.samples.ISampleBean;
 import life.qbic.expdesign.io.IExperimentalDesignReader;
 import life.qbic.expdesign.io.QBiCDesignReader;
+import life.qbic.expdesign.model.ExperimentalDesignPropertyWrapper;
 import life.qbic.expdesign.model.SampleSummaryBean;
 import life.qbic.expdesign.model.StructuredExperiment;
 import life.qbic.isatab.ISAReader;
 import life.qbic.isatab.ISAToQBIC;
+import life.qbic.xml.study.TechnologyType;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,7 +35,7 @@ public class SamplePreparator {
   private ArrayList<SampleSummaryBean> summary;
   private ProjectInfo projectinfo;
   private Map<String, ISampleBean> idsToSamples;
-  private String experimentalDesignXML;
+  private ExperimentalDesignPropertyWrapper experimentalDesignXML;
 
   public SamplePreparator() {
     processed = new ArrayList<List<ISampleBean>>();
@@ -87,8 +89,7 @@ public class SamplePreparator {
     // beans
     Map<String, List<ISampleBean>> sampleToChildrenMap = new HashMap<String, List<ISampleBean>>();
     idsToSamples = new HashMap<String, ISampleBean>();
-    List<String> techTypes = reader.getTechnologyTypes();
-    experimentalDesignXML = ParserHelpers.samplesWithMetadataToDesignXML(rawSamps, techTypes);
+    experimentalDesignXML = ParserHelpers.samplesWithMetadataToExperimentalFactorStructure(rawSamps);
     for (ISampleBean b : rawSamps) {
       idsToSamples.put(b.getCode(), b);
       // translate tsv presentation of special metadata to xml
@@ -179,6 +180,10 @@ public class SamplePreparator {
     for (SampleSummaryBean b : summary)
       res.add(b.copy());
     return res;
+  }
+  
+  public List<TechnologyType> getTechnologyTypes() {
+    return reader.getTechnologyTypes();
   }
 
   public Set<String> getSpeciesSet() {
@@ -341,7 +346,7 @@ public class SamplePreparator {
     return idsToSamples;
   }
   
-  public String getExperimentalDesignXML() {
+  public ExperimentalDesignPropertyWrapper getExperimentalDesignProperties() {
     return experimentalDesignXML;
   }
   
