@@ -217,6 +217,7 @@ public class QBiCDesignReader implements IExperimentalDesignReader {
     // create samples
     List<ISampleBean> beans = new ArrayList<ISampleBean>();
     List<List<ISampleBean>> order = new ArrayList<List<ISampleBean>>();
+    Set<TechnologyType> techTypes = new HashSet<>();
     for (String[] row : data) {
       boolean special = false;
       String code = row[mapping.get(0)];
@@ -272,12 +273,13 @@ public class QBiCDesignReader implements IExperimentalDesignReader {
         if (type.equals("Q_TEST_SAMPLE")) {
           Object sType = b.getMetadata().get("Q_SAMPLE_TYPE");
           if (ParserHelpers.typeToTechnology.containsKey(sType)) {
-            technologyTypes.add(ParserHelpers.typeToTechnology.get(sType));
-          }
+            techTypes.add(ParserHelpers.typeToTechnology.get(sType));
+            }
         }
         order.get(experimentLevel).add(b);
       }
     }
+    technologyTypes.addAll(techTypes);
     for (List<ISampleBean> level : order)
       beans.addAll(level);
     return beans;
