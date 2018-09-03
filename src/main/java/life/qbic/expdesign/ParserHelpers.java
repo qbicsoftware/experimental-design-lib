@@ -43,6 +43,11 @@ public class ParserHelpers {
 
   public static final Map<String, TechnologyType> typeToTechnology =
       new HashMap<String, TechnologyType>() {
+        /**
+         * 
+         */
+        private static final long serialVersionUID = -5482251206396114925L;
+
         {
           put("CARBOHYDRATES", new TechnologyType("Metabolite Profiling"));
           put("SMALLMOLECULES", new TechnologyType("Metabolite Profiling"));
@@ -88,7 +93,6 @@ public class ParserHelpers {
 
     String res = null;
     StudyXMLParser xmlParser = new StudyXMLParser();
-
     try {
       JAXBElement<Qexperiment> existing = xmlParser.parseXMLString(oldXML);
       if (existing == null) {
@@ -131,7 +135,9 @@ public class ParserHelpers {
         // collect properties from metadata map
         // isa-tab format
         if (metadata.get("Factors") != null) {
-          for (Property f : (List<Property>) metadata.get("Factors")) {
+          @SuppressWarnings("unchecked")
+          List<Property> properties = (List<Property>) metadata.get("Factors");
+          for (Property f : properties) {
             String factorLabel = factorNameForXML(f.getLabel());
             if (f.hasUnit())
               props.add(new Property(factorLabel, f.getValue(), f.getUnit(), f.getType()));
@@ -197,7 +203,9 @@ public class ParserHelpers {
   }
 
   /**
-   * old function to convert intermediary experimental factors and properties found in a property map to usable objects. used by graph creator
+   * old function to convert intermediary experimental factors and properties found in a property
+   * map to usable objects. used by graph creator
+   * 
    * @param metadata
    */
   public static void fixProps(Map<String, Object> metadata) {
@@ -205,7 +213,9 @@ public class ParserHelpers {
     List<Property> factors = new ArrayList<Property>();
 
     if (metadata.get("Factors") != null) {
-      for (Property f : (List<Property>) metadata.get("Factors")) {
+      @SuppressWarnings("unchecked")
+      List<Property> properties = (List<Property>) metadata.get("Factors");
+      for (Property f : properties) {
         String factorLabel = factorNameForXML(f.getLabel());
         if (f.hasUnit())
           factors.add(new Property(factorLabel, f.getValue(), f.getUnit(), f.getType()));
