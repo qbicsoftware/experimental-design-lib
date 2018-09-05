@@ -82,7 +82,7 @@ public class SamplePreparator {
     List<ISampleBean> rawSamps = reader.readSamples(file, parseGraph);
     if (reader instanceof QBiCDesignReader) {
       QBiCDesignReader qReader = (QBiCDesignReader) reader;
-      projectinfo = new ProjectInfo(qReader.getDescription(), qReader.getSecondaryName(),
+      projectinfo = new ProjectInfo(qReader.getSpace(), qReader.getProject(), qReader.getDescription(), qReader.getSecondaryName(),
           qReader.isPilot(), qReader.getInvestigator(), qReader.getContact(), qReader.getManager());
     }
     if (reader.getError() != null)

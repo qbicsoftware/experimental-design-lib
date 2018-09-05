@@ -274,7 +274,7 @@ public class QBiCDesignReader implements IExperimentalDesignReader {
           Object sType = b.getMetadata().get("Q_SAMPLE_TYPE");
           if (ParserHelpers.typeToTechnology.containsKey(sType)) {
             techTypes.add(ParserHelpers.typeToTechnology.get(sType));
-            }
+          }
         }
         order.get(experimentLevel).add(b);
       }
@@ -520,6 +520,14 @@ public class QBiCDesignReader implements IExperimentalDesignReader {
   @Override
   public List<TechnologyType> getTechnologyTypes() {
     return technologyTypes;
+  }
+
+  public String getSpace() {
+    return space;
+  }
+
+  public String getProject() {
+    return project;
   }
 
 }
