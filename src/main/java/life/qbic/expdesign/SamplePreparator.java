@@ -2,6 +2,7 @@ package life.qbic.expdesign;
 
 import life.qbic.datamodel.projects.ProjectInfo;
 import life.qbic.datamodel.samples.ISampleBean;
+import life.qbic.expdesign.io.EasyDesignReader;
 import life.qbic.expdesign.io.IExperimentalDesignReader;
 import life.qbic.expdesign.io.QBiCDesignReader;
 import life.qbic.expdesign.model.ExperimentalDesignPropertyWrapper;
@@ -41,19 +42,21 @@ public class SamplePreparator {
     processed = new ArrayList<List<ISampleBean>>();
     summary = new ArrayList<SampleSummaryBean>();
   }
-  
+
   public static void main(String[] args) throws IOException, JAXBException {
     SamplePreparator p = new SamplePreparator();
-    
-    Instant start = Instant.now();
-    ISAReader i = new ISAReader(new ISAToQBIC());
-    File f = new File("/Users/frieda/Downloads/BII-I-1/");
-    i.selectStudyToParse(i.listStudies(f).get(1).getStudyId());
-    p.processTSV(f, i, false);
 
-    
-    Instant end = Instant.now();
-    System.out.println(Duration.between(start, end));
+    // Instant start = Instant.now();
+    // ISAReader i = new ISAReader(new ISAToQBIC());
+    File f = new File("/Users/frieda/Downloads/standard_format_A4B.tsv");
+    // i.selectStudyToParse(i.listStudies(f).get(1).getStudyId());
+    p.processTSV(f, new EasyDesignReader(), true);
+    ExperimentalDesignPropertyWrapper w = p.getExperimentalDesignProperties();
+    System.out.println(w.getExperimentalDesign());
+    System.out.println(w.getProperties());
+
+    // Instant end = Instant.now();
+    // System.out.println(Duration.between(start, end));
     System.out.println(p.getSummary());
 
   }
@@ -89,11 +92,12 @@ public class SamplePreparator {
     // beans
     Map<String, List<ISampleBean>> sampleToChildrenMap = new HashMap<String, List<ISampleBean>>();
     idsToSamples = new HashMap<String, ISampleBean>();
-    experimentalDesignXML = ParserHelpers.samplesWithMetadataToExperimentalFactorStructure(rawSamps);
+    experimentalDesignXML =
+        ParserHelpers.samplesWithMetadataToExperimentalFactorStructure(rawSamps);
     for (ISampleBean b : rawSamps) {
       idsToSamples.put(b.getCode(), b);
       // translate tsv presentation of special metadata to xml
-//      ParserHelpers.fixXMLProps(b.getMetadata());
+      // ParserHelpers.fixXMLProps(b.getMetadata());
 
       // fill children map
       for (String parent : b.getParentIDs()) {
@@ -181,7 +185,7 @@ public class SamplePreparator {
       res.add(b.copy());
     return res;
   }
-  
+
   public List<TechnologyType> getTechnologyTypes() {
     return reader.getTechnologyTypes();
   }
@@ -345,9 +349,9 @@ public class SamplePreparator {
   public Map<String, ISampleBean> getIDsToSamples() {
     return idsToSamples;
   }
-  
+
   public ExperimentalDesignPropertyWrapper getExperimentalDesignProperties() {
     return experimentalDesignXML;
   }
-  
+
 }

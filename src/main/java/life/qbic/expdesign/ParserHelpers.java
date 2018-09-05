@@ -166,6 +166,10 @@ public class ParserHelpers {
           }
         }
         metadata.remove("XML_FACTORS");
+        
+        if(metadata.containsKey("Q_PROPERTIES")) {
+          props = (List<Property>) metadata.get("Q_PROPERTIES");
+        }
 
         for (Property p : props) {
           if (p.getType().equals(PropertyType.Factor)) {
