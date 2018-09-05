@@ -169,6 +169,7 @@ public class ParserHelpers {
         
         if(metadata.containsKey("Q_PROPERTIES")) {
           props = (List<Property>) metadata.get("Q_PROPERTIES");
+          metadata.remove("Q_PROPERTIES");
         }
 
         for (Property p : props) {
