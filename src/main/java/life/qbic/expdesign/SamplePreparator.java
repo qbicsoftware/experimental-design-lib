@@ -54,7 +54,6 @@ public class SamplePreparator {
     ExperimentalDesignPropertyWrapper w = p.getExperimentalDesignProperties();
     System.out.println(w.getExperimentalDesign());
     System.out.println(w.getProperties());
-
     // Instant end = Instant.now();
     // System.out.println(Duration.between(start, end));
     System.out.println(p.getSummary());
