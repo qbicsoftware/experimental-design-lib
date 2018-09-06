@@ -166,8 +166,8 @@ public class ParserHelpers {
           }
         }
         metadata.remove("XML_FACTORS");
-        
-        if(metadata.containsKey("Q_PROPERTIES")) {
+
+        if (metadata.containsKey("Q_PROPERTIES")) {
           props = (List<Property>) metadata.get("Q_PROPERTIES");
           metadata.remove("Q_PROPERTIES");
         }
@@ -205,6 +205,35 @@ public class ParserHelpers {
       }
     }
     return new ExperimentalDesignPropertyWrapper(expDesign, otherProps);
+  }
+
+  public static void translateIdentifiersInExperimentalDesign(Map<String, String> idMap,
+      ExperimentalDesignPropertyWrapper importedDesignProperties) {
+    Map<String, List<Qproperty>> properties = importedDesignProperties.getProperties();
+    Map<String, Map<Pair<String, String>, List<String>>> factors =
+        importedDesignProperties.getExperimentalDesign();
+    for (String extID : idMap.keySet()) {
+      if (properties.containsKey(extID)) {
+        String barcode = idMap.get(extID);
+        properties.put(barcode, properties.get(extID));
+        properties.remove(extID);
+      }
+    }
+    for (String label : factors.keySet()) {
+      Map<Pair<String, String>, List<String>> levels = factors.get(label);
+      for (Pair<String, String> level : levels.keySet()) {
+        List<String> ids = levels.get(level);
+        List<String> translatedIDs = new ArrayList<>();
+        for (String id : ids) {
+          if (idMap.containsKey(id)) {
+            translatedIDs.add(idMap.get(id));
+          } else {
+            translatedIDs.add(id);
+          }
+        }
+        levels.put(level, translatedIDs);
+      }
+    }
   }
 
   /**
