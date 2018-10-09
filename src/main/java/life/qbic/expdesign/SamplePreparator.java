@@ -8,14 +8,10 @@ import life.qbic.expdesign.io.QBiCDesignReader;
 import life.qbic.expdesign.model.ExperimentalDesignPropertyWrapper;
 import life.qbic.expdesign.model.SampleSummaryBean;
 import life.qbic.expdesign.model.StructuredExperiment;
-import life.qbic.isatab.ISAReader;
-import life.qbic.isatab.ISAToQBIC;
 import life.qbic.xml.study.TechnologyType;
 
 import java.io.File;
 import java.io.IOException;
-import java.time.Duration;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -46,16 +42,12 @@ public class SamplePreparator {
   public static void main(String[] args) throws IOException, JAXBException {
     SamplePreparator p = new SamplePreparator();
 
-    // Instant start = Instant.now();
-    // ISAReader i = new ISAReader(new ISAToQBIC());
     File f = new File("/Users/frieda/Downloads/standard_format_A4B.tsv");
     // i.selectStudyToParse(i.listStudies(f).get(1).getStudyId());
     p.processTSV(f, new EasyDesignReader(), true);
     ExperimentalDesignPropertyWrapper w = p.getExperimentalDesignProperties();
     System.out.println(w.getExperimentalDesign());
     System.out.println(w.getProperties());
-    // Instant end = Instant.now();
-    // System.out.println(Duration.between(start, end));
     System.out.println(p.getSummary());
 
   }
