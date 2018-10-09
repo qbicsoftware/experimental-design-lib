@@ -88,15 +88,15 @@ public class ISAReader implements IExperimentalDesignReader {
     this.selectedStudy = study;
   }
 
-//  public static void main(String[] args) throws IOException, JAXBException {
-//    SamplePreparator p = new SamplePreparator();
-//    ISAReader i = new ISAReader(new ISAToQBIC());
-//    File test = new File("/Users/frieda/Downloads/BII-I-1/");
-//    i.createAllGraphs(test);
-//
-//    i = new ISAReader(new ISAToReadable()); 
-//    i.createAllGraphs(test);
-//  }
+  public static void main(String[] args) throws IOException {
+    ISAReader i = new ISAReader(new ISAToQBIC());
+    File test = new File("/Users/frieda/Downloads/MTBLS620_diabetes/");
+    i.createAllGraphs(test);
+
+    i = new ISAReader(new ISAToReadable());
+    i.createAllGraphs(test);
+    System.out.println(i.getGraphsByStudy());
+  }
 
   public List<Study> listStudies(File file) {
     error = null;
@@ -166,10 +166,10 @@ public class ISAReader implements IExperimentalDesignReader {
       // and Tissue
       Study study = investigation.getStudies().get(std);
 
-      nodesForFactorPerLabel = new HashMap<String, Set<SampleSummary>>();
-      Map<String, TSVSampleBean> sourceIDToSample = new HashMap<String, TSVSampleBean>();
-      Map<String, TSVSampleBean> sampleIDToSample = new HashMap<String, TSVSampleBean>();
-      Map<String, TSVSampleBean> analyteIDToSample = new HashMap<String, TSVSampleBean>();
+      nodesForFactorPerLabel = new HashMap<>();
+      Map<String, TSVSampleBean> sourceIDToSample = new HashMap<>();
+      Map<String, TSVSampleBean> sampleIDToSample = new HashMap<>();
+      Map<String, TSVSampleBean> analyteIDToSample = new HashMap<>();
       int organismCol = findStudyColumnID(study, "Characteristics[Organism]");
       int organCol = findStudyColumnID(study, "Characteristics[Organism part]");
       int sourceCol = findStudyColumnID(study, "Source Name");
@@ -177,9 +177,10 @@ public class ISAReader implements IExperimentalDesignReader {
 
       for (Factor factor : study.getFactors()) {
         String label = factor.getFactorName();
-        nodesForFactorPerLabel.put(label, new LinkedHashSet<SampleSummary>());
+        nodesForFactorPerLabel.put(label, new LinkedHashSet<>());
       }
-      nodesForFactorPerLabel.put("None", new LinkedHashSet<SampleSummary>());
+      nodesForFactorPerLabel.put("None", new LinkedHashSet<>());
+      Set<String> sourceFactorLabels = getFactorsForSources(study);
 
       Object[][] matrix = study.getStudySampleDataMatrix();
       for (int rowID = 1; rowID < matrix.length; rowID++) {
@@ -193,8 +194,9 @@ public class ISAReader implements IExperimentalDesignReader {
         tissue = mapper.translate(tissue);
         String sourceID = (String) matrix[rowID][sourceCol];
         String sampleID = (String) matrix[rowID][sampleCol];
-        List<Property> factors = new ArrayList<Property>();
-        Set<String> unknownUnits = new HashSet<String>();
+        List<Property> factors = new ArrayList<>();
+        List<Property> sourceFactors = new ArrayList<>();
+        Set<String> unknownUnits = new HashSet<>();
         for (String factorLabel : nodesForFactorPerLabel.keySet()) {
           String colLabel = "Factor Value[" + factorLabel + "]";
           int factorCol = findStudyColumnID(study, colLabel);
@@ -218,6 +220,9 @@ public class ISAReader implements IExperimentalDesignReader {
               factor = new Property(factorLabel, factorVal, PropertyType.Factor);
             }
             factors.add(factor);
+            if (sourceFactorLabels.contains(factorLabel)) {
+              sourceFactors.add(factor);
+            }
           }
         }
         if (!unknownUnits.isEmpty()) {
@@ -240,7 +245,7 @@ public class ISAReader implements IExperimentalDesignReader {
         if (!sourceIDToSample.containsKey(sourceID)) {
           // sampleID++;
           Map<String, Object> metadata = new HashMap<String, Object>();
-          metadata.put("Factors", new ArrayList<Property>());
+          metadata.put("Factors", sourceFactors);
           sSample = new TSVSampleBean(sourceID, "Q_BIOLOGICAL_ENTITY", sourceID, metadata);
           sSample.addProperty("Q_NCBI_ORGANISM", organism);
           sSample.addProperty("Q_EXTERNALDB_ID", sourceID);
@@ -297,6 +302,34 @@ public class ISAReader implements IExperimentalDesignReader {
       }
       graphsByStudy.add(new StructuredExperiment(nodeListsPerLabel, study));
     }
+  }
+
+  private Set<String> getFactorsForSources(Study study) {
+    Set<String> res = new HashSet<>();
+    for (Factor f : study.getFactors()) {
+      Map<String, String> sourcesToValue = new HashMap<>();
+      String label = f.getFactorName();
+      res.add(label);
+      int sourceCol = findStudyColumnID(study, "Source Name");
+      Object[][] matrix = study.getStudySampleDataMatrix();
+      for (int rowID = 1; rowID < matrix.length; rowID++) {
+        String sourceID = (String) matrix[rowID][sourceCol];
+        String colLabel = "Factor Value[" + label + "]";
+        int factorCol = findStudyColumnID(study, colLabel);
+        if (factorCol != -1) {
+          String factorVal = (String) matrix[rowID][factorCol];
+          String entry = sourcesToValue.get(sourceID);
+          // not source factor, as there are different entries
+          if (entry != null && !entry.equals(factorVal)) {
+            res.remove(label);
+            break;
+          } else {
+            sourcesToValue.put(sourceID, factorVal);
+          }
+        }
+      }
+    }
+    return res;
   }
 
   private String resolveConfigurationFilesPath() {
@@ -438,7 +471,7 @@ public class ISAReader implements IExperimentalDesignReader {
       case "Q_BIOLOGICAL_ENTITY":
         source = (String) props.get("Q_NCBI_ORGANISM");
         value = source + " " + value;
-        if(value.isEmpty())
+        if (value.isEmpty())
           value = "unspecified source";
         break;
       case "Q_BIOLOGICAL_SAMPLE":
@@ -448,7 +481,7 @@ public class ISAReader implements IExperimentalDesignReader {
         } else {
           value = source + " " + value;
         }
-        if(value.isEmpty())
+        if (value.isEmpty())
           value = "unspecified extract";
         break;
       case "Q_TEST_SAMPLE":
@@ -478,8 +511,7 @@ public class ISAReader implements IExperimentalDesignReader {
   }
 
   @Override
-  public List<ISampleBean> readSamples(File file, boolean parseGraph)
-      throws IOException {
+  public List<ISampleBean> readSamples(File file, boolean parseGraph) throws IOException {
     log.debug("reading samples of selected study " + selectedStudy);
     List<ISampleBean> res = new ArrayList<ISampleBean>();
     speciesSet = new HashSet<String>();
@@ -519,6 +551,7 @@ public class ISAReader implements IExperimentalDesignReader {
       nodesForFactorPerLabel.put(label, new LinkedHashSet<SampleSummary>());
     }
     nodesForFactorPerLabel.put("None", new LinkedHashSet<SampleSummary>());
+    Set<String> sourceFactorLabels = getFactorsForSources(study);
 
     Object[][] matrix = study.getStudySampleDataMatrix();
     for (int rowID = 1; rowID < matrix.length; rowID++) {
@@ -535,6 +568,7 @@ public class ISAReader implements IExperimentalDesignReader {
       String sourceID = (String) matrix[rowID][sourceCol];
       String sampleID = (String) matrix[rowID][sampleCol];
       List<Property> factors = new ArrayList<Property>();
+      List<Property> sourceFactors = new ArrayList<Property>();
       Set<String> unknownUnits = new HashSet<String>();
       for (String factorLabel : nodesForFactorPerLabel.keySet()) {
         String colLabel = "Factor Value[" + factorLabel + "]";
@@ -560,6 +594,9 @@ public class ISAReader implements IExperimentalDesignReader {
             factor = new Property(factorLabel, factorVal, PropertyType.Factor);
           }
           factors.add(factor);
+          if (sourceFactorLabels.contains(factorLabel)) {
+            sourceFactors.add(factor);
+          }
         }
       }
       if (!unknownUnits.isEmpty()) {
@@ -582,7 +619,7 @@ public class ISAReader implements IExperimentalDesignReader {
       if (!sourceIDToSample.containsKey(sourceID)) {
         // sampleID++;
         Map<String, Object> metadata = new HashMap<String, Object>();
-        metadata.put("Factors", new ArrayList<Property>());
+        metadata.put("Factors", sourceFactorLabels);
         sSample = new TSVSampleBean(sourceID, "Q_BIOLOGICAL_ENTITY", sourceID, metadata);
         sSample.addProperty("Q_NCBI_ORGANISM", organism);
         sSample.addProperty("Q_EXTERNALDB_ID", sourceID);
