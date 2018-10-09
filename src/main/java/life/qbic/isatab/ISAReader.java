@@ -54,6 +54,7 @@ public class ISAReader implements IExperimentalDesignReader {
   private String error;
   private String CONFIG_PATH;
   private IKeywordToInterfaceTextMapper mapper;
+  private int nodeID = 0;
 
   /**
    * Creates a new Reader using the Config at the given path
@@ -142,6 +143,7 @@ public class ISAReader implements IExperimentalDesignReader {
   }
 
   public void createAllGraphs(File file) {
+    nodeID = 0;
     final String configDir = resolveConfigurationFilesPath();
 
     log.debug("configDir=" + configDir);
@@ -386,7 +388,7 @@ public class ISAReader implements IExperimentalDesignReader {
     }
   }
 
-  private void createGraphSummariesForRow(List<TSVSampleBean> levels, int nodeID) {
+  private void createGraphSummariesForRow(List<TSVSampleBean> levels, int oldID) {
     // nodeID *= levels.size();
     // create summary for this each node based on each experimental factor as well as "none"
     for (String label : nodesForFactorPerLabel.keySet()) {
@@ -399,11 +401,13 @@ public class ISAReader implements IExperimentalDesignReader {
         boolean leaf = levels.size() == next || levels.get(next) == null;
         // sample on this level does exist
         if (s != null) {
-          nodeID = nodeID * next + 1;
+//          int id = nodeID * next + 1;
+          nodeID++;
+          int id = nodeID;
           Set<SampleSummary> parentSummaries = new LinkedHashSet<SampleSummary>();
           if (currentSummary != null)
             parentSummaries.add(currentSummary);
-          currentSummary = createNodeSummary(s, parentSummaries, label, nodeID, leaf);
+          currentSummary = createNodeSummary(s, parentSummaries, label, id, leaf);
           // check for hashcode and add current sample s if node exists and doesn't contain code yet
           boolean exists = false;
           for (SampleSummary oldNode : nodesForFactorPerLabel.get(label)) {
@@ -512,6 +516,7 @@ public class ISAReader implements IExperimentalDesignReader {
 
   @Override
   public List<ISampleBean> readSamples(File file, boolean parseGraph) throws IOException {
+    nodeID = 0;
     log.debug("reading samples of selected study " + selectedStudy);
     List<ISampleBean> res = new ArrayList<ISampleBean>();
     speciesSet = new HashSet<String>();
