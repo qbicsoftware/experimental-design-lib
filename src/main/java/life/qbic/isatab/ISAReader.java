@@ -403,7 +403,8 @@ public class ISAReader implements IExperimentalDesignReader {
         if (s != null) {
 //          int id = nodeID * next + 1;
           nodeID++;
-          int id = nodeID;
+          String idCat = "" + next + nodeID;
+          int id = Integer.parseInt(idCat);
           Set<SampleSummary> parentSummaries = new LinkedHashSet<SampleSummary>();
           if (currentSummary != null)
             parentSummaries.add(currentSummary);
