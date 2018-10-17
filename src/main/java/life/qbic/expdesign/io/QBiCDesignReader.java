@@ -12,19 +12,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.xml.bind.JAXBException;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import life.qbic.datamodel.identifiers.SampleCodeFunctions;
 import life.qbic.datamodel.samples.ISampleBean;
-import life.qbic.datamodel.samples.SampleSummary;
 import life.qbic.datamodel.samples.TSVSampleBean;
-import life.qbic.expdesign.SamplePreparator;
-import life.qbic.expdesign.model.ExperimentalDesignType;
+import life.qbic.expdesign.ParserHelpers;
 import life.qbic.expdesign.model.StructuredExperiment;
 import life.qbic.xml.properties.Unit;
+import life.qbic.xml.study.TechnologyType;
 
 public class QBiCDesignReader implements IExperimentalDesignReader {
 
@@ -50,6 +47,7 @@ public class QBiCDesignReader implements IExperimentalDesignReader {
   private String project;
   private Map<String, List<Map<String, Object>>> experimentInfos;
   private List<String> tsvByRows;
+  private List<TechnologyType> technologyTypes;
 
   private static final Logger logger = LogManager.getLogger(QBiCDesignReader.class);
 
@@ -219,6 +217,7 @@ public class QBiCDesignReader implements IExperimentalDesignReader {
     // create samples
     List<ISampleBean> beans = new ArrayList<ISampleBean>();
     List<List<ISampleBean>> order = new ArrayList<List<ISampleBean>>();
+    Set<TechnologyType> techTypes = new HashSet<>();
     for (String[] row : data) {
       boolean special = false;
       String code = row[mapping.get(0)];
@@ -269,10 +268,18 @@ public class QBiCDesignReader implements IExperimentalDesignReader {
         List<String> parentIDs = parseParentCodes(row[mapping.get(5)]);
         if (parentIDs == null)
           return null;
-        order.get(experimentLevel).add(new TSVSampleBean(code, exp, project, space, type,
-            row[mapping.get(4)], parentIDs, metadata));
+        TSVSampleBean b = new TSVSampleBean(code, exp, project, space, type, row[mapping.get(4)],
+            parentIDs, metadata);
+        if (type.equals("Q_TEST_SAMPLE")) {
+          Object sType = b.getMetadata().get("Q_SAMPLE_TYPE");
+          if (ParserHelpers.typeToTechnology.containsKey(sType)) {
+            techTypes.add(ParserHelpers.typeToTechnology.get(sType));
+          }
+        }
+        order.get(experimentLevel).add(b);
       }
     }
+    technologyTypes = new ArrayList<>(techTypes);
     for (List<ISampleBean> level : order)
       beans.addAll(level);
     return beans;
@@ -507,7 +514,20 @@ public class QBiCDesignReader implements IExperimentalDesignReader {
   @Override
   public int countEntities(File file) throws IOException {
     // TODO Auto-generated method stub
-    return 0;
+    return -1;
+  }
+
+  @Override
+  public List<TechnologyType> getTechnologyTypes() {
+    return technologyTypes;
+  }
+
+  public String getSpace() {
+    return space;
+  }
+
+  public String getProject() {
+    return project;
   }
 
 }

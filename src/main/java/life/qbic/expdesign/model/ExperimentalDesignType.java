@@ -5,7 +5,8 @@ import java.util.List;
 
 public enum ExperimentalDesignType {
 
-  Standard("Standard Format", "The Standard Import format for experimental designs containing information about organism, tissues/cell cultures and the analyte preparations.",
+  Standard("Standard Format",
+      "The Standard Import format for experimental designs containing information about organism, tissues/cell cultures and the analyte preparations.",
       Arrays.asList("Organism", "Organism ID", "Tissue", "Extract ID", "Analyte", "Analyte ID"),
       Arrays.asList("Conditions")),
 
@@ -16,13 +17,15 @@ public enum ExperimentalDesignType {
       Arrays.asList("Q_TISSUE_DETAILED", "Q_SECONDARY_NAME", "Q_ADDITIONAL_INFO", "Q_EXTERNALDB_ID",
           "Conditions")),
 
-  ISA("ISA-Tab format", "", Arrays.asList(""), Arrays.asList("")),
-  
+  ISA("ISA-Tab format",
+      "The Investigation/Study/Assay (ISA) tab-delimited (TAB) format is a general purpose framework with which to collect and communicate complex metadata.",
+      Arrays.asList(""), Arrays.asList("")),
+
   MHC_Ligands_Finished("Ligandomics Format (measured)",
       "Format to describe MHC Ligand extraction and measurement experiments. Tissue, Antibody and Mass spectrometry information needs to be provided. Measurements should be from the same project/group of patients.",
       Arrays.asList(""),
       Arrays.asList("")), MHC_Ligands_Plan("", "", Arrays.asList(), Arrays.asList());
-  
+
   private final String name;
   private final String description;
   private final List<String> required;

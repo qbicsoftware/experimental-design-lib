@@ -29,6 +29,7 @@ import life.qbic.expdesign.SamplePreparator;
 import life.qbic.expdesign.model.ExperimentalDesignType;
 import life.qbic.expdesign.model.StructuredExperiment;
 import life.qbic.xml.properties.Unit;
+import life.qbic.xml.study.TechnologyType;
 
 public class MSDesignReader implements IExperimentalDesignReader {
 
@@ -736,6 +737,12 @@ System.out.println(expIDToLigandExp.keySet());
   //TODO
   public int countEntities(File file) throws IOException {
     return 0;
+  }
+
+  @Override
+  public List<TechnologyType> getTechnologyTypes() {
+    // TODO Auto-generated method stub
+    return null;
   }
 
 }

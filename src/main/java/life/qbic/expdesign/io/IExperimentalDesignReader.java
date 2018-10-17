@@ -9,8 +9,8 @@ import java.util.Set;
 import javax.xml.bind.JAXBException;
 
 import life.qbic.datamodel.samples.ISampleBean;
-import life.qbic.datamodel.samples.SampleSummary;
 import life.qbic.expdesign.model.StructuredExperiment;
+import life.qbic.xml.study.TechnologyType;
 
 public interface IExperimentalDesignReader {
 
@@ -31,5 +31,7 @@ public interface IExperimentalDesignReader {
   StructuredExperiment getGraphStructure();
 
   int countEntities(File file) throws IOException;
+
+  List<TechnologyType> getTechnologyTypes();
 
 }

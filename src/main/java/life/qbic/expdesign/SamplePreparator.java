@@ -4,12 +4,11 @@ import life.qbic.datamodel.projects.ProjectInfo;
 import life.qbic.datamodel.samples.ISampleBean;
 import life.qbic.expdesign.io.EasyDesignReader;
 import life.qbic.expdesign.io.IExperimentalDesignReader;
-import life.qbic.expdesign.io.MHCLigandDesignReader;
 import life.qbic.expdesign.io.QBiCDesignReader;
-import life.qbic.expdesign.model.ExperimentalDesignType;
+import life.qbic.expdesign.model.ExperimentalDesignPropertyWrapper;
 import life.qbic.expdesign.model.SampleSummaryBean;
 import life.qbic.expdesign.model.StructuredExperiment;
-import life.qbic.isatab.ISAReader;
+import life.qbic.xml.study.TechnologyType;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,10 +32,24 @@ public class SamplePreparator {
   private ArrayList<SampleSummaryBean> summary;
   private ProjectInfo projectinfo;
   private Map<String, ISampleBean> idsToSamples;
+  private ExperimentalDesignPropertyWrapper experimentalDesignXML;
 
   public SamplePreparator() {
     processed = new ArrayList<List<ISampleBean>>();
     summary = new ArrayList<SampleSummaryBean>();
+  }
+
+  public static void main(String[] args) throws IOException, JAXBException {
+    SamplePreparator p = new SamplePreparator();
+
+    File f = new File("/Users/frieda/Downloads/standard_format_A4B.tsv");
+    // i.selectStudyToParse(i.listStudies(f).get(1).getStudyId());
+    p.processTSV(f, new EasyDesignReader(), true);
+    ExperimentalDesignPropertyWrapper w = p.getExperimentalDesignProperties();
+    System.out.println(w.getExperimentalDesign());
+    System.out.println(w.getProperties());
+    System.out.println(p.getSummary());
+
   }
 
   public List<String> getOriginalTSV() {
@@ -60,7 +73,7 @@ public class SamplePreparator {
     List<ISampleBean> rawSamps = reader.readSamples(file, parseGraph);
     if (reader instanceof QBiCDesignReader) {
       QBiCDesignReader qReader = (QBiCDesignReader) reader;
-      projectinfo = new ProjectInfo(qReader.getDescription(), qReader.getSecondaryName(),
+      projectinfo = new ProjectInfo(qReader.getSpace(), qReader.getProject(), qReader.getDescription(), qReader.getSecondaryName(),
           qReader.isPilot(), qReader.getInvestigator(), qReader.getContact(), qReader.getManager());
     }
     if (reader.getError() != null)
@@ -70,10 +83,12 @@ public class SamplePreparator {
     // beans
     Map<String, List<ISampleBean>> sampleToChildrenMap = new HashMap<String, List<ISampleBean>>();
     idsToSamples = new HashMap<String, ISampleBean>();
+    experimentalDesignXML =
+        ParserHelpers.samplesWithMetadataToExperimentalFactorStructure(rawSamps);
     for (ISampleBean b : rawSamps) {
       idsToSamples.put(b.getCode(), b);
       // translate tsv presentation of special metadata to xml
-      ParserHelpers.fixXMLProps(b.getMetadata());
+      // ParserHelpers.fixXMLProps(b.getMetadata());
 
       // fill children map
       for (String parent : b.getParentIDs()) {
@@ -160,6 +175,10 @@ public class SamplePreparator {
     for (SampleSummaryBean b : summary)
       res.add(b.copy());
     return res;
+  }
+
+  public List<TechnologyType> getTechnologyTypes() {
+    return reader.getTechnologyTypes();
   }
 
   public Set<String> getSpeciesSet() {
@@ -321,5 +340,9 @@ public class SamplePreparator {
   public Map<String, ISampleBean> getIDsToSamples() {
     return idsToSamples;
   }
-  
+
+  public ExperimentalDesignPropertyWrapper getExperimentalDesignProperties() {
+    return experimentalDesignXML;
+  }
+
 }
