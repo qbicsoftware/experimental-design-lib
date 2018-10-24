@@ -22,7 +22,6 @@ import life.qbic.datamodel.samples.ISampleBean;
 import life.qbic.datamodel.samples.SampleSummary;
 import life.qbic.datamodel.samples.TSVSampleBean;
 import life.qbic.expdesign.ParserHelpers;
-import life.qbic.expdesign.SamplePreparator;
 import life.qbic.expdesign.model.StructuredExperiment;
 import life.qbic.xml.properties.Property;
 import life.qbic.xml.properties.PropertyType;
@@ -71,16 +70,6 @@ public class EasyDesignReader implements IExperimentalDesignReader {
 
   public Map<String, List<Map<String, Object>>> getExperimentInfos() {
     return experimentInfos;
-  }
-
-  public static void main(String[] args) throws JAXBException {
-    try {
-      SamplePreparator p = new SamplePreparator();
-      p.processTSV(new File("/Users/frieda/Downloads/GSE8397_patient_groups_with_barcodes.tsv"), new EasyDesignReader(), true);
-      System.out.println(p.getSampleGraph());
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
   }
 
   public static final String UTF8_BOM = "\uFEFF";
