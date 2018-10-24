@@ -3,7 +3,7 @@ package life.qbic.isatab;
 import java.util.HashMap;
 import java.util.Map;
 
-public final class ISAToQBIC implements IKeywordToInterfaceTextMapper {
+public final class ISAToQBIC implements IKeywordToUITextMapper {
 
   public ISAToQBIC() {}
 

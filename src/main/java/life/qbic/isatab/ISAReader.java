@@ -53,7 +53,7 @@ public class ISAReader implements IExperimentalDesignReader {
   private Set<String> analyteSet;
   private String error;
   private String CONFIG_PATH;
-  private IKeywordToInterfaceTextMapper mapper;
+  private IKeywordToUITextMapper mapper;
   private int nodeID = 0;
 
   /**
@@ -61,7 +61,7 @@ public class ISAReader implements IExperimentalDesignReader {
    * 
    * @param ISAConfigPath Path to the ISA config
    */
-  public ISAReader(String ISAConfigPath, IKeywordToInterfaceTextMapper mapper) {
+  public ISAReader(String ISAConfigPath, IKeywordToUITextMapper mapper) {
     CONFIG_PATH = ISAConfigPath;
     this.mapper = mapper;
   }
@@ -69,7 +69,7 @@ public class ISAReader implements IExperimentalDesignReader {
   /**
    * Creates a new Reader, expects ISA config in one of the default paths
    */
-  public ISAReader(IKeywordToInterfaceTextMapper mapper) {
+  public ISAReader(IKeywordToUITextMapper mapper) {
     this.mapper = mapper;
   }
 

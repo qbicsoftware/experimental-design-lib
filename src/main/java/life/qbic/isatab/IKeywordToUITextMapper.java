@@ -1,7 +1,7 @@
 package life.qbic.isatab;
 
 
-public interface IKeywordToInterfaceTextMapper {
+public interface IKeywordToUITextMapper {
   
   public String translate(String ISAString);
 }
