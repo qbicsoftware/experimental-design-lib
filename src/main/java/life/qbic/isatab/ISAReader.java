@@ -25,6 +25,7 @@ import org.isatools.isacreator.model.Study;
 import life.qbic.datamodel.samples.ISampleBean;
 import life.qbic.datamodel.samples.SampleSummary;
 import life.qbic.datamodel.samples.TSVSampleBean;
+import life.qbic.expdesign.SamplePreparator;
 import life.qbic.expdesign.io.IExperimentalDesignReader;
 import life.qbic.expdesign.model.StructuredExperiment;
 import life.qbic.xml.properties.Property;
@@ -90,13 +91,13 @@ public class ISAReader implements IExperimentalDesignReader {
   }
 
   public static void main(String[] args) throws IOException {
+    SamplePreparator p = new SamplePreparator();
+    
     ISAReader i = new ISAReader(new ISAToQBIC());
-    File test = new File("/Users/frieda/Downloads/MTBLS620_diabetes/");
-    i.createAllGraphs(test);
-
-    i = new ISAReader(new ISAToReadable());
-    i.createAllGraphs(test);
-    System.out.println(i.getGraphsByStudy());
+    File file = new File("/Users/frieda/Downloads/BII-I-1/");
+    i.selectStudyToParse(i.listStudies(file).get(0).getStudyId());
+    i.readSamples(file, true);
+    System.out.println(i.getGraphStructure());
   }
 
   public List<Study> listStudies(File file) {
@@ -625,7 +626,7 @@ public class ISAReader implements IExperimentalDesignReader {
       if (!sourceIDToSample.containsKey(sourceID)) {
         // sampleID++;
         Map<String, Object> metadata = new HashMap<String, Object>();
-        metadata.put("Factors", sourceFactorLabels);
+        metadata.put("Factors", sourceFactors);
         sSample = new TSVSampleBean(sourceID, "Q_BIOLOGICAL_ENTITY", sourceID, metadata);
         sSample.addProperty("Q_NCBI_ORGANISM", organism);
         sSample.addProperty("Q_EXTERNALDB_ID", sourceID);
