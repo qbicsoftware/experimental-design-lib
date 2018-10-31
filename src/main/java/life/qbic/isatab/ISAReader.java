@@ -25,7 +25,6 @@ import org.isatools.isacreator.model.Study;
 import life.qbic.datamodel.samples.ISampleBean;
 import life.qbic.datamodel.samples.SampleSummary;
 import life.qbic.datamodel.samples.TSVSampleBean;
-import life.qbic.expdesign.SamplePreparator;
 import life.qbic.expdesign.io.IExperimentalDesignReader;
 import life.qbic.expdesign.model.StructuredExperiment;
 import life.qbic.xml.properties.Property;
@@ -91,8 +90,6 @@ public class ISAReader implements IExperimentalDesignReader {
   }
 
   public static void main(String[] args) throws IOException {
-    SamplePreparator p = new SamplePreparator();
-    
     ISAReader i = new ISAReader(new ISAToQBIC());
     File file = new File("/Users/frieda/Downloads/BII-I-1/");
     i.selectStudyToParse(i.listStudies(file).get(0).getStudyId());
