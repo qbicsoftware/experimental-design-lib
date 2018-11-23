@@ -39,19 +39,6 @@ public class SamplePreparator {
     summary = new ArrayList<SampleSummaryBean>();
   }
 
-  public static void main(String[] args) throws IOException, JAXBException {
-    SamplePreparator p = new SamplePreparator();
-
-    File f = new File("/Users/frieda/Downloads/standard_format_A4B.tsv");
-    // i.selectStudyToParse(i.listStudies(f).get(1).getStudyId());
-    p.processTSV(f, new EasyDesignReader(), true);
-    ExperimentalDesignPropertyWrapper w = p.getExperimentalDesignProperties();
-    System.out.println(w.getExperimentalDesign());
-    System.out.println(w.getProperties());
-    System.out.println(p.getSummary());
-
-  }
-
   public List<String> getOriginalTSV() {
     return reader.getTSVByRows();
   }

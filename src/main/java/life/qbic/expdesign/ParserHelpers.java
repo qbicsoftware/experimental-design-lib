@@ -124,10 +124,10 @@ public class ParserHelpers {
         new HashMap<String, Map<Pair<String, String>, List<String>>>();
     Map<String, List<Property>> otherProps = new HashMap<String, List<Property>>();
     // TODO all types?
-    Set<String> types = new HashSet<String>(Arrays.asList("Q_BIOLOGICAL_SAMPLE",
-        "Q_BIOLOGICAL_ENTITY", "Q_TEST_SAMPLE", "Q_MHC_LIGAND_EXTRACT"));
+//    Set<String> types = new HashSet<String>(Arrays.asList("Q_BIOLOGICAL_SAMPLE",
+//        "Q_BIOLOGICAL_ENTITY", "Q_TEST_SAMPLE", "Q_MHC_LIGAND_EXTRACT"));
     for (ISampleBean s : samples) {
-      if (types.contains(s.getType())) {
+//      if (types.contains(s.getType())) {
         String code = s.getCode();
         List<Property> props = new ArrayList<Property>();
         Map<String, Object> metadata = s.getMetadata();
@@ -202,7 +202,7 @@ public class ParserHelpers {
             }
           }
         }
-      }
+//      }
     }
     return new ExperimentalDesignPropertyWrapper(expDesign, otherProps);
   }
