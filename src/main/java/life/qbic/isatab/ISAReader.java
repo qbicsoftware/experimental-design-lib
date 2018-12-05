@@ -21,6 +21,7 @@ import org.isatools.isacreator.model.Assay;
 import org.isatools.isacreator.model.Factor;
 import org.isatools.isacreator.model.Investigation;
 import org.isatools.isacreator.model.Study;
+import org.isatools.isacreator.model.StudyDesign;
 
 import life.qbic.datamodel.samples.ISampleBean;
 import life.qbic.datamodel.samples.SampleSummary;
@@ -92,9 +93,10 @@ public class ISAReader implements IExperimentalDesignReader {
   public static void main(String[] args) throws IOException {
     ISAReader i = new ISAReader(new ISAToQBIC());
     File file = new File("/Users/frieda/Downloads/BII-I-1/");
-    i.selectStudyToParse(i.listStudies(file).get(0).getStudyId());
-    i.readSamples(file, true);
-    System.out.println(i.getGraphStructure());
+    i.createAllGraphs(file);
+    // i.selectStudyToParse(i.listStudies(file).get(0).getStudyId());
+    // i.readSamples(file, true);
+    // System.out.println(i.getGraphStructure());
   }
 
   public List<Study> listStudies(File file) {
@@ -399,7 +401,7 @@ public class ISAReader implements IExperimentalDesignReader {
         boolean leaf = levels.size() == next || levels.get(next) == null;
         // sample on this level does exist
         if (s != null) {
-//          int id = nodeID * next + 1;
+          // int id = nodeID * next + 1;
           nodeID++;
           String idCat = "" + next + nodeID;
           int id = Integer.parseInt(idCat);
@@ -511,6 +513,24 @@ public class ISAReader implements IExperimentalDesignReader {
 
   public Investigation getInvestigation() {
     return investigation;
+  }
+  
+  public ISAStudyInfos getStudyInfos(String studyName) {
+    Study study = investigation.getStudies().get(studyName);
+
+    // additional metainformation
+    // String[] protocols = study.getProtocolNames();
+    // for (String p : protocols)
+    // System.out.println(p);
+    String studyTitle = study.getStudyTitle();
+    String studyDesc = study.getStudyDesc();
+    String studyProtocol = study.getProtocols().get(0).getProtocolDescription();
+
+    List<String> designTypes = new ArrayList<>();
+    for (StudyDesign d : study.getStudyDesigns()) {
+      designTypes.add(d.getStudyDesignType());
+    }
+    return new ISAStudyInfos(studyTitle, studyDesc, studyProtocol, designTypes);
   }
 
   @Override
