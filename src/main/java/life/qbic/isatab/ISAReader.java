@@ -92,8 +92,15 @@ public class ISAReader implements IExperimentalDesignReader {
 
   public static void main(String[] args) throws IOException {
     ISAReader i = new ISAReader(new ISAToQBIC());
-    File file = new File("/Users/frieda/Downloads/BII-I-1/");
+    File file = new File("/Users/frieda/Downloads/isa_7314_593643/");
     i.createAllGraphs(file);
+//    System.out.println(i.getGraphsByStudy());
+    for(Study s : i.listStudies(file)) {
+      ISAStudyInfos info = i.getStudyInfos(s.getStudyId());
+      System.out.println(info.getTitle());
+      System.out.println(info.getDesignTypes());
+    }
+    
     // i.selectStudyToParse(i.listStudies(file).get(0).getStudyId());
     // i.readSamples(file, true);
     // System.out.println(i.getGraphStructure());
@@ -201,10 +208,13 @@ public class ISAReader implements IExperimentalDesignReader {
         Set<String> unknownUnits = new HashSet<>();
         for (String factorLabel : nodesForFactorPerLabel.keySet()) {
           String colLabel = "Factor Value[" + factorLabel + "]";
+          System.out.println(colLabel);
           int factorCol = findStudyColumnID(study, colLabel);
+          System.out.println(factorCol);
           if (factorCol != -1) {
             Property factor = null;
             String factorVal = (String) matrix[rowID][factorCol];
+            System.out.println(factorVal);
             if (studyFactorHasUnit(study, colLabel)) {
               String unitBlock = (String) matrix[rowID][factorCol + 1];
               Unit unit = null;

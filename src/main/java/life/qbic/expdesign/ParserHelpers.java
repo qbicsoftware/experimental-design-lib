@@ -64,10 +64,18 @@ public class ParserHelpers {
         };
       };
 
+      /**
+       * 
+       * @param sampleInfos
+       * @param omicsTypes
+       * @param designTypes optional keywords denoting which experimental designs were used
+       * @return
+       * @throws JAXBException
+       */
   public static String createDesignXML(ExperimentalDesignPropertyWrapper sampleInfos,
-      List<TechnologyType> omicsTypes) throws JAXBException {
+      List<TechnologyType> omicsTypes, Set<String> designTypes) throws JAXBException {
     StudyXMLParser p = new StudyXMLParser();
-    JAXBElement<Qexperiment> res = p.createNewDesign(omicsTypes,
+    JAXBElement<Qexperiment> res = p.createNewDesign(designTypes, omicsTypes,
         sampleInfos.getExperimentalDesign(), sampleInfos.getProperties());
     String xml = p.toString(res);
     return xml;
@@ -81,10 +89,11 @@ public class ParserHelpers {
    * @param currentDesign openbis experiment properties containing experimental design xml
    * @param importedDesignProperties properties and factors of the new samples
    * @param techTypes technology types of the newly registered experiments
+   * @param designTypes optional keywords denoting which experimental designs were used
    * @return map containing the openbis property key and xml string to be registered in openbis
    */
   public static Map<String, Object> getExperimentalDesignMap(Map<String, String> currentDesign,
-      ExperimentalDesignPropertyWrapper importedDesignProperties, List<TechnologyType> techTypes) {
+      ExperimentalDesignPropertyWrapper importedDesignProperties, List<TechnologyType> techTypes, Set<String> designTypes) {
     final String SETUP_PROPERTY_CODE = "Q_EXPERIMENTAL_SETUP";
     String oldXML = currentDesign.get(SETUP_PROPERTY_CODE);
     Map<String, Map<Pair<String, String>, List<String>>> design =
@@ -99,7 +108,7 @@ public class ParserHelpers {
         existing = xmlParser.getEmptyXML();
       }
       JAXBElement<Qexperiment> mergedDesign =
-          xmlParser.mergeDesigns(existing, techTypes, design, props);
+          xmlParser.mergeDesigns(existing, designTypes, techTypes, design, props);
       res = xmlParser.toString(mergedDesign);
     } catch (JAXBException e) {
       e.printStackTrace();
