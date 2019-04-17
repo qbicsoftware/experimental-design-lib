@@ -2,7 +2,6 @@ package life.qbic.expdesign;
 
 import life.qbic.datamodel.projects.ProjectInfo;
 import life.qbic.datamodel.samples.ISampleBean;
-import life.qbic.expdesign.io.EasyDesignReader;
 import life.qbic.expdesign.io.IExperimentalDesignReader;
 import life.qbic.expdesign.io.QBiCDesignReader;
 import life.qbic.expdesign.model.ExperimentalDesignPropertyWrapper;
@@ -42,7 +41,7 @@ public class SamplePreparator {
   public List<String> getOriginalTSV() {
     return reader.getTSVByRows();
   }
-
+  
   /**
    * Reads in a TSV File containing samples for openBIS registration and their metadata.
    * 

@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -24,6 +23,8 @@ import life.qbic.datamodel.ms.MSRunCollection;
 import life.qbic.datamodel.samples.ISampleBean;
 import life.qbic.datamodel.samples.TSVSampleBean;
 import life.qbic.expdesign.model.StructuredExperiment;
+import life.qbic.xml.properties.Property;
+import life.qbic.xml.properties.PropertyType;
 import life.qbic.xml.properties.Unit;
 import life.qbic.xml.study.TechnologyType;
 
@@ -36,11 +37,6 @@ public class MHCLigandDesignReader implements IExperimentalDesignReader {
       new ArrayList<String>(Arrays.asList("Q_BIOLOGICAL_ENTITY", "Q_BIOLOGICAL_SAMPLE",
           "Q_TEST_SAMPLE", "Q_MHC_LIGAND_EXTRACT", "Q_NGS_SINGLE_SAMPLE_RUN", "Q_MS_RUN"));
   private Map<String, Map<String, String>> headersToTypeCodePerSampletype;
-  private String msSampleXML =
-      "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?> <qproperties> <qfactors> <qcategorical label=\"technical_replicate\" value=\"%repl\"/> <qcategorical label=\"workflow_type\" value=\"%wftype\"/> </qfactors> </qproperties>";
-
-
-  // private ExperimentalDesignType designType;
 
   private String error;
   private Map<String, List<Map<String, Object>>> experimentInfos;
@@ -97,12 +93,13 @@ public class MHCLigandDesignReader implements IExperimentalDesignReader {
 
   public MHCLigandDesignReader() {
     this.mandatoryColumns = new ArrayList<String>(Arrays.asList("Organism", "Patient ID", "Tissue",
-        "Antibody", "Prep Date", "MS Run Date", "Filename", "HLA Typing", "Share",
-        "MS Device", "LCMS Method", "Replicate", "Workflow Type"));
-    this.mandatoryFilled = new ArrayList<String>(Arrays.asList("Organism", "Patient ID", "Tissue",
-        "Antibody", "MS Run Date", "Filename"));
-    this.optionalCols = new ArrayList<String>(Arrays.asList("Sample Mass", "Cell Count", "Sample Volume",
-        "Antibody Mass", "HLA Typing", "MS Comment", "Cell Type", "Tumor Type", "Sequencing"));
+        "Antibody", "Prep Date", "MS Run Date", "Filename", "HLA Typing", "Share", "MS Device",
+        "LCMS Method", "Replicate", "Workflow Type"));
+    this.mandatoryFilled = new ArrayList<String>(
+        Arrays.asList("Organism", "Patient ID", "Tissue", "Antibody", "MS Run Date", "Filename"));
+    this.optionalCols =
+        new ArrayList<String>(Arrays.asList("Sample Mass", "Cell Count", "Sample Volume",
+            "Antibody Mass", "HLA Typing", "MS Comment", "Cell Type", "Tumor Type", "Sequencing"));
 
     Map<String, String> sourceMetadata = new HashMap<String, String>();
     sourceMetadata.put("Organism", "Q_NCBI_ORGANISM");
@@ -376,7 +373,8 @@ public class MHCLigandDesignReader implements IExperimentalDesignReader {
         String amountColName = getSampleAmountKeyFromRow(row, headerMapping);
         String sampleAmount = row[headerMapping.get(amountColName)];
         // Two ligand samples were prepared together (e.g. multiple antibody columns) only if
-        // patient, prep date, handled tissue and sample amount (mass, vol or cell count) are the same
+        // patient, prep date, handled tissue and sample amount (mass, vol or cell count) are the
+        // same
         LigandPrepRun ligandPrepRun =
             new LigandPrepRun(sourceID, tissue, prepDate, sampleAmount + " " + amountColName);
         if (ligandExtract == null) {
@@ -392,7 +390,7 @@ public class MHCLigandDesignReader implements IExperimentalDesignReader {
           ligandExtract.addProperty("Q_EXTERNALDB_ID", ligandExtrID);
           order.get(3).add(ligandExtract);
           analyteToSample.put(ligandExtrID, ligandExtract);
-          
+
           ligandExtract.setExperiment(Integer.toString(ligandPrepRun.hashCode()));
           Map<String, Object> ligandExperimentMetadata = expIDToLigandExp.get(ligandPrepRun);
           if (ligandExperimentMetadata == null) {
@@ -417,8 +415,10 @@ public class MHCLigandDesignReader implements IExperimentalDesignReader {
         msRun.addParentID(ligandExtrID);
         msRun.addProperty("File", fName);
 
-        msRun.addProperty("Q_PROPERTIES",
-            msSampleXML.replace("%repl", replicate).replace("%wftype", wfType));
+        List<Property> props = new ArrayList<>();
+        props.add(new Property("technical_replicate", replicate, PropertyType.Factor));
+        props.add(new Property("workflow_type", wfType, PropertyType.Factor));
+        msRun.addProperty("Q_PROPERTIES", props);
         order.get(4).add(msRun);
       }
     }
@@ -707,7 +707,8 @@ public class MHCLigandDesignReader implements IExperimentalDesignReader {
 
   @Override
   public List<TechnologyType> getTechnologyTypes() {
-    return new ArrayList<TechnologyType>(Arrays.asList(new TechnologyType("Ligandomics"), new TechnologyType("HLA Typing")));
+    return new ArrayList<TechnologyType>(
+        Arrays.asList(new TechnologyType("Ligandomics"), new TechnologyType("HLA Typing")));
   }
 
 }
