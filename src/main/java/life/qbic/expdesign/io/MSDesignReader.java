@@ -40,7 +40,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
   private final List<String> sampleTypesInOrder =
       new ArrayList<String>(Arrays.asList("Q_BIOLOGICAL_ENTITY", "Q_BIOLOGICAL_SAMPLE",
           "Q_TEST_SAMPLE", "Q_MHC_LIGAND_EXTRACT", "Q_NGS_SINGLE_SAMPLE_RUN", "Q_MS_RUN"));
-  private Map<String, Map<String, String>> headersToTypeCodePerSampletype;
+  private Map<SampleType, Map<String, String>> headersToTypeCodePerSampletype;
   private String msSampleXML =
       "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?> <qproperties> <qfactors> <qcategorical label=\"technical_replicate\" value=\"%repl\"/> <qcategorical label=\"workflow_type\" value=\"%wftype\"/> </qfactors> </qproperties>";
 
@@ -137,11 +137,11 @@ public class MSDesignReader implements IExperimentalDesignReader {
     // msRunMetadata.put("", "");
 
 
-    headersToTypeCodePerSampletype = new HashMap<String, Map<String, String>>();
-    headersToTypeCodePerSampletype.put("Q_BIOLOGICAL_ENTITY", sourceMetadata);
-    headersToTypeCodePerSampletype.put("Q_BIOLOGICAL_SAMPLE", extractMetadata);
-    headersToTypeCodePerSampletype.put("Q_TEST_SAMPLE", new HashMap<String, String>());
-    headersToTypeCodePerSampletype.put("Q_MHC_LIGAND_EXTRACT", ligandsMetadata);
+    headersToTypeCodePerSampletype = new HashMap<>();
+    headersToTypeCodePerSampletype.put(SampleType.Q_BIOLOGICAL_ENTITY, sourceMetadata);
+    headersToTypeCodePerSampletype.put(SampleType.Q_BIOLOGICAL_SAMPLE, extractMetadata);
+    headersToTypeCodePerSampletype.put(SampleType.Q_TEST_SAMPLE, new HashMap<>());
+    headersToTypeCodePerSampletype.put(SampleType.Q_MHC_LIGAND_EXTRACT, ligandsMetadata);
     // headersToTypeCodePerSampletype.put("Q_MS_RUN", msRunMetadata);
   }
 

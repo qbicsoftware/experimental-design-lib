@@ -34,7 +34,7 @@ public class EasyDesignReader implements IExperimentalDesignReader {
   private static final Logger logger = LogManager.getLogger(EasyDesignReader.class);
   private List<String> mandatory;
   private boolean analytesIncluded;
-  private Map<String, Map<String, String>> headersToTypeCodePerSampletype;
+  private Map<SampleType, Map<String, String>> headersToTypeCodePerSampletype;
 
   private String error;
   private Map<String, List<Map<String, Object>>> experimentInfos;
@@ -63,10 +63,10 @@ public class EasyDesignReader implements IExperimentalDesignReader {
     prepMetadata.put("Analyte", "Q_SAMPLE_TYPE");
     prepMetadata.put("Analyte ID", "Q_EXTERNALDB_ID");
     prepMetadata.put("Preparation Comment", "Q_ADDITIONAL_INFO");
-    headersToTypeCodePerSampletype = new HashMap<String, Map<String, String>>();
-    headersToTypeCodePerSampletype.put("Q_BIOLOGICAL_ENTITY", sourceMetadata);
-    headersToTypeCodePerSampletype.put("Q_BIOLOGICAL_SAMPLE", extractMetadata);
-    headersToTypeCodePerSampletype.put("Q_TEST_SAMPLE", prepMetadata);
+    headersToTypeCodePerSampletype = new HashMap<>();
+    headersToTypeCodePerSampletype.put(SampleType.Q_BIOLOGICAL_ENTITY, sourceMetadata);
+    headersToTypeCodePerSampletype.put(SampleType.Q_BIOLOGICAL_SAMPLE, extractMetadata);
+    headersToTypeCodePerSampletype.put(SampleType.Q_TEST_SAMPLE, prepMetadata);
   }
 
   public Map<String, List<Map<String, Object>>> getExperimentInfos() {
@@ -81,11 +81,9 @@ public class EasyDesignReader implements IExperimentalDesignReader {
     }
     return s;
   }
-
+  
   public int countEntities(File file) throws IOException {
     Set<String> ids = new HashSet<String>();
-
-
     nodesForFactorPerLabel = new HashMap<String, Set<SampleSummary>>();
 
     tsvByRows = new ArrayList<String>();

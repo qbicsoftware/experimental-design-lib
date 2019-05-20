@@ -32,10 +32,7 @@ public class MHCLigandDesignReader implements IExperimentalDesignReader {
   private List<String> mandatoryColumns;
   private List<String> mandatoryFilled;
   private List<String> optionalCols;
-  private final List<String> sampleTypesInOrder =
-      new ArrayList<String>(Arrays.asList("Q_BIOLOGICAL_ENTITY", "Q_BIOLOGICAL_SAMPLE",
-          "Q_TEST_SAMPLE", "Q_MHC_LIGAND_EXTRACT", "Q_NGS_SINGLE_SAMPLE_RUN", "Q_MS_RUN"));
-  private Map<String, Map<String, String>> headersToTypeCodePerSampletype;
+  private Map<SampleType, Map<String, String>> headersToTypeCodePerSampletype;
   private String msSampleXML =
       "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?> <qproperties> <qfactors> <qcategorical label=\"technical_replicate\" value=\"%repl\"/> <qcategorical label=\"workflow_type\" value=\"%wftype\"/> </qfactors> </qproperties>";
 
@@ -139,11 +136,11 @@ public class MHCLigandDesignReader implements IExperimentalDesignReader {
     // msRunMetadata.put("", "");
 
 
-    headersToTypeCodePerSampletype = new HashMap<String, Map<String, String>>();
-    headersToTypeCodePerSampletype.put("Q_BIOLOGICAL_ENTITY", sourceMetadata);
-    headersToTypeCodePerSampletype.put("Q_BIOLOGICAL_SAMPLE", extractMetadata);
-    headersToTypeCodePerSampletype.put("Q_TEST_SAMPLE", new HashMap<String, String>());
-    headersToTypeCodePerSampletype.put("Q_MHC_LIGAND_EXTRACT", ligandsMetadata);
+    headersToTypeCodePerSampletype = new HashMap<>();
+    headersToTypeCodePerSampletype.put(SampleType.Q_BIOLOGICAL_ENTITY, sourceMetadata);
+    headersToTypeCodePerSampletype.put(SampleType.Q_BIOLOGICAL_SAMPLE, extractMetadata);
+    headersToTypeCodePerSampletype.put(SampleType.Q_TEST_SAMPLE, new HashMap<>());
+    headersToTypeCodePerSampletype.put(SampleType.Q_MHC_LIGAND_EXTRACT, ligandsMetadata);
     // headersToTypeCodePerSampletype.put("Q_MS_RUN", msRunMetadata);
   }
 
@@ -331,8 +328,9 @@ public class MHCLigandDesignReader implements IExperimentalDesignReader {
         TSVSampleBean sampleSource = sourceIDToSample.get(sourceID);
         if (sampleSource == null) {
           sampleID++;
-          sampleSource = new TSVSampleBean(Integer.toString(sampleID), SampleType.Q_BIOLOGICAL_ENTITY,
-              sourceID, fillMetadata(header, row, meta, factors, loci, SampleType.Q_BIOLOGICAL_ENTITY));
+          sampleSource = new TSVSampleBean(Integer.toString(sampleID),
+              SampleType.Q_BIOLOGICAL_ENTITY, sourceID,
+              fillMetadata(header, row, meta, factors, loci, SampleType.Q_BIOLOGICAL_ENTITY));
           sampleSource.addProperty("Q_EXTERNALDB_ID", sourceID);
           roots.add(sampleSource);
           order.get(0).add(sampleSource);
@@ -340,16 +338,16 @@ public class MHCLigandDesignReader implements IExperimentalDesignReader {
           // create blood and DNA sample for hlatyping (one per sample source)
           sampleID++;
           String bloodID = sourceID + "_blood";
-          TSVSampleBean blood = new TSVSampleBean(Integer.toString(sampleID), SampleType.Q_BIOLOGICAL_SAMPLE,
-              bloodID, new HashMap<String, Object>());
+          TSVSampleBean blood = new TSVSampleBean(Integer.toString(sampleID),
+              SampleType.Q_BIOLOGICAL_SAMPLE, bloodID, new HashMap<String, Object>());
           blood.addParentID(sourceID);
           blood.addProperty("Q_PRIMARY_TISSUE", "Blood plasma");
           blood.addProperty("Q_EXTERNALDB_ID", bloodID);
           tissueSet.add("Blood plasma");
           order.get(1).add(blood);
           sampleID++;
-          TSVSampleBean dna = new TSVSampleBean(Integer.toString(sampleID), SampleType.Q_TEST_SAMPLE,
-              sourceID + "_DNA", new HashMap<String, Object>());
+          TSVSampleBean dna = new TSVSampleBean(Integer.toString(sampleID),
+              SampleType.Q_TEST_SAMPLE, sourceID + "_DNA", new HashMap<String, Object>());
           dna.addParentID(bloodID);
           dna.addProperty("Q_SAMPLE_TYPE", "DNA");
           dna.addProperty("MHC_I", parseMHCClass(mhcTypes, 1));
@@ -362,8 +360,9 @@ public class MHCLigandDesignReader implements IExperimentalDesignReader {
         TSVSampleBean tissueSample = tissueToSample.get(extractID);
         if (tissueSample == null) {
           sampleID++;
-          tissueSample = new TSVSampleBean(Integer.toString(sampleID), SampleType.Q_BIOLOGICAL_SAMPLE,
-              extractID, fillMetadata(header, row, meta, factors, loci, SampleType.Q_BIOLOGICAL_SAMPLE));
+          tissueSample = new TSVSampleBean(Integer.toString(sampleID),
+              SampleType.Q_BIOLOGICAL_SAMPLE, extractID,
+              fillMetadata(header, row, meta, factors, loci, SampleType.Q_BIOLOGICAL_SAMPLE));
           order.get(1).add(tissueSample);
           tissueSample.addParentID(sourceID);
           tissueSample.addProperty("Q_EXTERNALDB_ID", extractID);
@@ -391,8 +390,9 @@ public class MHCLigandDesignReader implements IExperimentalDesignReader {
             new LigandPrepRun(sourceID, tissue, prepDate, sampleAmount + " " + amountColName);
         if (ligandExtract == null) {
           sampleID++;
-          ligandExtract = new TSVSampleBean(Integer.toString(sampleID), SampleType.Q_MHC_LIGAND_EXTRACT,
-              extractID, fillMetadata(header, row, meta, factors, loci, SampleType.Q_MHC_LIGAND_EXTRACT));
+          ligandExtract = new TSVSampleBean(Integer.toString(sampleID),
+              SampleType.Q_MHC_LIGAND_EXTRACT, extractID,
+              fillMetadata(header, row, meta, factors, loci, SampleType.Q_MHC_LIGAND_EXTRACT));
           ligandExtract.addProperty("Q_ANTIBODY", antibody);
           String[] mhcClass = getMHCClass(antibody);
           if (mhcClass.length == 1) {
