@@ -20,6 +20,7 @@ import org.apache.logging.log4j.Logger;
 
 import life.qbic.datamodel.samples.ISampleBean;
 import life.qbic.datamodel.samples.SampleSummary;
+import life.qbic.datamodel.samples.SampleType;
 import life.qbic.datamodel.samples.TSVSampleBean;
 import life.qbic.expdesign.ParserHelpers;
 import life.qbic.expdesign.model.StructuredExperiment;
@@ -345,8 +346,8 @@ public class EasyDesignReader implements IExperimentalDesignReader {
       if (!analyteIDToSample.containsKey(analyteID)) {
         if (!analyteID.isEmpty()) {// some analytes can be added, while other cells can be empty
           // sampleID++;
-          TSVSampleBean firstASample = new TSVSampleBean(analyteID, "Q_TEST_SAMPLE", analyteID,
-              fillMetadata(header, row, meta, factors, loci, "Q_TEST_SAMPLE"));
+          TSVSampleBean firstASample = new TSVSampleBean(analyteID, SampleType.Q_TEST_SAMPLE, analyteID,
+              fillMetadata(header, row, meta, factors, loci, SampleType.Q_TEST_SAMPLE));
           firstASample.addProperty("Q_SAMPLE_TYPE", analyte);
           order.get(2).add(firstASample);
           firstASample.addParentID(extractID);
@@ -358,8 +359,8 @@ public class EasyDesignReader implements IExperimentalDesignReader {
         TSVSampleBean sSample = sourceIDToSample.get(sourceID);
         if (!extractIDToSample.containsKey(extractID)) {
           // sampleID++;
-          eSample = new TSVSampleBean(extractID, "Q_BIOLOGICAL_SAMPLE", extractID,
-              fillMetadata(header, row, meta, extractFactors, loci, "Q_BIOLOGICAL_SAMPLE"));
+          eSample = new TSVSampleBean(extractID, SampleType.Q_BIOLOGICAL_SAMPLE, extractID,
+              fillMetadata(header, row, meta, extractFactors, loci, SampleType.Q_BIOLOGICAL_SAMPLE));
           eSample.addProperty("Q_PRIMARY_TISSUE", tissue);
           order.get(1).add(eSample);
           extractIDToSample.put(extractID, eSample);
@@ -368,8 +369,8 @@ public class EasyDesignReader implements IExperimentalDesignReader {
         }
         if (!sourceIDToSample.containsKey(sourceID)) {
           // sampleID++;
-          sSample = new TSVSampleBean(sourceID, "Q_BIOLOGICAL_ENTITY", sourceID,
-              fillMetadata(header, row, meta, entityFactors, loci, "Q_BIOLOGICAL_ENTITY"));
+          sSample = new TSVSampleBean(sourceID, SampleType.Q_BIOLOGICAL_ENTITY, sourceID,
+              fillMetadata(header, row, meta, entityFactors, loci, SampleType.Q_BIOLOGICAL_ENTITY));
           sSample.addProperty("Q_NCBI_ORGANISM", species);
           order.get(0).add(sSample);
           sourceIDToSample.put(sourceID, sSample);
@@ -493,7 +494,7 @@ public class EasyDesignReader implements IExperimentalDesignReader {
 
     // the name alone is not enough to discriminate between different nodes! (e.g. different parent
     // nodes, same child node name)
-    String type = s.getType();
+    SampleType type = s.getType();
     String source = "unknown";
     Map<String, Object> props = s.getMetadata();
     // List<Property> factors = ParserHelpers.getPropsFromString(props);
@@ -522,11 +523,11 @@ public class EasyDesignReader implements IExperimentalDesignReader {
     if (newFactor)
       value = factor.getValue();
     switch (type) {
-      case "Q_BIOLOGICAL_ENTITY":
+      case Q_BIOLOGICAL_ENTITY:
         source = (String) props.get("Q_NCBI_ORGANISM");
         value = source + " " + value;
         break;
-      case "Q_BIOLOGICAL_SAMPLE":
+      case Q_BIOLOGICAL_SAMPLE:
         source = (String) props.get("Q_PRIMARY_TISSUE");
         if (!newFactor || source.equals(value)) {
           value = source;
@@ -534,7 +535,7 @@ public class EasyDesignReader implements IExperimentalDesignReader {
           value = source + " " + value;
         }
         break;
-      case "Q_TEST_SAMPLE":
+      case Q_TEST_SAMPLE:
         source = (String) props.get("Q_SAMPLE_TYPE");
         value = source + " " + value;
         break;
@@ -544,16 +545,16 @@ public class EasyDesignReader implements IExperimentalDesignReader {
       // break;
     }
     return new SampleSummary(currentID, parentIDs, new ArrayList<ISampleBean>(Arrays.asList(s)),
-        factor.getValue(), tryShortenName(value, s).trim(), type, leaf);
+        factor.getValue(), tryShortenName(value, s).trim(), type.toString(), leaf);
   }
 
   private String tryShortenName(String key, TSVSampleBean s) {
     switch (s.getType()) {
-      case "Q_BIOLOGICAL_ENTITY":
+      case Q_BIOLOGICAL_ENTITY:
         return key;
-      case "Q_BIOLOGICAL_SAMPLE":
+      case Q_BIOLOGICAL_SAMPLE:
         return key;
-      case "Q_TEST_SAMPLE":
+      case Q_TEST_SAMPLE:
         String type = (String) s.getMetadata().get("Q_SAMPLE_TYPE");
         return key.replace(type, "") + " " + type;// shortenInfo(type);
       // case "Q_MHC_LIGAND_EXTRACT":
@@ -623,8 +624,8 @@ public class EasyDesignReader implements IExperimentalDesignReader {
   }
 
   private HashMap<String, Object> fillMetadata(String[] header, String[] data, List<Integer> meta,
-      Set<Integer> factors, List<Integer> loci, String sampleType) {
-    Map<String, String> headersToOpenbisCode = headersToTypeCodePerSampletype.get(sampleType);
+      Set<Integer> factors, List<Integer> loci, SampleType type) {
+    Map<String, String> headersToOpenbisCode = headersToTypeCodePerSampletype.get(type);
     HashMap<String, Object> res = new HashMap<String, Object>();
     for (int i : meta) {
       String label = header[i];

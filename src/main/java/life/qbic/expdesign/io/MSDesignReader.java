@@ -24,6 +24,7 @@ import life.qbic.datamodel.ms.LigandPrepRun;
 import life.qbic.datamodel.ms.MSRunCollection;
 import life.qbic.datamodel.samples.ISampleBean;
 import life.qbic.datamodel.samples.SampleSummary;
+import life.qbic.datamodel.samples.SampleType;
 import life.qbic.datamodel.samples.TSVSampleBean;
 import life.qbic.expdesign.SamplePreparator;
 import life.qbic.expdesign.model.ExperimentalDesignType;
@@ -328,8 +329,8 @@ public class MSDesignReader implements IExperimentalDesignReader {
         TSVSampleBean sampleSource = sourceIDToSample.get(sourceID);
         if (sampleSource == null) {
           sampleID++;
-          sampleSource = new TSVSampleBean(Integer.toString(sampleID), "Q_BIOLOGICAL_ENTITY",
-              sourceID, fillMetadata(header, row, meta, factors, loci, "Q_BIOLOGICAL_ENTITY"));
+          sampleSource = new TSVSampleBean(Integer.toString(sampleID), SampleType.Q_BIOLOGICAL_ENTITY,
+              sourceID, fillMetadata(header, row, meta, factors, loci, SampleType.Q_BIOLOGICAL_ENTITY));
           sampleSource.addProperty("Q_EXTERNALDB_ID", sourceID);
           roots.add(sampleSource);
           order.get(0).add(sampleSource);
@@ -337,7 +338,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
           // create blood and DNA sample for hlatyping (one per sample source)
           sampleID++;
           String bloodID = sourceID + "_blood";
-          TSVSampleBean blood = new TSVSampleBean(Integer.toString(sampleID), "Q_BIOLOGICAL_SAMPLE",
+          TSVSampleBean blood = new TSVSampleBean(Integer.toString(sampleID), SampleType.Q_BIOLOGICAL_SAMPLE,
               bloodID, new HashMap<String, Object>());
           blood.addParentID(sourceID);
           blood.addProperty("Q_PRIMARY_TISSUE", "Blood plasma");
@@ -345,7 +346,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
           tissueSet.add("Blood plasma");
           order.get(1).add(blood);
           sampleID++;
-          TSVSampleBean dna = new TSVSampleBean(Integer.toString(sampleID), "Q_TEST_SAMPLE",
+          TSVSampleBean dna = new TSVSampleBean(Integer.toString(sampleID), SampleType.Q_TEST_SAMPLE,
               sourceID + "_DNA", new HashMap<String, Object>());
           dna.addParentID(bloodID);
           dna.addProperty("Q_SAMPLE_TYPE", "DNA");
@@ -359,8 +360,8 @@ public class MSDesignReader implements IExperimentalDesignReader {
         TSVSampleBean tissueSample = tissueToSample.get(extractID);
         if (tissueSample == null) {
           sampleID++;
-          tissueSample = new TSVSampleBean(Integer.toString(sampleID), "Q_BIOLOGICAL_SAMPLE",
-              extractID, fillMetadata(header, row, meta, factors, loci, "Q_BIOLOGICAL_SAMPLE"));
+          tissueSample = new TSVSampleBean(Integer.toString(sampleID), SampleType.Q_BIOLOGICAL_SAMPLE,
+              extractID, fillMetadata(header, row, meta, factors, loci, SampleType.Q_BIOLOGICAL_SAMPLE));
           order.get(1).add(tissueSample);
           tissueSample.addParentID(sourceID);
           tissueSample.addProperty("Q_EXTERNALDB_ID", extractID);
@@ -368,8 +369,8 @@ public class MSDesignReader implements IExperimentalDesignReader {
 
           sampleID++;
           TSVSampleBean analyteSample =
-              new TSVSampleBean(Integer.toString(sampleID), "Q_TEST_SAMPLE", prepID,
-                  fillMetadata(header, row, meta, factors, loci, "Q_TEST_SAMPLE"));
+              new TSVSampleBean(Integer.toString(sampleID), SampleType.Q_TEST_SAMPLE, prepID,
+                  fillMetadata(header, row, meta, factors, loci, SampleType.Q_TEST_SAMPLE));
           order.get(2).add(analyteSample);
           analyteSample.addParentID(extractID);
           analyteSample.addProperty("Q_EXTERNALDB_ID", prepID);
@@ -387,8 +388,8 @@ public class MSDesignReader implements IExperimentalDesignReader {
             new LigandPrepRun(sourceID, tissue, prepDate, sampleAmount + " " + amountColName);
         if (ligandExtract == null) {
           sampleID++;
-          ligandExtract = new TSVSampleBean(Integer.toString(sampleID), "Q_MHC_LIGAND_EXTRACT",
-              extractID, fillMetadata(header, row, meta, factors, loci, "Q_MHC_LIGAND_EXTRACT"));
+          ligandExtract = new TSVSampleBean(Integer.toString(sampleID), SampleType.Q_MHC_LIGAND_EXTRACT,
+              extractID, fillMetadata(header, row, meta, factors, loci, SampleType.Q_MHC_LIGAND_EXTRACT));
           ligandExtract.addProperty("Q_ANTIBODY", antibody);
           String[] mhcClass = getMHCClass(antibody);
           if (mhcClass.length == 1) {
@@ -410,8 +411,8 @@ public class MSDesignReader implements IExperimentalDesignReader {
             expIDToLigandExp.put(ligandPrepRun,
                 parseLigandExperimentData(row, headerMapping, ligandExperimentMetadata));
         }
-        TSVSampleBean msRun = new TSVSampleBean(Integer.toString(sampleID), "Q_MS_RUN", "",
-            fillMetadata(header, row, meta, factors, loci, "Q_MS_RUN"));
+        TSVSampleBean msRun = new TSVSampleBean(Integer.toString(sampleID), SampleType.Q_MS_RUN, "",
+            fillMetadata(header, row, meta, factors, loci, SampleType.Q_MS_RUN));
         MSRunCollection msRuns = new MSRunCollection(ligandPrepRun, msRunDate);
         msRun.setExperiment(Integer.toString(msRuns.hashCode()));
         Map<String, Object> msExperiment = msIDToMSExp.get(msRuns);
@@ -649,8 +650,8 @@ System.out.println(expIDToLigandExp.keySet());
   }
 
   private HashMap<String, Object> fillMetadata(String[] header, String[] data, List<Integer> meta,
-      List<Integer> factors, List<Integer> loci, String sampleType) {
-    Map<String, String> headersToOpenbisCode = headersToTypeCodePerSampletype.get(sampleType);
+      List<Integer> factors, List<Integer> loci, SampleType type) {
+    Map<String, String> headersToOpenbisCode = headersToTypeCodePerSampletype.get(type);
     HashMap<String, Object> res = new HashMap<String, Object>();
     if (headersToOpenbisCode != null) {
       for (int i : meta) {

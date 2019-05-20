@@ -2,6 +2,7 @@ package life.qbic.expdesign;
 
 import life.qbic.datamodel.projects.ProjectInfo;
 import life.qbic.datamodel.samples.ISampleBean;
+import life.qbic.datamodel.samples.SampleType;
 import life.qbic.expdesign.io.IExperimentalDesignReader;
 import life.qbic.expdesign.io.QBiCDesignReader;
 import life.qbic.expdesign.model.ExperimentalDesignPropertyWrapper;
@@ -104,7 +105,7 @@ public class SamplePreparator {
       List<ISampleBean> currentLevel = levels.get(i);
       Collections.sort(currentLevel, comp);
 
-      String type = currentLevel.get(0).getType();
+      SampleType type = currentLevel.get(0).getType();
       ArrayList<ISampleBean> currList = new ArrayList<ISampleBean>();
       for (ISampleBean s : currentLevel) {
         if (type.equals(s.getType()))
@@ -252,13 +253,13 @@ public class SamplePreparator {
     for (ISampleBean s : currList) {
       String queryType = null;
       switch (s.getType()) {
-        case "Q_BIOLOGICAL_ENTITY":
+        case Q_BIOLOGICAL_ENTITY:
           queryType = "Q_NCBI_ORGANISM";
           break;
-        case "Q_BIOLOGICAL_SAMPLE":
+        case Q_BIOLOGICAL_SAMPLE:
           queryType = "Q_PRIMARY_TISSUE";
           break;
-        case "Q_TEST_SAMPLE":
+        case Q_TEST_SAMPLE:
           queryType = "Q_SAMPLE_TYPE";
           break;
         default:
@@ -274,7 +275,7 @@ public class SamplePreparator {
       if (parentCodes.size() > 1) {
         pool = true;
       } else {
-        String type = s.getType();
+        SampleType type = s.getType();
         for (String parent : parentCodes) {
           // at least one parent leads to this child sample and at least one other child sample
           // (sibling) of the same type
@@ -286,7 +287,7 @@ public class SamplePreparator {
 
       }
     }
-    summary.add(new SampleSummaryBean(currList.get(0).getType(), sampleContent,
+    summary.add(new SampleSummaryBean(currList.get(0).getType().toString(), sampleContent,
         Integer.toString(currList.size()), pool, isPartOfSplit));
   }
 
@@ -296,7 +297,7 @@ public class SamplePreparator {
   // existing tier
   private Map<Integer, List<ISampleBean>> readLevels() {
     Map<Integer, List<ISampleBean>> knownLevels = new HashMap<Integer, List<ISampleBean>>();
-    String type = samples.get(0).getType();
+    SampleType type = samples.get(0).getType();
     int i = 1;
     List<ISampleBean> level = new ArrayList<ISampleBean>();
     Set<String> ids = new HashSet<String>();

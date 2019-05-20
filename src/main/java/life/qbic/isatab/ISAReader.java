@@ -25,6 +25,7 @@ import org.isatools.isacreator.model.StudyDesign;
 
 import life.qbic.datamodel.samples.ISampleBean;
 import life.qbic.datamodel.samples.SampleSummary;
+import life.qbic.datamodel.samples.SampleType;
 import life.qbic.datamodel.samples.TSVSampleBean;
 import life.qbic.expdesign.io.IExperimentalDesignReader;
 import life.qbic.expdesign.model.StructuredExperiment;
@@ -247,7 +248,7 @@ public class ISAReader implements IExperimentalDesignReader {
         if (!sampleIDToSample.containsKey(sampleID)) {
           Map<String, Object> metadata = new HashMap<String, Object>();
           metadata.put("Factors", factors);
-          eSample = new TSVSampleBean(sampleID, "Q_BIOLOGICAL_SAMPLE", sampleID, metadata);
+          eSample = new TSVSampleBean(sampleID, SampleType.Q_BIOLOGICAL_SAMPLE, sampleID, metadata);
           eSample.addProperty("Q_PRIMARY_TISSUE", tissue);
           eSample.addProperty("Q_EXTERNALDB_ID", sampleID);
           sampleIDToSample.put(sampleID, eSample);
@@ -258,7 +259,7 @@ public class ISAReader implements IExperimentalDesignReader {
           // sampleID++;
           Map<String, Object> metadata = new HashMap<String, Object>();
           metadata.put("Factors", sourceFactors);
-          sSample = new TSVSampleBean(sourceID, "Q_BIOLOGICAL_ENTITY", sourceID, metadata);
+          sSample = new TSVSampleBean(sourceID, SampleType.Q_BIOLOGICAL_ENTITY, sourceID, metadata);
           sSample.addProperty("Q_NCBI_ORGANISM", organism);
           sSample.addProperty("Q_EXTERNALDB_ID", sourceID);
           sourceIDToSample.put(sourceID, sSample);
@@ -289,7 +290,7 @@ public class ISAReader implements IExperimentalDesignReader {
           Map<String, Object> metadata = new HashMap<String, Object>();
           metadata.put("Factors", eSample.getMetadata().get("Factors"));
           TSVSampleBean tSample =
-              new TSVSampleBean(extractID, "Q_TEST_SAMPLE", extractID, metadata);
+              new TSVSampleBean(extractID, SampleType.Q_TEST_SAMPLE, extractID, metadata);
 
           tSample.addProperty("Q_SAMPLE_TYPE", analyte);
           tSample.addProperty("Q_EXTERNALDB_ID", extractID);
@@ -457,7 +458,7 @@ public class ISAReader implements IExperimentalDesignReader {
 
     // the name alone is not enough to discriminate between different nodes! (e.g. different parent
     // nodes, same child node name)
-    String type = s.getType();
+    SampleType type = s.getType();
     String source = "unknown";
     Map<String, Object> props = s.getMetadata();
 
@@ -483,13 +484,13 @@ public class ISAReader implements IExperimentalDesignReader {
     if (newFactor)
       value = factor.getValue();
     switch (type) {
-      case "Q_BIOLOGICAL_ENTITY":
+      case Q_BIOLOGICAL_ENTITY:
         source = (String) props.get("Q_NCBI_ORGANISM");
         value = source + " " + value;
         if (value.isEmpty())
           value = "unspecified source";
         break;
-      case "Q_BIOLOGICAL_SAMPLE":
+      case Q_BIOLOGICAL_SAMPLE:
         source = (String) props.get("Q_PRIMARY_TISSUE");
         if (!newFactor || source.equals(value)) {
           value = source;
@@ -499,13 +500,13 @@ public class ISAReader implements IExperimentalDesignReader {
         if (value.isEmpty())
           value = "unspecified extract";
         break;
-      case "Q_TEST_SAMPLE":
+      case Q_TEST_SAMPLE:
         source = (String) props.get("Q_SAMPLE_TYPE");
         value = source + " " + value;
         break;
     }
     return new SampleSummary(currentID, parentIDs, new ArrayList<ISampleBean>(Arrays.asList(s)),
-        factor.getValue(), tryShortenName(value, s).trim(), type, leaf);
+        factor.getValue(), tryShortenName(value, s).trim(), type.toString(), leaf);
   }
 
   private Property getFactorOfSampleOrNull(List<Property> factors, String label) {
@@ -643,7 +644,7 @@ public class ISAReader implements IExperimentalDesignReader {
       if (!sampleIDToSample.containsKey(sampleID)) {
         Map<String, Object> metadata = new HashMap<String, Object>();
         metadata.put("Factors", factors);
-        eSample = new TSVSampleBean(sampleID, "Q_BIOLOGICAL_SAMPLE", sampleID, metadata);
+        eSample = new TSVSampleBean(sampleID, SampleType.Q_BIOLOGICAL_SAMPLE, sampleID, metadata);
         eSample.addProperty("Q_PRIMARY_TISSUE", tissue);
         eSample.addProperty("Q_EXTERNALDB_ID", sampleID);
         sampleIDToSample.put(sampleID, eSample);
@@ -654,7 +655,7 @@ public class ISAReader implements IExperimentalDesignReader {
         // sampleID++;
         Map<String, Object> metadata = new HashMap<String, Object>();
         metadata.put("Factors", sourceFactors);
-        sSample = new TSVSampleBean(sourceID, "Q_BIOLOGICAL_ENTITY", sourceID, metadata);
+        sSample = new TSVSampleBean(sourceID, SampleType.Q_BIOLOGICAL_ENTITY, sourceID, metadata);
         sSample.addProperty("Q_NCBI_ORGANISM", organism);
         sSample.addProperty("Q_EXTERNALDB_ID", sourceID);
         sourceIDToSample.put(sourceID, sSample);
@@ -687,7 +688,7 @@ public class ISAReader implements IExperimentalDesignReader {
         Map<String, Object> metadata = new HashMap<String, Object>();
         metadata.put("Factors", eSample.getMetadata().get("Factors"));
 
-        TSVSampleBean tSample = new TSVSampleBean(extractID, "Q_TEST_SAMPLE", extractID, metadata);
+        TSVSampleBean tSample = new TSVSampleBean(extractID, SampleType.Q_TEST_SAMPLE, extractID, metadata);
 
         tSample.addProperty("Q_SAMPLE_TYPE", analyte);
         tSample.addProperty("Q_EXTERNALDB_ID", extractID);

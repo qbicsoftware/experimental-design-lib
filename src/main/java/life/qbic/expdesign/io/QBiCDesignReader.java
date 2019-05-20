@@ -17,6 +17,7 @@ import org.apache.logging.log4j.Logger;
 
 import life.qbic.datamodel.identifiers.SampleCodeFunctions;
 import life.qbic.datamodel.samples.ISampleBean;
+import life.qbic.datamodel.samples.SampleType;
 import life.qbic.datamodel.samples.TSVSampleBean;
 import life.qbic.expdesign.ParserHelpers;
 import life.qbic.expdesign.model.StructuredExperiment;
@@ -268,7 +269,7 @@ public class QBiCDesignReader implements IExperimentalDesignReader {
         List<String> parentIDs = parseParentCodes(row[mapping.get(5)]);
         if (parentIDs == null)
           return null;
-        TSVSampleBean b = new TSVSampleBean(code, exp, project, space, type, row[mapping.get(4)],
+        TSVSampleBean b = new TSVSampleBean(code, exp, project, space, SampleType.valueOf(type), row[mapping.get(4)],
             parentIDs, metadata);
         if (type.equals("Q_TEST_SAMPLE")) {
           Object sType = b.getMetadata().get("Q_SAMPLE_TYPE");

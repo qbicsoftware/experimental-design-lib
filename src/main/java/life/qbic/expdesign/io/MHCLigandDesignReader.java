@@ -21,10 +21,9 @@ import org.apache.logging.log4j.Logger;
 import life.qbic.datamodel.ms.LigandPrepRun;
 import life.qbic.datamodel.ms.MSRunCollection;
 import life.qbic.datamodel.samples.ISampleBean;
+import life.qbic.datamodel.samples.SampleType;
 import life.qbic.datamodel.samples.TSVSampleBean;
 import life.qbic.expdesign.model.StructuredExperiment;
-import life.qbic.xml.properties.Property;
-import life.qbic.xml.properties.PropertyType;
 import life.qbic.xml.properties.Unit;
 import life.qbic.xml.study.TechnologyType;
 
@@ -37,6 +36,11 @@ public class MHCLigandDesignReader implements IExperimentalDesignReader {
       new ArrayList<String>(Arrays.asList("Q_BIOLOGICAL_ENTITY", "Q_BIOLOGICAL_SAMPLE",
           "Q_TEST_SAMPLE", "Q_MHC_LIGAND_EXTRACT", "Q_NGS_SINGLE_SAMPLE_RUN", "Q_MS_RUN"));
   private Map<String, Map<String, String>> headersToTypeCodePerSampletype;
+  private String msSampleXML =
+      "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?> <qproperties> <qfactors> <qcategorical label=\"technical_replicate\" value=\"%repl\"/> <qcategorical label=\"workflow_type\" value=\"%wftype\"/> </qfactors> </qproperties>";
+
+
+  // private ExperimentalDesignType designType;
 
   private String error;
   private Map<String, List<Map<String, Object>>> experimentInfos;
@@ -58,6 +62,14 @@ public class MHCLigandDesignReader implements IExperimentalDesignReader {
       put("Sample Volume", "Q_SAMPLE_VOLUME");
     };
   };
+
+  public static void main(String[] args) throws IOException {
+    MHCLigandDesignReader r = new MHCLigandDesignReader();
+    List<ISampleBean> beans = r.readSamples(new File("/Users/frieda/Downloads/AMLTL.txt"), false);
+    for (ISampleBean b : beans) {
+      System.out.println(b);
+    }
+  }
 
   private Map<String, String[]> antibodyToMHCClass = new HashMap<String, String[]>() {
     /**
@@ -319,8 +331,8 @@ public class MHCLigandDesignReader implements IExperimentalDesignReader {
         TSVSampleBean sampleSource = sourceIDToSample.get(sourceID);
         if (sampleSource == null) {
           sampleID++;
-          sampleSource = new TSVSampleBean(Integer.toString(sampleID), "Q_BIOLOGICAL_ENTITY",
-              sourceID, fillMetadata(header, row, meta, factors, loci, "Q_BIOLOGICAL_ENTITY"));
+          sampleSource = new TSVSampleBean(Integer.toString(sampleID), SampleType.Q_BIOLOGICAL_ENTITY,
+              sourceID, fillMetadata(header, row, meta, factors, loci, SampleType.Q_BIOLOGICAL_ENTITY));
           sampleSource.addProperty("Q_EXTERNALDB_ID", sourceID);
           roots.add(sampleSource);
           order.get(0).add(sampleSource);
@@ -328,7 +340,7 @@ public class MHCLigandDesignReader implements IExperimentalDesignReader {
           // create blood and DNA sample for hlatyping (one per sample source)
           sampleID++;
           String bloodID = sourceID + "_blood";
-          TSVSampleBean blood = new TSVSampleBean(Integer.toString(sampleID), "Q_BIOLOGICAL_SAMPLE",
+          TSVSampleBean blood = new TSVSampleBean(Integer.toString(sampleID), SampleType.Q_BIOLOGICAL_SAMPLE,
               bloodID, new HashMap<String, Object>());
           blood.addParentID(sourceID);
           blood.addProperty("Q_PRIMARY_TISSUE", "Blood plasma");
@@ -336,7 +348,7 @@ public class MHCLigandDesignReader implements IExperimentalDesignReader {
           tissueSet.add("Blood plasma");
           order.get(1).add(blood);
           sampleID++;
-          TSVSampleBean dna = new TSVSampleBean(Integer.toString(sampleID), "Q_TEST_SAMPLE",
+          TSVSampleBean dna = new TSVSampleBean(Integer.toString(sampleID), SampleType.Q_TEST_SAMPLE,
               sourceID + "_DNA", new HashMap<String, Object>());
           dna.addParentID(bloodID);
           dna.addProperty("Q_SAMPLE_TYPE", "DNA");
@@ -350,8 +362,8 @@ public class MHCLigandDesignReader implements IExperimentalDesignReader {
         TSVSampleBean tissueSample = tissueToSample.get(extractID);
         if (tissueSample == null) {
           sampleID++;
-          tissueSample = new TSVSampleBean(Integer.toString(sampleID), "Q_BIOLOGICAL_SAMPLE",
-              extractID, fillMetadata(header, row, meta, factors, loci, "Q_BIOLOGICAL_SAMPLE"));
+          tissueSample = new TSVSampleBean(Integer.toString(sampleID), SampleType.Q_BIOLOGICAL_SAMPLE,
+              extractID, fillMetadata(header, row, meta, factors, loci, SampleType.Q_BIOLOGICAL_SAMPLE));
           order.get(1).add(tissueSample);
           tissueSample.addParentID(sourceID);
           tissueSample.addProperty("Q_EXTERNALDB_ID", extractID);
@@ -359,8 +371,8 @@ public class MHCLigandDesignReader implements IExperimentalDesignReader {
 
           sampleID++;
           TSVSampleBean analyteSample =
-              new TSVSampleBean(Integer.toString(sampleID), "Q_TEST_SAMPLE", prepID,
-                  fillMetadata(header, row, meta, factors, loci, "Q_TEST_SAMPLE"));
+              new TSVSampleBean(Integer.toString(sampleID), SampleType.Q_TEST_SAMPLE, prepID,
+                  fillMetadata(header, row, meta, factors, loci, SampleType.Q_TEST_SAMPLE));
           order.get(2).add(analyteSample);
           analyteSample.addParentID(extractID);
           analyteSample.addProperty("Q_EXTERNALDB_ID", prepID);
@@ -379,8 +391,8 @@ public class MHCLigandDesignReader implements IExperimentalDesignReader {
             new LigandPrepRun(sourceID, tissue, prepDate, sampleAmount + " " + amountColName);
         if (ligandExtract == null) {
           sampleID++;
-          ligandExtract = new TSVSampleBean(Integer.toString(sampleID), "Q_MHC_LIGAND_EXTRACT",
-              extractID, fillMetadata(header, row, meta, factors, loci, "Q_MHC_LIGAND_EXTRACT"));
+          ligandExtract = new TSVSampleBean(Integer.toString(sampleID), SampleType.Q_MHC_LIGAND_EXTRACT,
+              extractID, fillMetadata(header, row, meta, factors, loci, SampleType.Q_MHC_LIGAND_EXTRACT));
           ligandExtract.addProperty("Q_ANTIBODY", antibody);
           String[] mhcClass = getMHCClass(antibody);
           if (mhcClass.length == 1) {
@@ -402,8 +414,8 @@ public class MHCLigandDesignReader implements IExperimentalDesignReader {
             expIDToLigandExp.put(ligandPrepRun,
                 parseLigandExperimentData(row, headerMapping, ligandExperimentMetadata));
         }
-        TSVSampleBean msRun = new TSVSampleBean(Integer.toString(sampleID), "Q_MS_RUN", "",
-            fillMetadata(header, row, meta, factors, loci, "Q_MS_RUN"));
+        TSVSampleBean msRun = new TSVSampleBean(Integer.toString(sampleID), SampleType.Q_MS_RUN, "",
+            fillMetadata(header, row, meta, factors, loci, SampleType.Q_MS_RUN));
         MSRunCollection msRuns = new MSRunCollection(ligandPrepRun, msRunDate);
         msRun.setExperiment(Integer.toString(msRuns.hashCode()));
         Map<String, Object> msExperiment = msIDToMSExp.get(msRuns);
@@ -414,11 +426,10 @@ public class MHCLigandDesignReader implements IExperimentalDesignReader {
               parseMSExperimentData(row, headerMapping, new HashMap<String, Object>()));
         msRun.addParentID(ligandExtrID);
         msRun.addProperty("File", fName);
-
-        List<Property> props = new ArrayList<>();
-        props.add(new Property("technical_replicate", replicate, PropertyType.Factor));
-        props.add(new Property("workflow_type", wfType, PropertyType.Factor));
-        msRun.addProperty("Q_PROPERTIES", props);
+        String extID = fName.split("\\.")[0]; // can't be out of bounds
+        msRun.addProperty("Q_EXTERNALDB_ID", extID); // file name is unique id
+        msRun.addProperty("Q_PROPERTIES",
+            msSampleXML.replace("%repl", replicate).replace("%wftype", wfType));
         order.get(4).add(msRun);
       }
     }
@@ -616,8 +627,8 @@ public class MHCLigandDesignReader implements IExperimentalDesignReader {
   }
 
   private HashMap<String, Object> fillMetadata(String[] header, String[] data, List<Integer> meta,
-      List<Integer> factors, List<Integer> loci, String sampleType) {
-    Map<String, String> headersToOpenbisCode = headersToTypeCodePerSampletype.get(sampleType);
+      List<Integer> factors, List<Integer> loci, SampleType type) {
+    Map<String, String> headersToOpenbisCode = headersToTypeCodePerSampletype.get(type);
     HashMap<String, Object> res = new HashMap<String, Object>();
     if (headersToOpenbisCode != null) {
       for (int i : meta) {
