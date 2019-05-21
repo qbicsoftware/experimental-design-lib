@@ -60,14 +60,6 @@ public class MHCLigandDesignReader implements IExperimentalDesignReader {
     };
   };
 
-  public static void main(String[] args) throws IOException {
-    MHCLigandDesignReader r = new MHCLigandDesignReader();
-    List<ISampleBean> beans = r.readSamples(new File("/Users/frieda/Downloads/AMLTL.txt"), false);
-    for (ISampleBean b : beans) {
-      System.out.println(b);
-    }
-  }
-
   private Map<String, String[]> antibodyToMHCClass = new HashMap<String, String[]>() {
     /**
      * 
@@ -464,7 +456,7 @@ public class MHCLigandDesignReader implements IExperimentalDesignReader {
     return beans;
   }
 
-  private List<String> parseMHCClass(String input, int i) {
+  public List<String> parseMHCClass(String input, int i) {
     Set<String> classI = new HashSet<String>(Arrays.asList("A", "B", "C"));
     // A*02:01;A*24:02;B*15:01;C*07:02;C*07:04;DRB1*04:01;DRB1*07:01;DQB1*03:02;DQB1*02:02
     List<String> res = new ArrayList<String>();

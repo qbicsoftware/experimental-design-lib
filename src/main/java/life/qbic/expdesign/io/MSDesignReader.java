@@ -578,17 +578,6 @@ System.out.println(expIDToLigandExp.keySet());
     return metadata;
   }
 
-  public static void main(String[] args) throws ParseException, JAXBException {
-    try {
-      SamplePreparator p = new SamplePreparator();
-      p.processTSV(new File("/Users/frieda/Downloads/Ligandosphere_large_example.csv"),
-          new MHCLigandDesignReader(), false);
-    } catch (IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
-  }
-
   protected Object parseLCMSMethod(String value) {
     return value;
   }

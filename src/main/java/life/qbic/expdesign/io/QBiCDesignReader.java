@@ -269,8 +269,8 @@ public class QBiCDesignReader implements IExperimentalDesignReader {
         List<String> parentIDs = parseParentCodes(row[mapping.get(5)]);
         if (parentIDs == null)
           return null;
-        TSVSampleBean b = new TSVSampleBean(code, exp, project, space, SampleType.valueOf(type), row[mapping.get(4)],
-            parentIDs, metadata);
+        TSVSampleBean b = new TSVSampleBean(code, exp, project, space, SampleType.valueOf(type),
+            row[mapping.get(4)], parentIDs, metadata);
         if (type.equals("Q_TEST_SAMPLE")) {
           Object sType = b.getMetadata().get("Q_SAMPLE_TYPE");
           if (ParserHelpers.typeToTechnology.containsKey(sType)) {
@@ -514,8 +514,19 @@ public class QBiCDesignReader implements IExperimentalDesignReader {
 
   @Override
   public int countEntities(File file) throws IOException {
-    // TODO Auto-generated method stub
-    return -1;
+    int res = 0;
+    BufferedReader reader = new BufferedReader(new FileReader(file));
+    String next;
+    while ((next = reader.readLine()) != null) {
+      next = removeUTF8BOM(next);
+      String[] nextLine = next.split("\t", -1);// this is needed for trailing tabs
+      String token = nextLine[0];
+      if (!token.startsWith("#") && !token.equals("Identifier")) {
+        res++;
+      }
+    }
+    reader.close();
+    return res;
   }
 
   @Override

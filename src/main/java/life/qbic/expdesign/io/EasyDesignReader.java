@@ -72,15 +72,6 @@ public class EasyDesignReader implements IExperimentalDesignReader {
   public Map<String, List<Map<String, Object>>> getExperimentInfos() {
     return experimentInfos;
   }
-
-  public static final String UTF8_BOM = "\uFEFF";
-
-  private static String removeUTF8BOM(String s) {
-    if (s.startsWith(UTF8_BOM)) {
-      s = s.substring(1);
-    }
-    return s;
-  }
   
   public int countEntities(File file) throws IOException {
     Set<String> ids = new HashSet<String>();
@@ -94,7 +85,7 @@ public class EasyDesignReader implements IExperimentalDesignReader {
     // isPilot = false;
     while ((next = reader.readLine()) != null) {
       i++;
-      next = removeUTF8BOM(next);
+      next = ParserHelpers.removeUTF8BOM(next);
       tsvByRows.add(next);
       String[] nextLine = next.split("\t", -1);// this is needed for trailing tabs
       if (data.isEmpty() || nextLine.length == data.get(0).length) {
@@ -173,7 +164,7 @@ public class EasyDesignReader implements IExperimentalDesignReader {
     // isPilot = false;
     while ((next = reader.readLine()) != null) {
       i++;
-      next = removeUTF8BOM(next);
+      next = ParserHelpers.removeUTF8BOM(next);
       tsvByRows.add(next);
       String[] nextLine = next.split("\t", -1);// this is needed for trailing tabs
       if (data.isEmpty() || nextLine.length == data.get(0).length) {

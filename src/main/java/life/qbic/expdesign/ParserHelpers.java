@@ -40,6 +40,7 @@ public class ParserHelpers {
   private static final Pattern COLON = Pattern.compile(":");
   private static final Pattern SEMICOLON = Pattern.compile(";");
   private static final Pattern WHITESPACE = Pattern.compile(" ");
+  private static final String UTF8_BOM = "\uFEFF";
 
   public static final Map<String, TechnologyType> typeToTechnology =
       new HashMap<String, TechnologyType>() {
@@ -352,4 +353,12 @@ public class ParserHelpers {
       label = label.replaceFirst(Character.toString(first), "factor_" + first);
     return label;
   }
+  
+  public static String removeUTF8BOM(String s) {
+    if (s.startsWith(UTF8_BOM)) {
+      s = s.substring(1);
+    }
+    return s;
+  }
+
 }
