@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.xml.bind.JAXBException;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -23,6 +25,7 @@ import life.qbic.datamodel.ms.MSRunCollection;
 import life.qbic.datamodel.samples.ISampleBean;
 import life.qbic.datamodel.samples.SampleType;
 import life.qbic.datamodel.samples.TSVSampleBean;
+import life.qbic.expdesign.SamplePreparator;
 import life.qbic.expdesign.model.StructuredExperiment;
 import life.qbic.xml.properties.Unit;
 import life.qbic.xml.study.TechnologyType;
@@ -90,6 +93,13 @@ public class MHCLigandDesignReader implements IExperimentalDesignReader {
       logger.error(antibody + " is an unknown antibody. Returning 'null' as MHC Class");
       return null;
     }
+  }
+  
+  public static void main(String[] args) throws IOException, JAXBException {
+    MHCLigandDesignReader r = new MHCLigandDesignReader();
+      SamplePreparator p = new SamplePreparator();
+      p.processTSV(new File("/Users/frieda/Desktop/190603_QBiC_Batchupload_Ligandomics_LCa_QMLME_with_barcodes.tsv"), r, false);
+    
   }
 
   public MHCLigandDesignReader() {

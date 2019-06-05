@@ -16,6 +16,8 @@ import javax.xml.bind.JAXBException;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import life.qbic.datamodel.samples.ISampleBean;
 import life.qbic.expdesign.model.ExperimentalDesignPropertyWrapper;
@@ -42,6 +44,8 @@ public class ParserHelpers {
   private static final Pattern WHITESPACE = Pattern.compile(" ");
   private static final String UTF8_BOM = "\uFEFF";
 
+  private static Logger logger = LogManager.getLogger(ParserHelpers.class);
+  
   public static final Map<String, TechnologyType> typeToTechnology =
       new HashMap<String, TechnologyType>() {
         /**
@@ -177,9 +181,15 @@ public class ParserHelpers {
         }
         metadata.remove("XML_FACTORS");
 
+        //TODO preliminary fix for ligandomics, need to either distinguish factors and xml string or also convert ligandomics wf factors to be part of experimental design 
         if (metadata.containsKey("Q_PROPERTIES")) {
-          props = (List<Property>) metadata.get("Q_PROPERTIES");
-          metadata.remove("Q_PROPERTIES");
+          try {
+            props = (List<Property>) metadata.get("Q_PROPERTIES");
+            metadata.remove("Q_PROPERTIES");
+          } catch (ClassCastException e) {
+            logger.warn("Q_PROPERTIES of this sample does not contain a list of properties. Probably expected behaviour if ligandomics metadata was imported.");
+          }
+
         }
 
         for (Property p : props) {
