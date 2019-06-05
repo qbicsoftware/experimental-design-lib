@@ -416,6 +416,7 @@ public class MHCLigandDesignReader implements IExperimentalDesignReader {
             expIDToLigandExp.put(ligandPrepRun,
                 parseLigandExperimentData(row, headerMapping, ligandExperimentMetadata));
         }
+        sampleID++;
         TSVSampleBean msRun = new TSVSampleBean(Integer.toString(sampleID), SampleType.Q_MS_RUN, "",
             fillMetadata(header, row, meta, factors, loci, SampleType.Q_MS_RUN));
         MSRunCollection msRuns = new MSRunCollection(ligandPrepRun, msRunDate);
