@@ -99,7 +99,7 @@ public class MHCLigandDesignReader implements IExperimentalDesignReader {
     MHCLigandDesignReader r = new MHCLigandDesignReader();
       SamplePreparator p = new SamplePreparator();
       p.processTSV(new File("/Users/frieda/Desktop/190603_QBiC_Batchupload_Ligandomics_LCa_QMLME_with_barcodes.tsv"), r, false);
-    
+      System.out.println(p.getProcessed());
   }
 
   public MHCLigandDesignReader() {
@@ -427,7 +427,7 @@ public class MHCLigandDesignReader implements IExperimentalDesignReader {
           msIDToMSExp.put(msRuns,
               parseMSExperimentData(row, headerMapping, new HashMap<String, Object>()));
         msRun.addParentID(ligandExtrID);
-        msRun.addProperty("File", fName);
+//        msRun.addProperty("File", fName);
         String extID = fName.split("\\.")[0]; // can't be out of bounds
         msRun.addProperty("Q_EXTERNALDB_ID", extID); // file name is unique id
         msRun.addProperty("Q_PROPERTIES",

@@ -187,7 +187,7 @@ public class ParserHelpers {
             props = (List<Property>) metadata.get("Q_PROPERTIES");
             metadata.remove("Q_PROPERTIES");
           } catch (ClassCastException e) {
-            logger.warn("Q_PROPERTIES of this sample does not contain a list of properties. Probably expected behaviour if ligandomics metadata was imported.");
+            logger.warn("Q_PROPERTIES of "+s.getCode()+" does not contain a list of properties. Probably expected behaviour if ligandomics metadata was imported.");
           }
 
         }
