@@ -22,266 +22,10 @@ import life.qbic.datamodel.ms.MSRunCollection;
 import life.qbic.datamodel.samples.ISampleBean;
 import life.qbic.datamodel.samples.SampleType;
 import life.qbic.datamodel.samples.TSVSampleBean;
+import life.qbic.expdesign.model.MassSpecSampleHierarchy;
 import life.qbic.expdesign.model.StructuredExperiment;
 import life.qbic.xml.properties.Unit;
 import life.qbic.xml.study.TechnologyType;
-
-// private static final Logger logger = LogManager.getLogger(TopDownDesignReaderPCT.class);
-//
-// public TopDownDesignReaderPCT() {
-// this.mandatoryColumns = new ArrayList<String>(Arrays.asList("Sample Cleanup",
-// "Fractionation Type", "Cycle/Fraction Name", "Enrichment", "Labeling Type", "Label"));
-// this.mandatoryFilled = new ArrayList<String>(Arrays.asList("Sample Name", "MS Device",
-// "File Name", "LC Column", "LCMS Method", "Species", "Tissue"));
-// this.optionalCols = new ArrayList<String>(Arrays.asList("Second Species", "Comment"));
-//
-// headersToTypeCodePerSampletype = new HashMap<>();
-// headersToTypeCodePerSampletype.put(SampleType.Q_TEST_SAMPLE, new HashMap<>());
-// // headersToTypeCodePerSampletype.put("SampleType.Q_MS_RUN", msRunMetadata);
-// }
-//
-// /**
-// * Reads in a TSV file containing openBIS samples that should be registered. Returns a List of
-// * TSVSampleBeans containing all the necessary information to register each sample with its meta
-// * information to openBIS, given that the types and parents exist.
-// *
-// * @param file
-// * @return ArrayList of TSVSampleBeans
-// * @throws IOException
-// */
-// public List<ISampleBean> readSamples(File file, boolean parseGraph) throws IOException {
-// super.initReader();
-//
-// BufferedReader reader = new BufferedReader(new FileReader(file));
-// ArrayList<String[]> data = new ArrayList<String[]>();
-// String next;
-// int i = 0;
-// // isPilot = false;
-// while ((next = reader.readLine()) != null) {
-// i++;
-// next = removeUTF8BOM(next);
-// tsvByRows.add(next);
-// String[] nextLine = next.split("\t", -1);// this is needed for trailing tabs
-// if (data.isEmpty() || nextLine.length == data.get(0).length) {
-// data.add(nextLine);
-// } else {
-// error = "Wrong number of columns in row " + i;
-// reader.close();
-// return null;
-// }
-// }
-// reader.close();
-//
-// String[] header = data.get(0);
-// data.remove(0);
-// // find out where the mandatory and other metadata data is
-// Map<String, Integer> headerMapping = new HashMap<String, Integer>();
-// List<Integer> meta = new ArrayList<Integer>();
-// List<Integer> factors = new ArrayList<Integer>();
-// List<Integer> loci = new ArrayList<Integer>();
-// int numOfLevels = 5;
-//
-// ArrayList<String> found = new ArrayList<String>(Arrays.asList(header));
-// mandatoryColumns.addAll(mandatoryFilled);
-// for (String col : mandatoryColumns) {
-// if (!found.contains(col)) {
-// error = "Mandatory column " + col + " not found.";
-// return null;
-// }
-// }
-// for (i = 0; i < header.length; i++) {
-// int position = mandatoryColumns.indexOf(header[i]);
-// if (position == -1)
-// position = optionalCols.indexOf(header[i]);
-// if (position > -1) {
-// headerMapping.put(header[i], i);
-// meta.add(i);
-// } else {
-// meta.add(i);
-// }
-// }
-// // create samples
-// List<ISampleBean> beans = new ArrayList<>();
-// List<List<ISampleBean>> order = new ArrayList<>();
-// Map<String, TSVSampleBean> analyteToSample = new HashMap<>();
-// Map<SamplePreparationRun, Map<String, Object>> expIDToFracExp = new HashMap<>();
-// Map<MSRunCollection, Map<String, Object>> msIDToMSExp = new HashMap<>();
-//
-// int rowID = 0;
-// int sampleID = 0;
-// for (String[] row : data) {
-// rowID++;
-// boolean special = false;
-// if (!special) {
-// for (String col : mandatoryFilled) {
-// if (row[headerMapping.get(col)].isEmpty()) {
-// error = col + " is a mandatory field, but it is not set for row " + rowID + "!";
-// return null;
-// }
-// }
-// // mandatory fields that need to be filled to identify sources and samples
-// // String prepDate = row[headerMapping.get("Preparation Date")];
-// // String ligandExtrID = sourceID + "-" + tissue + "-" + prepDate + "-" + antibody;
-// // String msRunDate = row[headerMapping.get("MS Run Date")];
-//
-// String species = row[headerMapping.get("Species")];
-// String tissue = row[headerMapping.get("Tissue")];
-// String sampleName = row[headerMapping.get("Sample Name")];
-// String lcmsMethod = row[headerMapping.get("LCMS Method")];
-// String msDevice = row[headerMapping.get("MS Device")];
-// String lcCol = row[headerMapping.get("LC Column")];
-// String fName = row[headerMapping.get("File Name")];
-//
-// this.mandatoryColumns = new ArrayList<String>(Arrays.asList("Sample Cleanup",
-// "Fractionation Type", "Cycle/Fraction Name", "Enrichment", "Labeling Type", "Label"));
-//
-// String cleanup = "";
-// if (headerMapping.containsKey("Sample Cleanup")) {
-// cleanup = row[headerMapping.get("Sample Cleanup")];
-// }
-// String comment = "";
-// if (headerMapping.containsKey("Comment")) {
-// comment = row[headerMapping.get("Comment")];
-// }
-//
-// String labelingType = "";
-// String label = "";
-//
-// if (headerMapping.containsKey("Labeling Type")) {
-// labelingType = row[headerMapping.get("Labeling Type")];
-// label = row[headerMapping.get("Label")];
-// }
-//
-// String fracType = "";
-// String fracName = "";
-// String enrichType = "";
-//
-// fillParsedCategoriesToValuesForRow(headerMapping, row);
-//
-// if (headerMapping.containsKey("Enrichment")) {
-// enrichType = row[headerMapping.get("Enrichment")];
-// fracName = row[headerMapping.get("Cycle/Fraction Name")];
-// }
-//
-// if (headerMapping.containsKey("Fractionation Type")) {
-// fracType = row[headerMapping.get("Fractionation Type")];
-// fracName = row[headerMapping.get("Cycle/Fraction Name")];
-// }
-//
-// while (order.size() < numOfLevels) {
-// order.add(new ArrayList<ISampleBean>());
-// }
-// // always one new measurement per row
-// // chromatography options are stored on the MS level
-// // if there is fractionation or enrichment, a new protein experiment and samples are needed
-// // this is the case if fractionation or enrichment type is not empty
-// // the number of fractions is taken from the fraction names as well as the source barcode
-// // (protein barcode)
-// // so all fractions from the same protein sample end up in the same fractionation experiment
-// // IF the fractionation/enrichment type is the same
-// SamplePreparationRun fracRun = null;
-// if (!fracName.isEmpty()) {
-// String fracID = proteinParent + "_" + fracType + "_" + fracName;
-// fracRun = new SamplePreparationRun(proteinParent, prepDate, fracType, cleanup);
-// TSVSampleBean fracSample = analyteToSample.get(fracID);
-// if (fracSample == null) {
-// sampleID++;
-// fracSample = new TSVSampleBean(Integer.toString(sampleID), SampleType.Q_TEST_SAMPLE,
-// fracID, fillMetadata(header, row, meta, factors, loci, SampleType.Q_TEST_SAMPLE));
-// fracSample.addParentID(proteinParent);
-//
-// proteinParent = Integer.toString(sampleID);
-//
-// fracSample.addProperty("Q_EXTERNALDB_ID", fracID);
-// fracSample.addProperty("Q_SAMPLE_TYPE", "PROTEINS");
-//
-// order.get(0).add(fracSample);
-// analyteToSample.put(fracID, fracSample);
-//
-// fracSample.setExperiment(Integer.toString(fracRun.hashCode()));
-// Map<String, Object> fracExperimentMetadata = expIDToFracExp.get(fracRun);
-// if (fracExperimentMetadata == null) {
-// Map<String, Object> metadata = new HashMap<>();
-// addFractionationOrEnrichmentToMetadata(metadata, fracType);
-// // metadata.put("Q_FRACTIONATION_TYPE", fracType);
-// expIDToFracExp.put(fracRun, parsePrepExperimentData(row, headerMapping, metadata));
-// } else
-// expIDToFracExp.put(fracRun,
-// parsePrepExperimentData(row, headerMapping, fracExperimentMetadata));
-// } else {
-// proteinParent = fracSample.getCode();
-// }
-// }
-// sampleID++;
-// TSVSampleBean msRun = new TSVSampleBean(Integer.toString(sampleID), SampleType.Q_MS_RUN, "",
-// fillMetadata(header, row, meta, factors, loci, SampleType.Q_MS_RUN));
-// MSRunCollection msRuns = new MSRunCollection(fracRun, msRunDate, msDevice, lcCol);
-// msRun.setExperiment(Integer.toString(msRuns.hashCode()));
-// Map<String, Object> msExperiment = msIDToMSExp.get(msRuns);
-// if (msExperiment == null)
-// msIDToMSExp.put(msRuns, parseMSExperimentData(row, headerMapping, new HashMap<>()));
-// msRun.addParentID(proteinParent);
-// msRun.addProperty("File", fName);
-// if (!comment.isEmpty()) {
-// msRun.addProperty("Q_ADDITIONAL_INFO", comment);
-// }
-//
-// order.get(1).add(msRun);
-// }
-// }
-// experimentInfos = new HashMap<>();
-//
-// // fractionation experiments
-// List<PreliminaryOpenbisExperiment> fracExperiments = new ArrayList<>();
-// for (SamplePreparationRun prepRun : expIDToFracExp.keySet()) {
-// Map<String, Object> map = expIDToFracExp.get(prepRun);
-// // map.put("Code", Integer.toString(prepRun.hashCode()));// used to match samples to their
-// // experiments later
-// // msExperiments.add(map);
-// PreliminaryOpenbisExperiment e =
-// new PreliminaryOpenbisExperiment(ExperimentType.Q_SAMPLE_PREPARATION, map);
-// e.setCode(Integer.toString(prepRun.hashCode()));
-// fracExperiments.add(e);
-// }
-// experimentInfos.put(ExperimentType.Q_SAMPLE_PREPARATION, fracExperiments);
-//
-// // MS experiments
-// List<PreliminaryOpenbisExperiment> msExperiments = new ArrayList<>();
-// for (MSRunCollection runCollection : msIDToMSExp.keySet()) {
-// Map<String, Object> map = msIDToMSExp.get(runCollection);
-// // map.put("Code", Integer.toString(runCollection.hashCode()));// used to match samples to
-// // their
-// // experiments later
-// // msExperiments.add(map);
-// PreliminaryOpenbisExperiment e =
-// new PreliminaryOpenbisExperiment(ExperimentType.Q_MS_MEASUREMENT, map);
-// e.setCode(Integer.toString(runCollection.hashCode()));
-// msExperiments.add(e);
-// }
-// experimentInfos.put(ExperimentType.Q_MS_MEASUREMENT, msExperiments);
-// for (List<ISampleBean> level : order)
-// beans.addAll(level);
-// return beans;
-// }
-//
-// @Override
-// public Set<String> getAnalyteSet() {
-// return new HashSet<String>(Arrays.asList("PROTEINS"));
-// }
-//
-// @Override
-// // TODO
-// public int countEntities(File file) throws IOException {
-// return 0;
-// }
-//
-// @Override
-// public List<TechnologyType> getTechnologyTypes() {
-// // TODO Auto-generated method stub
-// return null;
-// }
-//
-// }
 
 
 public class MSDesignReader implements IExperimentalDesignReader {
@@ -297,6 +41,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
   private Map<String, List<Map<String, Object>>> experimentInfos;
   private Set<String> speciesSet;
   private Set<String> tissueSet;
+  private Set<String> fractionNameSet;
   private List<String> tsvByRows;
   private static final Logger logger = LogManager.getLogger(MSDesignReader.class);
 
@@ -309,7 +54,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
         "Sample Secondary Name", "Species", "Tissue", "LC Column", "MS Device", "LCMS Method"));
     this.optionalCols = new ArrayList<>(Arrays.asList("Expression System", "Pooled Sample",
         "Cycle/Fraction Name", "Fractionation Type", "Sample Preparation",
-        "Sample Cleanup (protein)", "Digestion Method", "Digestion Enzyme", "Enrichment",
+        "Sample Cleanup (protein)", "Digestion Method", "Digestion enzyme", "Enrichment",
         "Sample Cleanup (peptide)", "Labeling Type", "Label", "Comments"));
 
     Map<String, List<String>> sourceMetadata = new HashMap<>();
@@ -345,7 +90,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
   }
 
   public static final String UTF8_BOM = "\uFEFF";
-  public static final String LIST_SEPARATOR = "+";
+  public static final String LIST_SEPARATOR = "\\+";
 
   private static String removeUTF8BOM(String s) {
     if (s.startsWith(UTF8_BOM)) {
@@ -393,7 +138,6 @@ public class MSDesignReader implements IExperimentalDesignReader {
     List<Integer> meta = new ArrayList<Integer>();
     List<Integer> factors = new ArrayList<Integer>();
     List<Integer> loci = new ArrayList<Integer>();
-    int numOfLevels = 7;
 
     ArrayList<String> found = new ArrayList<String>(Arrays.asList(header));
     for (String col : mandatoryColumns) {
@@ -435,27 +179,38 @@ public class MSDesignReader implements IExperimentalDesignReader {
     }
     // create samples
     List<ISampleBean> beans = new ArrayList<>();
-    List<List<ISampleBean>> order = new ArrayList<>();
+
+    // worst case order of samples (hierarchy):
+    // organism - tissue - protein - peptide - protein pool - peptides of pool - protein
+    // fractions/cycles - peptides of fractions/cycles - pool of fractions - peptides of pool - ms
+    // measurements
+    List<MassSpecSampleHierarchy> order =
+        new ArrayList<>(Arrays.asList(MassSpecSampleHierarchy.values()));
+    Map<MassSpecSampleHierarchy, List<ISampleBean>> samplesInOrder = new HashMap<>();
+    for (MassSpecSampleHierarchy level : order) {
+      samplesInOrder.put(level, new ArrayList<>());
+    }
+
     Map<String, TSVSampleBean> sourceIDToSample = new HashMap<>();
     Map<String, TSVSampleBean> tissueToSample = new HashMap<>();
     Map<String, TSVSampleBean> proteinToSample = new HashMap<>();
     Map<String, TSVSampleBean> peptideToSample = new HashMap<>();
     Map<String, TSVSampleBean> fracProtToSample = new HashMap<>();
     Map<String, TSVSampleBean> fracPepToSample = new HashMap<>();
+    Map<String, TSVSampleBean> protPoolToSample = new HashMap<>();
+    Map<String, TSVSampleBean> peptPoolToSample = new HashMap<>();
+    Map<String, TSVSampleBean> fracProtPoolToSample = new HashMap<>();
+    Map<String, TSVSampleBean> fracPeptPoolToSample = new HashMap<>();
 
     Map<LigandPrepRun, Map<String, Object>> expIDToLigandExp =
         new HashMap<LigandPrepRun, Map<String, Object>>();
     Map<MSRunCollection, Map<String, Object>> msIDToMSExp =
         new HashMap<MSRunCollection, Map<String, Object>>();
-    // Map<String, TSVSampleBean>
-    List<TSVSampleBean> roots = new ArrayList<TSVSampleBean>();
     Set<String> speciesSet = new HashSet<String>();
     Set<String> tissueSet = new HashSet<String>();
     int rowID = 0;
     int sampleID = 0;
-    while (order.size() < numOfLevels) {
-      order.add(new ArrayList<ISampleBean>());
-    }
+
     for (String[] row : data) {
       rowID++;
       boolean special = false;
@@ -489,20 +244,22 @@ public class MSDesignReader implements IExperimentalDesignReader {
         // a) existing secondary name: only allowed if fractionation/enrichment is used. use
         // alpha:
 
-
-
         // if digested => search
         // if not known create digested
 
         String sourceID = row[headerMapping.get("Organism ID")];
         String species = row[headerMapping.get("Species")];
-        String expressionSystem = row[headerMapping.get("Expression System")];
+        String expressionSystem = null;
+        if (headerMapping.containsKey("Expression System")) {
+          expressionSystem = row[headerMapping.get("Expression System")];
+        }
         String tissue = row[headerMapping.get("Tissue")];
         String fileName = row[headerMapping.get("File Name")];
         String sampleName = row[headerMapping.get("Sample Secondary Name")];
         String poolName = row[headerMapping.get("Pooled Sample")];
         String digestType = row[headerMapping.get("Digestion Method")];
         String enzymes = row[headerMapping.get("Digestion enzyme")];
+
         String fracType = row[headerMapping.get("Fractionation Type")];
         String enrichType = row[headerMapping.get("Enrichment")];
         String fracName = row[headerMapping.get("Cycle/Fraction Name")];
@@ -510,21 +267,29 @@ public class MSDesignReader implements IExperimentalDesignReader {
         String isoLabel = row[headerMapping.get("Label")];
 
         // perform some sanity testing using XOR operator
-        if (isoLabelType == null ^ isoLabel == null) {
+        if (isoLabelType.isEmpty() ^ isoLabel.isEmpty()) {
           error = String.format(
               "Error in line %s: If sample label is specified, the isotope labeling type must be set and vice versa.",
               rowID);
           return null;
         }
-        if (enzymes == null ^ digestType == null) {
+        if (enzymes.isEmpty() ^ digestType.isEmpty()) {
           error = String.format(
               "Error in line %s: If sample digestion enzyme is specified, the digestion method must be set and vice versa.",
               rowID);
           return null;
         }
-        if (fracName == null ^ (enrichType == null && fracType == null)) {
+        if (fracName.isEmpty() ^ (enrichType.isEmpty() && fracType.isEmpty())) {
           error = String.format(
               "Error in line %s: If fractionation or enrichment is used, both type and fraction/cycle names must be specified.",
+              rowID);
+          return null;
+        }
+        if (!fracName.isEmpty() && !poolName.isEmpty()) {
+          error = String.format(
+              "Error in line %s: Cannot define fractionation/enrichment samples in the same line as pooled samples. Please refer "
+                  + "to fraction/cycle names that are to be pooled after defining them in their own lines. Alternatively, you can use "
+                  + "fractionation/enrichment on a pooled sample, which has been defined in a previous line by using its sample name.",
               rowID);
           return null;
         }
@@ -532,10 +297,58 @@ public class MSDesignReader implements IExperimentalDesignReader {
         speciesSet.add(species);
         tissueSet.add(tissue);
 
+        // File Name Organism ID Sample Secondary Name Species Tissue Pooled Sample Cycle/Fraction
+        // Name Fractionation Type Digestion Method Digestion enzyme Enrichment Labeling Type Label
+        // LC Column MS Device LCMS Method
+        // easy.raw p1 R1 Homo sapiens Whole blood Trypsin HPLC HFX 180min_something
+        // R2.raw p1 R2 Homo sapiens Liver Trypsin HPLC HFX 180min_something
+        // easy_pool.raw p1 R1R2 Homo sapiens Whole blood R1+R2 HPLC HFX 180min_something
+        // fraction1.raw p1 R3 Homo sapiens Whole blood R3F1 Offgel Trypsin SILAC light UPLC HFX
+        // 120min_x
+        // fraction2.raw p1 R3 Homo sapiens Whole blood R3F2 Offgel Trypsin SILAC medium UPLC HFX
+        // 120min_x
+        // fraction3.raw p1 R3 Homo sapiens Whole blood R3F3 Offgel Trypsin SILAC heavy UPLC HFX
+        // 120min_x
+        // pooled_fractions.raw p1 R3pool Homo sapiens Whole blood R3F1+R3F2+R3F3 Trypsin SILAC mix
+        // UPLC HFX 240min_y
+        // fractioned_pool1.raw p1 R1R2 Homo sapiens Whole blood Fraction #1 Offgel Trypsin SILAC
+        // light UPLC HFX 120min_x
+        // fractioned_pool2.raw p1 R1R2 Homo sapiens Whole blood Fraction #2 Offgel Trypsin SILAC
+        // medium UPLC HFX 120min_x
+        // fractioned_pool3.raw p1 R1R2 Homo sapiens Whole blood Fraction #3 Offgel Trypsin SILAC
+        // heavy UPLC HFX 120min_x
+        //
+        // line 1:
+        // create entity p1, create tissue p1_blood, create protein R1, create peptide R1 digested,
+        // create ms sample
+        // line 2:
+        // create tissue p1_liver, create protein R2, create peptide R2 digested, create MS sample
+        // line 3:
+        // create peptide R1R2, create MS sample
+        // line 4:
+        // create protein R3, create fraction R3F1, create peptide R3F1 digested, create MS sample
+        // line 5:
+        // create fraction R3F2, create peptide R3F2 digested, create MS sample
+        // line 6:
+        // create fraction R3F3, create peptide R3F2 digested, create MS sample
+        // line 7:
+        // create peptide R3pool, create MS sample
+        // line 8:
+        // create peptide Fraction #1, create MS sample
+        // line 9:
+        // create peptide Fraction #2, create MS sample
+        // line 10:
+        // create peptide Fraction #3, create MS sample
+
         // always one new measurement per row
+        sampleID++;
+        TSVSampleBean msRun = new TSVSampleBean(Integer.toString(sampleID), SampleType.Q_MS_RUN, "",
+            fillMetadata(header, row, meta, factors, loci, SampleType.Q_MS_RUN));
+        msRun.addProperty("File", fileName);
+        samplesInOrder.get(MassSpecSampleHierarchy.MassSpecRun).add(msRun);
 
         // if sample is pooled, all levels before must be known already from previous lines
-        if (poolName != null) {
+        if (!poolName.isEmpty()) {
           TSVSampleBean source = sourceIDToSample.get(sourceID);
           String tissueID = sourceID + "-" + tissue;
           TSVSampleBean tissueSample = tissueToSample.get(tissueID);
@@ -549,33 +362,33 @@ public class MSDesignReader implements IExperimentalDesignReader {
 
           // try to find all defined parent samples
           List<TSVSampleBean> parents = new ArrayList<>();
+          boolean fractParents = false;
           boolean parentFound = false;
           boolean parentsPeptides = false;
           boolean parentsProteins = false;
           for (String parentID : parsePoolParents(poolName)) {
-            if (proteinToSample.containsKey(parentID)) {
-              parentFound = true;
-              parentsProteins = true;
-              parents.add(proteinToSample.get(parentID));
-            }
             if (peptideToSample.containsKey(parentID)) {
               parentFound = true;
               parentsPeptides = true;
               parents.add(peptideToSample.get(parentID));
-            }
-            if (fracProtToSample.containsKey(parentID)) {
+            } else if (proteinToSample.containsKey(parentID)) {
               parentFound = true;
               parentsProteins = true;
-              parents.add(fracProtToSample.get(parentID));
-            }
-            if (fracPepToSample.containsKey(parentID)) {
+              parents.add(proteinToSample.get(parentID));
+            } else if (fracPepToSample.containsKey(parentID)) {
               parentFound = true;
               parentsPeptides = true;
+              fractParents = true;
               parents.add(fracPepToSample.get(parentID));
+            } else if (fracProtToSample.containsKey(parentID)) {
+              parentFound = true;
+              parentsProteins = true;
+              fractParents = true;
+              parents.add(fracProtToSample.get(parentID));
             }
             if (!parentFound) {
               error = String.format(
-                  "Error in line %s: Sample identifier %s used in pooled sample %s must be defined in previous line %s.",
+                  "Error in line %s: Sample identifier %s used in pooled sample %s must be defined in previous line.",
                   rowID, parentID, poolName);
               return null;
             }
@@ -593,162 +406,237 @@ public class MSDesignReader implements IExperimentalDesignReader {
             analyte = "PEPTIDES";
           }
           TSVSampleBean pool =
-              new TSVSampleBean(Integer.toString(sampleID), SampleType.Q_TEST_SAMPLE, poolName,
+              new TSVSampleBean(Integer.toString(sampleID), SampleType.Q_TEST_SAMPLE, sampleName,
                   fillMetadata(header, row, meta, factors, loci, SampleType.Q_TEST_SAMPLE));
-          pool.addProperty("Q_EXTERNALDB_ID", poolName);
-          peptideToSample.put(peptideID, pool);
+          pool.addProperty("Q_EXTERNALDB_ID", sampleName);
+
           pool.addProperty("Q_SAMPLE_TYPE", analyte);
           for (TSVSampleBean parent : parents) {
             pool.addParentID(parent.getCode());
           }
+
           // a new digestion sample below the pool is needed when digest parameters are specified
           // and parent sample(s) are not already peptides
-          if (digestType != null && !parentsPeptides) {
-            
-          }
-        }
-
-
-        // if organism id not known => create organism entity. put in map.
-        // else get organism entity.
-        TSVSampleBean sampleSource = sourceIDToSample.get(sourceID);
-        if (sampleSource == null) {
-          sampleID++;
-
-          sampleSource = new TSVSampleBean(Integer.toString(sampleID),
-              SampleType.Q_BIOLOGICAL_ENTITY, sourceID,
-              fillMetadata(header, row, meta, factors, loci, SampleType.Q_BIOLOGICAL_ENTITY));
-          // sampleSource.addProperty("Q_EXTERNALDB_ID", sourceID);
-          roots.add(sampleSource);
-          order.get(0).add(sampleSource);
-          sourceIDToSample.put(sourceID, sampleSource);
-        }
-        // we don't have tissue ids, so we build unique identifiers by adding sourceID and tissue
-        // name
-        String tissueID = sourceID + "-" + tissue;
-        TSVSampleBean tissueSample = tissueToSample.get(tissueID);
-        if (tissueSample == null) {
-          sampleID++;
-
-          tissueSample = new TSVSampleBean(Integer.toString(sampleID),
-              SampleType.Q_BIOLOGICAL_SAMPLE, tissueID,
-              fillMetadata(header, row, meta, factors, loci, SampleType.Q_BIOLOGICAL_SAMPLE));
-          order.get(1).add(tissueSample);
-          tissueSample.addParentID(sourceID);
-          tissueSample.addProperty("Q_EXTERNALDB_ID", tissueID);
-          tissueToSample.put(tissueID, tissueSample);
-        }
-        // if sample secondary name not known => create protein sample
-        TSVSampleBean proteinSample = proteinToSample.get(sampleName);
-        if (proteinSample == null) {
-          sampleID++;
-
-          proteinSample = new TSVSampleBean(Integer.toString(sampleID), SampleType.Q_TEST_SAMPLE,
-              sampleName, fillMetadata(header, row, meta, factors, loci, SampleType.Q_TEST_SAMPLE));
-          order.get(2).add(proteinSample);
-          proteinSample.addParentID(tissueID);
-          proteinSample.addProperty("Q_EXTERNALDB_ID", sampleName);
-          proteinToSample.put(sampleName, proteinSample);
-          proteinSample.addProperty("Q_SAMPLE_TYPE", "PROTEINS");
-
-          // TODO compare: fractionation/enrichment, check pooling
-          // if sample is digested, the peptide sample will relate to the sample name
-          if (digestType != null) {
-            String peptideID = sampleName + " digested";
-            TSVSampleBean peptideSample = peptideToSample.get(peptideID);
-            if (peptideSample == null) {
-              sampleID++;
-
-              peptideSample =
-                  new TSVSampleBean(Integer.toString(sampleID), SampleType.Q_TEST_SAMPLE, peptideID,
-                      fillMetadata(header, row, meta, factors, loci, SampleType.Q_TEST_SAMPLE));
-              order.get(3).add(peptideSample);
-              peptideSample.addParentID(sampleName);
-              peptideSample.addProperty("Q_EXTERNALDB_ID", peptideID);
-              peptideToSample.put(peptideID, peptideSample);
-              peptideSample.addProperty("Q_SAMPLE_TYPE", "PEPTIDES");
+          if (!digestType.isEmpty() && !parentsPeptides) {
+            sampleID++;
+            TSVSampleBean digestedPool =
+                new TSVSampleBean(Integer.toString(sampleID), SampleType.Q_TEST_SAMPLE, sampleName,
+                    fillMetadata(header, row, meta, factors, loci, SampleType.Q_TEST_SAMPLE));
+            digestedPool.addProperty("Q_EXTERNALDB_ID", sampleName);
+            if (fractParents) {
+              fracPeptPoolToSample.put(sampleName, digestedPool);
+              samplesInOrder.get(MassSpecSampleHierarchy.PooledFractionedPeptides)
+                  .add(digestedPool);
+            } else {
+              samplesInOrder.get(MassSpecSampleHierarchy.PooledPeptides).add(digestedPool);
+              peptPoolToSample.put(sampleName, digestedPool);
             }
+            pool.addProperty("Q_SAMPLE_TYPE", "PEPTIDES");
+            msRun.addParentID(digestedPool.getCode());
+          } else {
+            msRun.addParentID(pool.getCode());
           }
-        }
-        // TODO place in right context
-        if (fracName != null) {
-          String fracID = sampleName + "-" + fracName;// TODO?
-          TSVSampleBean fracProtSample = fracProtToSample.get(fracID);
-          if (fracProtSample == null) {
+
+          // ordering - testing for parent peptide samples and fractions is important, as these are
+          // the lowest possible previous levels
+          if (parentsPeptides && fractParents) {
+            samplesInOrder.get(MassSpecSampleHierarchy.PooledFractionedPeptides).add(pool);
+            fracPeptPoolToSample.put(sampleName, pool);
+          } else if (parentsPeptides && !fractParents) {
+            samplesInOrder.get(MassSpecSampleHierarchy.PooledPeptides).add(pool);
+            peptPoolToSample.put(sampleName, pool);
+          } else if (!parentsPeptides && fractParents) {
+            samplesInOrder.get(MassSpecSampleHierarchy.PooledFractionedProteins).add(pool);
+            fracProtPoolToSample.put(sampleName, pool);
+          } else {
+            samplesInOrder.get(MassSpecSampleHierarchy.PooledProteins).add(pool);
+            protPoolToSample.put(sampleName, pool);
+          }
+
+        } else {
+          // end pooling block
+          ////////////////////
+          // if organism id not known => create organism entity. put in map.
+          // else get organism entity.
+          TSVSampleBean sampleSource = sourceIDToSample.get(sourceID);
+          if (sampleSource == null) {
             sampleID++;
 
-            fracProtSample = new TSVSampleBean(Integer.toString(sampleID), SampleType.Q_TEST_SAMPLE,
-                fracName, fillMetadata(header, row, meta, factors, loci, SampleType.Q_TEST_SAMPLE));
-            order.get(4).add(proteinSample);
-            fracProtSample.addParentID(sampleName);
-            fracProtSample.addProperty("Q_EXTERNALDB_ID", fracName);
-            fracProtToSample.put(fracID, fracProtSample);
-            fracProtSample.addProperty("Q_SAMPLE_TYPE", "PROTEINS");
-          }
-          if (digestType != null) {
-            sampleID++;
+            sampleSource = new TSVSampleBean(Integer.toString(sampleID),
+                SampleType.Q_BIOLOGICAL_ENTITY, sourceID,
+                fillMetadata(header, row, meta, factors, loci, SampleType.Q_BIOLOGICAL_ENTITY));
+            // sampleSource.addProperty("Q_EXTERNALDB_ID", sourceID);
+            samplesInOrder.get(MassSpecSampleHierarchy.Organism).add(sampleSource);
+            sourceIDToSample.put(sourceID, sampleSource);
 
-            String peptideID = fracID + " digested";
-            TSVSampleBean fracPeptideSample = fracPepToSample.get(peptideID);
-            if (fracPeptideSample == null) {
-              sampleID++;
-
-              fracPeptideSample =
-                  new TSVSampleBean(Integer.toString(sampleID), SampleType.Q_TEST_SAMPLE, peptideID,
-                      fillMetadata(header, row, meta, factors, loci, SampleType.Q_TEST_SAMPLE));
-              order.get(5).add(fracPeptideSample);
-              fracPeptideSample.addParentID(fracID);
-              fracPeptideSample.addProperty("Q_EXTERNALDB_ID", peptideID);
-              fracPepToSample.put(peptideID, fracPeptideSample);
-              fracPeptideSample.addProperty("Q_SAMPLE_TYPE", "PEPTIDES");
+            if (expressionSystem != null) {
+              speciesSet.add(expressionSystem);
+              sampleSource.addProperty("Q_EXPRESSION_SYSTEM", expressionSystem);
             }
           }
-        }
+          // we don't have tissue ids, so we build unique identifiers by adding sourceID and tissue
+          // name
+          String tissueID = sourceID + "-" + tissue;
+          TSVSampleBean tissueSample = tissueToSample.get(tissueID);
+          if (tissueSample == null) {
+            sampleID++;
+
+            tissueSample = new TSVSampleBean(Integer.toString(sampleID),
+                SampleType.Q_BIOLOGICAL_SAMPLE, tissueID,
+                fillMetadata(header, row, meta, factors, loci, SampleType.Q_BIOLOGICAL_SAMPLE));
+            samplesInOrder.get(MassSpecSampleHierarchy.Tissue).add(tissueSample);
+            tissueSample.addParentID(sampleSource.getCode());
+            tissueSample.addProperty("Q_EXTERNALDB_ID", tissueID);
+            tissueToSample.put(tissueID, tissueSample);
+          }
+          // if sample secondary name not known => create protein sample
+          // but: ignore, if this is a fractionation of a known pooled sample
+          if (fracName.isEmpty() || (!peptPoolToSample.containsKey(sampleName)
+              && !protPoolToSample.containsKey(sampleName))) {
+
+            TSVSampleBean proteinSample = proteinToSample.get(sampleName);
+            if (proteinSample == null) {
+              sampleID++;
+
+              proteinSample = new TSVSampleBean(Integer.toString(sampleID),
+                  SampleType.Q_TEST_SAMPLE, sampleName,
+                  fillMetadata(header, row, meta, factors, loci, SampleType.Q_TEST_SAMPLE));
+              samplesInOrder.get(MassSpecSampleHierarchy.Proteins).add(proteinSample);
+              proteinSample.addParentID(tissueSample.getCode());
+              proteinSample.addProperty("Q_EXTERNALDB_ID", sampleName);
+              proteinToSample.put(sampleName, proteinSample);
+              proteinSample.addProperty("Q_SAMPLE_TYPE", "PROTEINS");
+
+              // TODO compare: fractionation/enrichment, check pooling
+              // if sample is digested, the peptide sample will relate to the sample name
+              if (!digestType.isEmpty()) {
+                String peptideID = sampleName;
+                TSVSampleBean peptideSample = peptideToSample.get(peptideID);
+                if (peptideSample == null) {
+                  sampleID++;
+
+                  peptideSample = new TSVSampleBean(Integer.toString(sampleID),
+                      SampleType.Q_TEST_SAMPLE, peptideID,
+                      fillMetadata(header, row, meta, factors, loci, SampleType.Q_TEST_SAMPLE));
+                  samplesInOrder.get(MassSpecSampleHierarchy.Peptides).add(peptideSample);
+                  peptideSample.addParentID(proteinSample.getCode());
+                  peptideSample.addProperty("Q_EXTERNALDB_ID", peptideID);
+                  peptideToSample.put(peptideID, peptideSample);
+                  peptideSample.addProperty("Q_SAMPLE_TYPE", "PEPTIDES");
+                  if (fracName.isEmpty()) {
+                    msRun.addParentID(peptideSample.getCode());
+                  }
+                }
+              } else {
+                if (fracName.isEmpty()) {
+                  msRun.addParentID(proteinSample.getCode());
+                }
+              }
+            }
+          }
+          // TODO place in right context
+          if (!fracName.isEmpty()) {
+            // find parent of fraction by sampleName, starting at the lowest possible hierachy
+            // (peptides of pools)
+            String parentID = null;
+            boolean parentPeptides = false;
+            if (peptPoolToSample.containsKey(sampleName)) {
+              parentID = peptPoolToSample.get(sampleName).getCode();
+              parentPeptides = true;
+            } else if (protPoolToSample.containsKey(sampleName)) {
+              parentID = protPoolToSample.get(sampleName).getCode();
+            } else if (peptideToSample.containsKey(sampleName)) {
+              parentID = peptideToSample.get(sampleName).getCode();
+              parentPeptides = true;
+            } else if (proteinToSample.containsKey(sampleName)) {
+              parentID = proteinToSample.get(sampleName).getCode();
+            }
+            if (parentID == null) {
+              error = String.format(
+                  "Error in line %s: Sample identifier %s used in fractionation/enrichment %s must be defined in previous line.",
+                  rowID, sampleName, fracName);
+              return null;
+            }
+
+            sampleID++;
+
+            TSVSampleBean fracSample =
+                new TSVSampleBean(Integer.toString(sampleID), SampleType.Q_TEST_SAMPLE, fracName,
+                    fillMetadata(header, row, meta, factors, loci, SampleType.Q_TEST_SAMPLE));
+            fracSample.addProperty("Q_EXTERNALDB_ID", fracName);
+            String analyte = "PROTEINS";
+            if (parentPeptides) {
+              analyte = "PEPTIDES";
+              fracPepToSample.put(fracName, fracSample);
+              samplesInOrder.get(MassSpecSampleHierarchy.FractionedPeptides).add(fracSample);
+            } else {
+              fracProtToSample.put(fracName, fracSample);
+              samplesInOrder.get(MassSpecSampleHierarchy.FractionedProteins).add(fracSample);
+            }
+            fracSample.addProperty("Q_SAMPLE_TYPE", analyte);
+            fracSample.addParentID(parentID);
+
+            // a new digestion sample is needed when digest parameters are specified
+            // and parent sample is not already peptide sample
+            if (!digestType.isEmpty() && !parentPeptides) {
+              sampleID++;
+              TSVSampleBean digestedFrac =
+                  new TSVSampleBean(Integer.toString(sampleID), SampleType.Q_TEST_SAMPLE, fracName,
+                      fillMetadata(header, row, meta, factors, loci, SampleType.Q_TEST_SAMPLE));
+              digestedFrac.addProperty("Q_EXTERNALDB_ID", fracName);
+              digestedFrac.addProperty("Q_SAMPLE_TYPE", "PEPTIDES");
+              fracPepToSample.put(fracName, fracSample);
+              samplesInOrder.get(MassSpecSampleHierarchy.FractionedPeptides).add(fracSample);
+
+              msRun.addParentID(digestedFrac.getCode());
+            } else {
+              msRun.addParentID(fracSample.getCode());
+            }
+          }
 
 
-        // Ligand Extract Level (Analyte)
-        // TSVSampleBean ligandExtract = analyteToSample.get(ligandExtrID);
+          // Ligand Extract Level (Analyte)
+          // TSVSampleBean ligandExtract = analyteToSample.get(ligandExtrID);
 
-        // Two ligand samples were prepared together (e.g. multiple antibody columns) only if
-        // patient, prep date, handled tissue and sample amount (mass, vol or cell count) are the
-        // same
-        // LigandPrepRun ligandPrepRun =
-        // new LigandPrepRun(sourceID, tissue, prepDate, sampleAmount + " " + amountColName);
-        // if (ligandExtract == null) {
-        // sampleID++;
-        // ligandExtract = new TSVSampleBean(Integer.toString(sampleID),
-        // SampleType.Q_MHC_LIGAND_EXTRACT, extractID,
-        // fillMetadata(header, row, meta, factors, loci, SampleType.Q_MHC_LIGAND_EXTRACT));
-        // ligandExtract.addProperty("Q_ANTIBODY", antibody);
-        // ligandExtract.addParentID(prepID);
-        // ligandExtract.addProperty("Q_EXTERNALDB_ID", ligandExtrID);
-        // order.get(3).add(ligandExtract);
-        // analyteToSample.put(ligandExtrID, ligandExtract);
-        //
-        // ligandExtract.setExperiment(Integer.toString(ligandPrepRun.hashCode()));
-        // Map<String, Object> ligandExperimentMetadata = expIDToLigandExp.get(ligandPrepRun);
-        // if (ligandExperimentMetadata == null) {
-        // Map<String, Object> metadata = new HashMap<String, Object>();
-        // expIDToLigandExp.put(ligandPrepRun,
-        // parseLigandExperimentData(row, headerMapping, metadata));
-        // } else
-        // expIDToLigandExp.put(ligandPrepRun,
-        // parseLigandExperimentData(row, headerMapping, ligandExperimentMetadata));
-        // }
-        TSVSampleBean msRun = new TSVSampleBean(Integer.toString(sampleID), SampleType.Q_MS_RUN, "",
-            fillMetadata(header, row, meta, factors, loci, SampleType.Q_MS_RUN));
-        // MSRunCollection msRuns = new MSRunCollection(ligandPrepRun, msRunDate);
-        // msRun.setExperiment(Integer.toString(msRuns.hashCode()));
-        // Map<String, Object> msExperiment = msIDToMSExp.get(msRuns);
-        // if (msExperiment == null)
-        // TODO can we be sure that all metadata is the same if ligand prep run
-        // and ms run date are the same?
-        // msIDToMSExp.put(msRuns,
-        // parseMSExperimentData(row, headerMapping, new HashMap<String, Object>()));
-        // msRun.addParentID(ligandExtrID);
-        msRun.addProperty("File", fName);
+          // Two ligand samples were prepared together (e.g. multiple antibody columns) only if
+          // patient, prep date, handled tissue and sample amount (mass, vol or cell count) are the
+          // same
+          // LigandPrepRun ligandPrepRun =
+          // new LigandPrepRun(sourceID, tissue, prepDate, sampleAmount + " " + amountColName);
+          // if (ligandExtract == null) {
+          // sampleID++;
+          // ligandExtract = new TSVSampleBean(Integer.toString(sampleID),
+          // SampleType.Q_MHC_LIGAND_EXTRACT, extractID,
+          // fillMetadata(header, row, meta, factors, loci, SampleType.Q_MHC_LIGAND_EXTRACT));
+          // ligandExtract.addProperty("Q_ANTIBODY", antibody);
+          // ligandExtract.addParentID(prepID);
+          // ligandExtract.addProperty("Q_EXTERNALDB_ID", ligandExtrID);
+          // order.get(3).add(ligandExtract);
+          // analyteToSample.put(ligandExtrID, ligandExtract);
+          //
+          // ligandExtract.setExperiment(Integer.toString(ligandPrepRun.hashCode()));
+          // Map<String, Object> ligandExperimentMetadata = expIDToLigandExp.get(ligandPrepRun);
+          // if (ligandExperimentMetadata == null) {
+          // Map<String, Object> metadata = new HashMap<String, Object>();
+          // expIDToLigandExp.put(ligandPrepRun,
+          // parseLigandExperimentData(row, headerMapping, metadata));
+          // } else
+          // expIDToLigandExp.put(ligandPrepRun,
+          // parseLigandExperimentData(row, headerMapping, ligandExperimentMetadata));
+          // }
+          // MSRunCollection msRuns = new MSRunCollection(ligandPrepRun, msRunDate);
+          // msRun.setExperiment(Integer.toString(msRuns.hashCode()));
+          // Map<String, Object> msExperiment = msIDToMSExp.get(msRuns);
+          // if (msExperiment == null)
+          // TODO can we be sure that all metadata is the same if ligand prep run
+          // and ms run date are the same?
+          // msIDToMSExp.put(msRuns,
+          // parseMSExperimentData(row, headerMapping, new HashMap<String, Object>()));
+          // msRun.addParentID(ligandExtrID);
 
-        order.get(4).add(msRun);
+
+
+        } // end non-pooled block
       }
     }
     experimentInfos = new HashMap<String, List<Map<String, Object>>>();
@@ -772,15 +660,26 @@ public class MSDesignReader implements IExperimentalDesignReader {
       msExperiments.add(map);
     }
     experimentInfos.put("Q_MS_MEASUREMENT", msExperiments);
-    System.out.println(expIDToLigandExp.keySet());
-    for (List<ISampleBean> level : order)
-      beans.addAll(level);
-    boolean unique = checkUniqueIDsBetweenSets(speciesSet, tissueSet);
-    if (!unique)
-      return null;
+    for (MassSpecSampleHierarchy level : order) {
+      beans.addAll(samplesInOrder.get(level));
+      System.out.println(level.toString().toUpperCase());
+      printSampleLevel(samplesInOrder.get(level));
+      System.out.println("#####");
+    }
+
     this.speciesSet = speciesSet;
     this.tissueSet = tissueSet;
     return beans;
+  }
+
+  private void printSampleLevel(List<ISampleBean> level) {
+    for (ISampleBean s : level) {
+      System.out.println("Sample " + s.getSecondaryName() + " (id: " + s.getCode() + ")");
+      System.out.println("Parents: " + s.getParentIDs());
+      System.out.println(s.getType());
+      System.out.println(s.getMetadata());
+      System.out.println("#");
+    }
   }
 
   private List<String> parsePoolParents(String poolName) {
@@ -933,7 +832,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
   @Override
   // TODO
   public int countEntities(File file) throws IOException {
-    return 0;
+    return -1;
   }
 
   @Override

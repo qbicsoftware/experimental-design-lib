@@ -23,8 +23,13 @@ public enum ExperimentalDesignType {
 
   MHC_Ligands_Finished("Ligandomics Format (measured)",
       "Format to describe MHC Ligand extraction and measurement experiments. Tissue, Antibody and Mass spectrometry information needs to be provided. Measurements should be from the same project/group of patients.",
-      Arrays.asList(""),
-      Arrays.asList("")), MHC_Ligands_Plan("", "", Arrays.asList(), Arrays.asList());
+      Arrays.asList(""), Arrays.asList("")),
+
+  Proteomics_MassSpectrometry("Protein mass spectrometry",
+      "Format to describe sample preparation and MS / LCMS measurement of protein or peptide samples.",
+      Arrays.asList(""), Arrays.asList("")),
+
+  MHC_Ligands_Plan("", "", Arrays.asList(), Arrays.asList());
 
   private final String name;
   private final String description;
