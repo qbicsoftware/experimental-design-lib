@@ -1,6 +1,11 @@
 package life.qbic.expdesign;
 
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -10,15 +15,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
-
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import life.qbic.datamodel.samples.ISampleBean;
 import life.qbic.expdesign.model.ExperimentalDesignPropertyWrapper;
 import life.qbic.xml.loci.GeneLocus;
@@ -45,7 +47,7 @@ public class ParserHelpers {
   private static final String UTF8_BOM = "\uFEFF";
 
   private static Logger logger = LogManager.getLogger(ParserHelpers.class);
-  
+
   public static final Map<String, TechnologyType> typeToTechnology =
       new HashMap<String, TechnologyType>() {
         /**
@@ -69,14 +71,14 @@ public class ParserHelpers {
         };
       };
 
-      /**
-       * 
-       * @param sampleInfos
-       * @param omicsTypes
-       * @param designTypes optional keywords denoting which experimental designs were used
-       * @return
-       * @throws JAXBException
-       */
+  /**
+   * 
+   * @param sampleInfos
+   * @param omicsTypes
+   * @param designTypes optional keywords denoting which experimental designs were used
+   * @return
+   * @throws JAXBException
+   */
   public static String createDesignXML(ExperimentalDesignPropertyWrapper sampleInfos,
       List<TechnologyType> omicsTypes, Set<String> designTypes) throws JAXBException {
     StudyXMLParser p = new StudyXMLParser();
@@ -98,7 +100,8 @@ public class ParserHelpers {
    * @return map containing the openbis property key and xml string to be registered in openbis
    */
   public static Map<String, Object> getExperimentalDesignMap(Map<String, String> currentDesign,
-      ExperimentalDesignPropertyWrapper importedDesignProperties, List<TechnologyType> techTypes, Set<String> designTypes) {
+      ExperimentalDesignPropertyWrapper importedDesignProperties, List<TechnologyType> techTypes,
+      Set<String> designTypes) {
     final String SETUP_PROPERTY_CODE = "Q_EXPERIMENTAL_SETUP";
     String oldXML = currentDesign.get(SETUP_PROPERTY_CODE);
     Map<String, Map<Pair<String, String>, List<String>>> design =
@@ -138,91 +141,93 @@ public class ParserHelpers {
         new HashMap<String, Map<Pair<String, String>, List<String>>>();
     Map<String, List<Property>> otherProps = new HashMap<String, List<Property>>();
     // TODO all types?
-//    Set<String> types = new HashSet<String>(Arrays.asList("Q_BIOLOGICAL_SAMPLE",
-//        "Q_BIOLOGICAL_ENTITY", "Q_TEST_SAMPLE", "Q_MHC_LIGAND_EXTRACT"));
+    // Set<String> types = new HashSet<String>(Arrays.asList("Q_BIOLOGICAL_SAMPLE",
+    // "Q_BIOLOGICAL_ENTITY", "Q_TEST_SAMPLE", "Q_MHC_LIGAND_EXTRACT"));
     for (ISampleBean s : samples) {
-//      if (types.contains(s.getType())) {
-        String code = s.getCode();
-        List<Property> props = new ArrayList<Property>();
-        Map<String, Object> metadata = s.getMetadata();
+      // if (types.contains(s.getType())) {
+      String code = s.getCode();
+      List<Property> props = new ArrayList<Property>();
+      Map<String, Object> metadata = s.getMetadata();
 
-        // collect properties from metadata map
-        // isa-tab format
-        if (metadata.get("Factors") != null) {
-          @SuppressWarnings("unchecked")
-          List<Property> properties = (List<Property>) metadata.get("Factors");
-          for (Property f : properties) {
-            String factorLabel = factorNameForXML(f.getLabel());
-            if (f.hasUnit())
-              props.add(new Property(factorLabel, f.getValue(), f.getUnit(), f.getType()));
+      // collect properties from metadata map
+      // isa-tab format
+      if (metadata.get("Factors") != null) {
+        @SuppressWarnings("unchecked")
+        List<Property> properties = (List<Property>) metadata.get("Factors");
+        for (Property f : properties) {
+          String factorLabel = factorNameForXML(f.getLabel());
+          if (f.hasUnit())
+            props.add(new Property(factorLabel, f.getValue(), f.getUnit(), f.getType()));
+          else
+            props.add(new Property(factorLabel, f.getValue(), f.getType()));
+        }
+      }
+      metadata.remove("Factors");
+
+      // other parsers
+      if (metadata.get("XML_FACTORS") != null) {
+        String[] fStrings = SEMICOLON.split((String) metadata.get("XML_FACTORS"));
+        for (String factor : fStrings) {
+          if (factor.length() > 1) {
+            String[] fields = COLON.split(factor);
+            for (int i = 0; i < fields.length; i++)
+              fields[i] = fields[i].trim();
+            Matcher matcher = WHITESPACE.matcher(fields[0]);
+            String lab = matcher.replaceAll("");
+            String val = fields[1];
+            if (fields.length > 2)
+              props.add(new Property(lab, val, Unit.valueOf(fields[2]), PropertyType.Factor));
             else
-              props.add(new Property(factorLabel, f.getValue(), f.getType()));
+              props.add(new Property(lab, val, PropertyType.Factor));
           }
         }
-        metadata.remove("Factors");
+      }
+      metadata.remove("XML_FACTORS");
 
-        // other parsers
-        if (metadata.get("XML_FACTORS") != null) {
-          String[] fStrings = SEMICOLON.split((String) metadata.get("XML_FACTORS"));
-          for (String factor : fStrings) {
-            if (factor.length() > 1) {
-              String[] fields = COLON.split(factor);
-              for (int i = 0; i < fields.length; i++)
-                fields[i] = fields[i].trim();
-              Matcher matcher = WHITESPACE.matcher(fields[0]);
-              String lab = matcher.replaceAll("");
-              String val = fields[1];
-              if (fields.length > 2)
-                props.add(new Property(lab, val, Unit.valueOf(fields[2]), PropertyType.Factor));
-              else
-                props.add(new Property(lab, val, PropertyType.Factor));
-            }
-          }
-        }
-        metadata.remove("XML_FACTORS");
-
-        //TODO preliminary fix for ligandomics, need to either distinguish factors and xml string or also convert ligandomics wf factors to be part of experimental design 
-        if (metadata.containsKey("Q_PROPERTIES")) {
-          try {
-            props = (List<Property>) metadata.get("Q_PROPERTIES");
-            metadata.remove("Q_PROPERTIES");
-          } catch (ClassCastException e) {
-            logger.warn("Q_PROPERTIES of "+s.getCode()+" does not contain a list of properties. Probably expected behaviour if ligandomics metadata was imported.");
-          }
-
+      // TODO preliminary fix for ligandomics, need to either distinguish factors and xml string or
+      // also convert ligandomics wf factors to be part of experimental design
+      if (metadata.containsKey("Q_PROPERTIES")) {
+        try {
+          props = (List<Property>) metadata.get("Q_PROPERTIES");
+          metadata.remove("Q_PROPERTIES");
+        } catch (ClassCastException e) {
+          logger.warn("Q_PROPERTIES of " + s.getCode()
+              + " does not contain a list of properties. Probably expected behaviour if ligandomics metadata was imported.");
         }
 
-        for (Property p : props) {
-          if (p.getType().equals(PropertyType.Factor)) {
-            String lab = p.getLabel();
-            String val = p.getValue();
-            String unit = "";
-            if (p.hasUnit())
-              unit = p.getUnit().getValue();
-            Pair<String, String> valunit = new ImmutablePair<String, String>(val, unit);
-            if (expDesign.containsKey(lab)) {
-              Map<Pair<String, String>, List<String>> levels = expDesign.get(lab);
-              if (levels.containsKey(valunit)) {
-                levels.get(valunit).add(code);
-              } else {
-                levels.put(valunit, new ArrayList<String>(Arrays.asList(code)));
-              }
+      }
+
+      for (Property p : props) {
+        if (p.getType().equals(PropertyType.Factor)) {
+          String lab = p.getLabel();
+          String val = p.getValue();
+          String unit = "";
+          if (p.hasUnit())
+            unit = p.getUnit().getValue();
+          Pair<String, String> valunit = new ImmutablePair<String, String>(val, unit);
+          if (expDesign.containsKey(lab)) {
+            Map<Pair<String, String>, List<String>> levels = expDesign.get(lab);
+            if (levels.containsKey(valunit)) {
+              levels.get(valunit).add(code);
             } else {
-              Map<Pair<String, String>, List<String>> newLevel =
-                  new HashMap<Pair<String, String>, List<String>>();
-              newLevel.put(valunit, new ArrayList<String>(Arrays.asList(code)));
-              expDesign.put(lab, newLevel);
+              levels.put(valunit, new ArrayList<String>(Arrays.asList(code)));
             }
-
           } else {
-            if (otherProps.containsKey(code)) {
-              otherProps.get(code).add(p);
-            } else {
-              otherProps.put(code, new ArrayList<Property>(Arrays.asList(p)));
-            }
+            Map<Pair<String, String>, List<String>> newLevel =
+                new HashMap<Pair<String, String>, List<String>>();
+            newLevel.put(valunit, new ArrayList<String>(Arrays.asList(code)));
+            expDesign.put(lab, newLevel);
+          }
+
+        } else {
+          if (otherProps.containsKey(code)) {
+            otherProps.get(code).add(p);
+          } else {
+            otherProps.put(code, new ArrayList<Property>(Arrays.asList(p)));
           }
         }
-//      }
+      }
+      // }
     }
     return new ExperimentalDesignPropertyWrapper(expDesign, otherProps);
   }
@@ -363,7 +368,7 @@ public class ParserHelpers {
       label = label.replaceFirst(Character.toString(first), "factor_" + first);
     return label;
   }
-  
+
   public static String removeUTF8BOM(String s) {
     if (s.startsWith(UTF8_BOM)) {
       s = s.substring(1);
