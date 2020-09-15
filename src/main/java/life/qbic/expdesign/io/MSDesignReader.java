@@ -4,12 +4,9 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -17,12 +14,12 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import life.qbic.datamodel.ms.LigandPrepRun;
-import life.qbic.datamodel.ms.MSRunCollection;
+import life.qbic.datamodel.ms.MSProperties;
 import life.qbic.datamodel.samples.ISampleBean;
 import life.qbic.datamodel.samples.SampleType;
 import life.qbic.datamodel.samples.TSVSampleBean;
 import life.qbic.expdesign.model.MassSpecSampleHierarchy;
+import life.qbic.expdesign.model.ProteinPeptidePreparationProperties;
 import life.qbic.expdesign.model.StructuredExperiment;
 import life.qbic.xml.properties.Unit;
 import life.qbic.xml.study.TechnologyType;
@@ -33,15 +30,12 @@ public class MSDesignReader implements IExperimentalDesignReader {
   private List<String> mandatoryColumns;
   private List<String> mandatoryFilled;
   private List<String> optionalCols;
-  private final List<String> sampleTypesInOrder = new ArrayList<>(
-      Arrays.asList("Q_BIOLOGICAL_ENTITY", "Q_BIOLOGICAL_SAMPLE", "Q_TEST_SAMPLE", "Q_MS_RUN"));
   private Map<SampleType, Map<String, List<String>>> headersToTypeCodePerSampletype;
 
   private String error;
   private Map<String, List<Map<String, Object>>> experimentInfos;
   private Set<String> speciesSet;
   private Set<String> tissueSet;
-  private Set<String> fractionNameSet;
   private List<String> tsvByRows;
   private static final Logger logger = LogManager.getLogger(MSDesignReader.class);
 
@@ -52,18 +46,20 @@ public class MSDesignReader implements IExperimentalDesignReader {
         "Sample Secondary Name", "Species", "Tissue", "LC Column", "MS Device", "LCMS Method"));
     this.mandatoryFilled = new ArrayList<>(Arrays.asList("File Name", "Organism ID",
         "Sample Secondary Name", "Species", "Tissue", "LC Column", "MS Device", "LCMS Method"));
-    this.optionalCols = new ArrayList<>(Arrays.asList("Expression System", "Pooled Sample",
-        "Cycle/Fraction Name", "Fractionation Type", "Sample Preparation",
-        "Sample Cleanup (protein)", "Digestion Method", "Digestion enzyme", "Enrichment",
-        "Sample Cleanup (peptide)", "Labeling Type", "Label", "Comments"));
+    this.optionalCols =
+        new ArrayList<>(Arrays.asList("Expression System", "Pooled Sample", "Cycle/Fraction Name",
+            "Fractionation Type", "Sample Preparation", "Sample Cleanup (protein)",
+            "Digestion Method", "Digestion enzyme", "Enrichment Method", "Sample Cleanup (peptide)",
+            "Labeling Type", "Label", "Customer Comment", "Facility Comment"));
 
     Map<String, List<String>> sourceMetadata = new HashMap<>();
     sourceMetadata.put("Species", Collections.singletonList("Q_NCBI_ORGANISM"));
-    sourceMetadata.put("Expression System", Collections.singletonList(""));// TODO
+    sourceMetadata.put("Expression System", Collections.singletonList("Q_EXPRESSION_SYSTEM"));
     sourceMetadata.put("Organism ID", Arrays.asList("Q_EXTERNALDB_ID", "Q_SECONDARY_NAME"));
 
     Map<String, List<String>> extractMetadata = new HashMap<>();
     extractMetadata.put("Tissue", Collections.singletonList("Q_PRIMARY_TISSUE"));
+    extractMetadata.put("Customer Comment", Collections.singletonList("Q_ADDITIONAL_INFO"));
     // extractMetadata.put("Extract ID", "Q_EXTERNALDB_ID");
     // extractMetadata.put("Detailed Tissue", "Q_TISSUE_DETAILED");
 
@@ -76,13 +72,13 @@ public class MSDesignReader implements IExperimentalDesignReader {
     // peptideMetadata.put("Sample Secondary Name", "Q_EXTERNALDB_ID");
 
     Map<String, List<String>> msRunMetadata = new HashMap<>();
-    msRunMetadata.put("", Collections.singletonList(""));
+    msRunMetadata.put("Facility Comment", Collections.singletonList("Q_ADDITIONAL_INFO"));
 
     headersToTypeCodePerSampletype = new HashMap<>();
     headersToTypeCodePerSampletype.put(SampleType.Q_BIOLOGICAL_ENTITY, sourceMetadata);
     headersToTypeCodePerSampletype.put(SampleType.Q_BIOLOGICAL_SAMPLE, extractMetadata);
     headersToTypeCodePerSampletype.put(SampleType.Q_TEST_SAMPLE, new HashMap<>());
-    // headersToTypeCodePerSampletype.put("Q_MS_RUN", msRunMetadata);
+    headersToTypeCodePerSampletype.put(SampleType.Q_MS_RUN, msRunMetadata);
   }
 
   public Map<String, List<Map<String, Object>>> getExperimentInfos() {
@@ -191,6 +187,14 @@ public class MSDesignReader implements IExperimentalDesignReader {
       samplesInOrder.put(level, new ArrayList<>());
     }
 
+    parsers = new HashMap<String, Command>();
+    parsers.put("Q_DIGESTION_METHOD", new Command() { // TODO
+      @Override
+      public Object parse(String value) {
+        return new ArrayList<String>(Arrays.asList(value.split(LIST_SEPARATOR)));
+      }
+    });
+
     Map<String, TSVSampleBean> sourceIDToSample = new HashMap<>();
     Map<String, TSVSampleBean> tissueToSample = new HashMap<>();
     Map<String, TSVSampleBean> proteinToSample = new HashMap<>();
@@ -202,10 +206,9 @@ public class MSDesignReader implements IExperimentalDesignReader {
     Map<String, TSVSampleBean> fracProtPoolToSample = new HashMap<>();
     Map<String, TSVSampleBean> fracPeptPoolToSample = new HashMap<>();
 
-    Map<LigandPrepRun, Map<String, Object>> expIDToLigandExp =
-        new HashMap<LigandPrepRun, Map<String, Object>>();
-    Map<MSRunCollection, Map<String, Object>> msIDToMSExp =
-        new HashMap<MSRunCollection, Map<String, Object>>();
+    Map<MSProperties, String> msPropertiesToID = new HashMap<>();
+    Map<ProteinPeptidePreparationProperties, String> SamplePrepPropertiesToID = new HashMap<>();
+
     Set<String> speciesSet = new HashSet<String>();
     Set<String> tissueSet = new HashSet<String>();
     int rowID = 0;
@@ -221,31 +224,6 @@ public class MSDesignReader implements IExperimentalDesignReader {
             return null;
           }
         }
-        parsers = new HashMap<String, Command>();
-        parsers.put("Q_MS_LCMS_METHOD", new Command() {
-          @Override
-          public Object parse(String value) {
-            return parseLCMSMethod(value);
-          }
-        });
-        // mandatory fields that need to be filled to identify sources and samples
-        // possibilities:
-        // 1. measurement without fractions/enrichment and pooling. use organism ID and sample
-        // secondary name to search for existing entities, create and store in map otherwise.
-        // a) without digestion: create protein sample
-        // b) with digestion: create protein and peptide sample - collect peptide samples using same
-        // digestion enzymes and method into same experiment
-        // 2. measurement with fractions or enrichment cycles. use organism ID and secondary name to
-        // search for existing entities.
-        // a) without digestion: create protein sample and use fraction names to fractionate them
-        // into additional protein samples
-        // b) with digestion: do the same, then create peptide samples
-        // 3. pooling. use organism ID and sample secondary name to search for existing entities:
-        // a) existing secondary name: only allowed if fractionation/enrichment is used. use
-        // alpha:
-
-        // if digested => search
-        // if not known create digested
 
         String sourceID = row[headerMapping.get("Organism ID")];
         String species = row[headerMapping.get("Species")];
@@ -261,7 +239,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
         String enzymes = row[headerMapping.get("Digestion enzyme")];
 
         String fracType = row[headerMapping.get("Fractionation Type")];
-        String enrichType = row[headerMapping.get("Enrichment")];
+        String enrichType = row[headerMapping.get("Enrichment Method")];
         String fracName = row[headerMapping.get("Cycle/Fraction Name")];
         String isoLabelType = row[headerMapping.get("Labeling Type")];
         String isoLabel = row[headerMapping.get("Label")];
@@ -297,54 +275,20 @@ public class MSDesignReader implements IExperimentalDesignReader {
         speciesSet.add(species);
         tissueSet.add(tissue);
 
-        // File Name Organism ID Sample Secondary Name Species Tissue Pooled Sample Cycle/Fraction
-        // Name Fractionation Type Digestion Method Digestion enzyme Enrichment Labeling Type Label
-        // LC Column MS Device LCMS Method
-        // easy.raw p1 R1 Homo sapiens Whole blood Trypsin HPLC HFX 180min_something
-        // R2.raw p1 R2 Homo sapiens Liver Trypsin HPLC HFX 180min_something
-        // easy_pool.raw p1 R1R2 Homo sapiens Whole blood R1+R2 HPLC HFX 180min_something
-        // fraction1.raw p1 R3 Homo sapiens Whole blood R3F1 Offgel Trypsin SILAC light UPLC HFX
-        // 120min_x
-        // fraction2.raw p1 R3 Homo sapiens Whole blood R3F2 Offgel Trypsin SILAC medium UPLC HFX
-        // 120min_x
-        // fraction3.raw p1 R3 Homo sapiens Whole blood R3F3 Offgel Trypsin SILAC heavy UPLC HFX
-        // 120min_x
-        // pooled_fractions.raw p1 R3pool Homo sapiens Whole blood R3F1+R3F2+R3F3 Trypsin SILAC mix
-        // UPLC HFX 240min_y
-        // fractioned_pool1.raw p1 R1R2 Homo sapiens Whole blood Fraction #1 Offgel Trypsin SILAC
-        // light UPLC HFX 120min_x
-        // fractioned_pool2.raw p1 R1R2 Homo sapiens Whole blood Fraction #2 Offgel Trypsin SILAC
-        // medium UPLC HFX 120min_x
-        // fractioned_pool3.raw p1 R1R2 Homo sapiens Whole blood Fraction #3 Offgel Trypsin SILAC
-        // heavy UPLC HFX 120min_x
-        //
-        // line 1:
-        // create entity p1, create tissue p1_blood, create protein R1, create peptide R1 digested,
-        // create ms sample
-        // line 2:
-        // create tissue p1_liver, create protein R2, create peptide R2 digested, create MS sample
-        // line 3:
-        // create peptide R1R2, create MS sample
-        // line 4:
-        // create protein R3, create fraction R3F1, create peptide R3F1 digested, create MS sample
-        // line 5:
-        // create fraction R3F2, create peptide R3F2 digested, create MS sample
-        // line 6:
-        // create fraction R3F3, create peptide R3F2 digested, create MS sample
-        // line 7:
-        // create peptide R3pool, create MS sample
-        // line 8:
-        // create peptide Fraction #1, create MS sample
-        // line 9:
-        // create peptide Fraction #2, create MS sample
-        // line 10:
-        // create peptide Fraction #3, create MS sample
-
         // always one new measurement per row
         sampleID++;
         TSVSampleBean msRun = new TSVSampleBean(Integer.toString(sampleID), SampleType.Q_MS_RUN, "",
             fillMetadata(header, row, meta, factors, loci, SampleType.Q_MS_RUN));
         msRun.addProperty("File", fileName);
+
+        String lcmsMethod = row[headerMapping.get("LCMS Method")];
+        String msDevice = row[headerMapping.get("MS Device")];
+        String column = row[headerMapping.get("LC Column")];
+        MSProperties msProperties = new MSProperties(lcmsMethod, msDevice, "", column);
+        String expID = Integer.toString(msProperties.hashCode());
+        msPropertiesToID.put(msProperties, expID);
+        msRun.setExperiment(expID);
+
         samplesInOrder.get(MassSpecSampleHierarchy.MassSpecRun).add(msRun);
 
         // if sample is pooled, all levels before must be known already from previous lines
@@ -624,6 +568,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
           // expIDToLigandExp.put(ligandPrepRun,
           // parseLigandExperimentData(row, headerMapping, ligandExperimentMetadata));
           // }
+
           // MSRunCollection msRuns = new MSRunCollection(ligandPrepRun, msRunDate);
           // msRun.setExperiment(Integer.toString(msRuns.hashCode()));
           // Map<String, Object> msExperiment = msIDToMSExp.get(msRuns);
@@ -641,30 +586,26 @@ public class MSDesignReader implements IExperimentalDesignReader {
     }
     experimentInfos = new HashMap<String, List<Map<String, Object>>>();
 
-    // mhc ligand extraction experiments
-    List<Map<String, Object>> ligandExperiments = new ArrayList<Map<String, Object>>();
-    for (LigandPrepRun prepRun : expIDToLigandExp.keySet()) {
-      Map<String, Object> map = expIDToLigandExp.get(prepRun);
-      map.put("Code", Integer.toString(prepRun.hashCode()));// used to match samples to their
+    // Sample preparation experiments
+    List<Map<String, Object>> samplePreparations = new ArrayList<Map<String, Object>>();
+    for (ProteinPeptidePreparationProperties props : SamplePrepPropertiesToID.keySet()) {
+      Map<String, Object> propMap = props.getPropertyMap();
+      propMap.put("Code", Integer.toString(props.hashCode()));// used to match samples to their
       // experiments later
-      ligandExperiments.add(map);
+      samplePreparations.add(propMap);
     }
-    experimentInfos.put("Q_MHC_LIGAND_EXTRACTION", ligandExperiments);
+    experimentInfos.put("Q_SAMPLE_PREPARATION", samplePreparations);
 
     // MS experiments
     List<Map<String, Object>> msExperiments = new ArrayList<Map<String, Object>>();
-    for (MSRunCollection runCollection : msIDToMSExp.keySet()) {
-      Map<String, Object> map = msIDToMSExp.get(runCollection);
-      map.put("Code", Integer.toString(runCollection.hashCode()));// used to match samples to their
-      // experiments later
-      msExperiments.add(map);
+    for (MSProperties expProperties : msPropertiesToID.keySet()) {
+      Map<String, Object> propMap = expProperties.getPropertyMap();
+      propMap.put("Code", msPropertiesToID.get(expProperties));
+      msExperiments.add(propMap);
     }
     experimentInfos.put("Q_MS_MEASUREMENT", msExperiments);
     for (MassSpecSampleHierarchy level : order) {
       beans.addAll(samplesInOrder.get(level));
-      System.out.println(level.toString().toUpperCase());
-      printSampleLevel(samplesInOrder.get(level));
-      System.out.println("#####");
     }
 
     this.speciesSet = speciesSet;
@@ -686,12 +627,22 @@ public class MSDesignReader implements IExperimentalDesignReader {
     return new ArrayList<>(Arrays.asList(poolName.split(LIST_SEPARATOR)));
   }
 
-  private Map<String, Object> parseMSExperimentData(String[] row,
-      Map<String, Integer> headerMapping, HashMap<String, Object> metadata) {
+  private Map<String, Object> parseSamplePrepData(String[] row, Map<String, Integer> headerMapping,
+      HashMap<String, Object> metadata) {
     Map<String, String> designMap = new HashMap<String, String>();
-    designMap.put("MS Device", "Q_MS_DEVICE");
-    designMap.put("LCMS Method", "Q_MS_LCMS_METHOD");
-    designMap.put("Comments", "Q_ADDITIONAL_INFO");
+
+    designMap.put("Fractionation Type", "Q_MS_FRACTIONATION_METHOD");
+
+    designMap.put("Labeling Type", "Q_LABELING_METHOD");
+    // TODO digestion type
+    // designMap.put("Digestion Method", "Q_DIGESTION_METHOD");
+    designMap.put("Digestion enzyme", "Q_DIGESTION_METHOD");
+
+    designMap.put("Sample Cleanup (protein)", "Q_MS_PURIFICATION_METHOD");
+
+    designMap.put("Sample Cleanup (peptide)", "Q_MS_PURIFICATION_METHOD");
+
+    designMap.put("Enrichment Method", "Q_MS_ENRICHMENT_METHOD");
     for (String col : designMap.keySet()) {
       Object val = "";
       String openbisType = designMap.get(col);
@@ -706,8 +657,24 @@ public class MSDesignReader implements IExperimentalDesignReader {
     return metadata;
   }
 
-  protected Object parseLCMSMethod(String value) {
-    return value;
+  private Map<String, Object> parseMSExperimentData(String[] row,
+      Map<String, Integer> headerMapping, HashMap<String, Object> metadata) {
+    Map<String, String> designMap = new HashMap<String, String>();
+    designMap.put("MS Device", "Q_MS_DEVICE");
+    designMap.put("LC Column", "Q_CHROMATOGRAPHY_TYPE");
+    designMap.put("LCMS Method", "Q_MS_LCMS_METHOD");
+    for (String col : designMap.keySet()) {
+      Object val = "";
+      String openbisType = designMap.get(col);
+      if (headerMapping.containsKey(col)) {
+        val = row[headerMapping.get(col)];
+        if (parsers.containsKey(openbisType)) {
+          val = parsers.get(openbisType).parse((String) val);
+        }
+      }
+      metadata.put(openbisType, val);
+    }
+    return metadata;
   }
 
   public Set<String> getSpeciesSet() {

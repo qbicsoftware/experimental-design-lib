@@ -4,15 +4,15 @@ package life.qbic.expdesign.io;
 import static org.junit.Assert.assertEquals;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import javax.xml.bind.JAXBException;
 import org.junit.Before;
 import org.junit.Test;
+import life.qbic.datamodel.experiments.ExperimentType;
 import life.qbic.datamodel.samples.ISampleBean;
-import life.qbic.expdesign.model.MassSpecSampleHierarchy;
+import life.qbic.expdesign.SamplePreparator;
 
 public class MSDesignReaderTest {
 
@@ -40,7 +40,28 @@ public class MSDesignReaderTest {
     List<ISampleBean> samples2 = r.readSamples(tsv, true);
 
     assertEquals(samples1, samples2);
-    assertEquals(samples1.size(), 171);// TODO
+
+    SamplePreparator p = new SamplePreparator();
+    p.processTSV(tsv, new MSDesignReader(), false);
+    assert (p.getSummary().size() > 5);
+    List<List<ISampleBean>> levels = p.getProcessed();
+    assertEquals(levels.get(0).size(), 1);// organism
+    assertEquals(levels.get(1).size(), 2);// tissue
+    assertEquals(levels.get(2).size(), 4);// proteins
+    assertEquals(levels.get(3).size(), 4);// peptides
+    assertEquals(levels.get(4).size(), 4);// pool of peptides + fractions of peptides
+    assertEquals(levels.get(5).size(), 4);// fractions of pool, pool of other peptide fractions
+    assertEquals(levels.get(6).size(), 11);// ms measurements
+
+    assertEquals(samples1.size(), 30);
+    
+    System.out.println(p.getExperimentalDesignProperties());
+    System.out.println(p.getSpecialExperimentsOfTypeOrNull(ExperimentType.Q_MS_MEASUREMENT.toString()));
+    System.out.println(p.getSpecialExperimentsOfTypeOrNull(ExperimentType.Q_SAMPLE_PREPARATION.toString()));
+    
+    assert(p.getSpeciesSet().contains("Homo sapiens"));
+    assert(p.getTissueSet().contains("Liver"));
+    assert(p.getTissueSet().contains("Whole blood"));
   }
 
   @Test
@@ -55,9 +76,9 @@ public class MSDesignReaderTest {
   public void testGetTSVByRows() throws IOException, JAXBException {
     MSDesignReader r = new MSDesignReader();
     r.readSamples(tsv, true);
-    for (String l : r.getTSVByRows()) {
-      System.out.println(l);
-    }
+    // for (String l : r.getTSVByRows()) {
+    // System.out.println(l);
+    // }
     assertEquals(r.getTSVByRows().size(), 12);
   }
 
