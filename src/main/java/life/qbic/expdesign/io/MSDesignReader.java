@@ -297,19 +297,50 @@ public class MSDesignReader implements IExperimentalDesignReader {
 
         samplesInOrder.get(MassSpecSampleHierarchy.MassSpecRun).add(msRun);
 
-        // if sample is pooled, all levels before must be known already from previous lines
-        if (!poolName.isEmpty()) {
-          TSVSampleBean source = sourceIDToSample.get(sourceID);
-          String tissueID = sourceID + "-" + tissue;
-          TSVSampleBean tissueSample = tissueToSample.get(tissueID);
+        // if organism id not known => create organism entity. put in map.
+        // else get organism entity. same for tissue. this is done for pool rows, as well
+        TSVSampleBean sampleSource = sourceIDToSample.get(sourceID);
+        if (sampleSource == null) {
+          sampleID++;
 
-          if (tissueSample == null || source == null) {
-            error = String.format(
-                "Error in line %s: Source with respective tissue must be defined in previous lines for pooled sample %s.",
-                rowID, poolName);
-            return null;
+          sampleSource = new TSVSampleBean(Integer.toString(sampleID),
+              SampleType.Q_BIOLOGICAL_ENTITY, sourceID,
+              fillMetadata(header, row, meta, factors, loci, SampleType.Q_BIOLOGICAL_ENTITY));
+          // sampleSource.addProperty("Q_EXTERNALDB_ID", sourceID);
+          samplesInOrder.get(MassSpecSampleHierarchy.Organism).add(sampleSource);
+          sourceIDToSample.put(sourceID, sampleSource);
+
+          if (expressionSystem != null) {
+            speciesSet.add(expressionSystem);
+            sampleSource.addProperty("Q_EXPRESSION_SYSTEM", expressionSystem);
           }
+        }
+        // we don't have tissue ids, so we build unique identifiers by adding sourceID and tissue
+        // name
+        String tissueID = sourceID + "-" + tissue;
+        TSVSampleBean tissueSample = tissueToSample.get(tissueID);
+        if (tissueSample == null) {
+          sampleID++;
 
+          tissueSample = new TSVSampleBean(Integer.toString(sampleID),
+              SampleType.Q_BIOLOGICAL_SAMPLE, tissueID,
+              fillMetadata(header, row, meta, factors, loci, SampleType.Q_BIOLOGICAL_SAMPLE));
+          samplesInOrder.get(MassSpecSampleHierarchy.Tissue).add(tissueSample);
+          tissueSample.addParentID(sampleSource.getCode());
+          tissueSample.addProperty("Q_EXTERNALDB_ID", tissueID);
+          tissueToSample.put(tissueID, tissueSample);
+        }
+
+        if (!poolName.isEmpty()) {
+
+          // old code, pool parents can now be defined in the pooling row
+          // if (tissueSample == null || source == null) {
+          // error = String.format(
+          // "Error in line %s: Source with respective tissue must be defined in previous lines for
+          // pooled sample %s.",
+          // rowID, poolName);
+          // return null;
+          // }
           // try to find all defined parent samples
           List<TSVSampleBean> parents = new ArrayList<>();
           boolean fractParents = false;
@@ -337,10 +368,29 @@ public class MSDesignReader implements IExperimentalDesignReader {
               parents.add(fracProtToSample.get(parentID));
             }
             if (!parentFound) {
-              error = String.format(
-                  "Error in line %s: Sample identifier %s used in pooled sample %s must be defined in previous line.",
-                  rowID, parentID, poolName);
-              return null;
+              // old code, pool parents can now be defined in the pooling row
+              // error = String.format(
+              // "Error in line %s: Sample identifier %s used in pooled sample %s must be defined in
+              // previous line.",
+              // rowID, parentID, poolName);
+              // return null;
+              // define necessary parent hierarchy
+              // Assumptions:
+              // 1. digestion happens AFTER pooling of (protein) samples, so we only have to create
+              // a protein sample
+              sampleID++;
+
+              TSVSampleBean parentProteinSample =
+                  new TSVSampleBean(Integer.toString(sampleID), SampleType.Q_TEST_SAMPLE, parentID,
+                      fillMetadata(header, row, meta, factors, loci, SampleType.Q_TEST_SAMPLE));
+              samplesInOrder.get(MassSpecSampleHierarchy.Proteins).add(parentProteinSample);
+              parentProteinSample.addParentID(tissueSample.getCode());
+              parentProteinSample.addProperty("Q_EXTERNALDB_ID", parentID);
+              proteinToSample.put(parentID, parentProteinSample);
+              parentProteinSample.addProperty("Q_SAMPLE_TYPE", "PROTEINS");
+
+              parents.add(parentProteinSample);
+              parentsProteins = true;
             }
             parentFound = false;
           }
@@ -406,39 +456,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
         } else {
           // end pooling block
           ////////////////////
-          // if organism id not known => create organism entity. put in map.
-          // else get organism entity.
-          TSVSampleBean sampleSource = sourceIDToSample.get(sourceID);
-          if (sampleSource == null) {
-            sampleID++;
 
-            sampleSource = new TSVSampleBean(Integer.toString(sampleID),
-                SampleType.Q_BIOLOGICAL_ENTITY, sourceID,
-                fillMetadata(header, row, meta, factors, loci, SampleType.Q_BIOLOGICAL_ENTITY));
-            // sampleSource.addProperty("Q_EXTERNALDB_ID", sourceID);
-            samplesInOrder.get(MassSpecSampleHierarchy.Organism).add(sampleSource);
-            sourceIDToSample.put(sourceID, sampleSource);
-
-            if (expressionSystem != null) {
-              speciesSet.add(expressionSystem);
-              sampleSource.addProperty("Q_EXPRESSION_SYSTEM", expressionSystem);
-            }
-          }
-          // we don't have tissue ids, so we build unique identifiers by adding sourceID and tissue
-          // name
-          String tissueID = sourceID + "-" + tissue;
-          TSVSampleBean tissueSample = tissueToSample.get(tissueID);
-          if (tissueSample == null) {
-            sampleID++;
-
-            tissueSample = new TSVSampleBean(Integer.toString(sampleID),
-                SampleType.Q_BIOLOGICAL_SAMPLE, tissueID,
-                fillMetadata(header, row, meta, factors, loci, SampleType.Q_BIOLOGICAL_SAMPLE));
-            samplesInOrder.get(MassSpecSampleHierarchy.Tissue).add(tissueSample);
-            tissueSample.addParentID(sampleSource.getCode());
-            tissueSample.addProperty("Q_EXTERNALDB_ID", tissueID);
-            tissueToSample.put(tissueID, tissueSample);
-          }
           // if sample secondary name not known => create protein sample
           // but: ignore, if this is a fractionation of a known pooled sample
           if (fracName.isEmpty() || (!peptPoolToSample.containsKey(sampleName)
@@ -535,58 +553,16 @@ public class MSDesignReader implements IExperimentalDesignReader {
                       fillMetadata(header, row, meta, factors, loci, SampleType.Q_TEST_SAMPLE));
               digestedFrac.addProperty("Q_EXTERNALDB_ID", fracName);
               digestedFrac.addProperty("Q_SAMPLE_TYPE", "PEPTIDES");
-              fracPepToSample.put(fracName, fracSample);
-              samplesInOrder.get(MassSpecSampleHierarchy.FractionedPeptides).add(fracSample);
+              digestedFrac.addParentID(fracSample.getCode());
+              fracPepToSample.put(fracName, digestedFrac);
+              samplesInOrder.get(MassSpecSampleHierarchy.FractionedPeptides).add(digestedFrac);
+
 
               msRun.addParentID(digestedFrac.getCode());
             } else {
               msRun.addParentID(fracSample.getCode());
             }
           }
-
-
-          // Ligand Extract Level (Analyte)
-          // TSVSampleBean ligandExtract = analyteToSample.get(ligandExtrID);
-
-          // Two ligand samples were prepared together (e.g. multiple antibody columns) only if
-          // patient, prep date, handled tissue and sample amount (mass, vol or cell count) are the
-          // same
-          // LigandPrepRun ligandPrepRun =
-          // new LigandPrepRun(sourceID, tissue, prepDate, sampleAmount + " " + amountColName);
-          // if (ligandExtract == null) {
-          // sampleID++;
-          // ligandExtract = new TSVSampleBean(Integer.toString(sampleID),
-          // SampleType.Q_MHC_LIGAND_EXTRACT, extractID,
-          // fillMetadata(header, row, meta, factors, loci, SampleType.Q_MHC_LIGAND_EXTRACT));
-          // ligandExtract.addProperty("Q_ANTIBODY", antibody);
-          // ligandExtract.addParentID(prepID);
-          // ligandExtract.addProperty("Q_EXTERNALDB_ID", ligandExtrID);
-          // order.get(3).add(ligandExtract);
-          // analyteToSample.put(ligandExtrID, ligandExtract);
-          //
-          // ligandExtract.setExperiment(Integer.toString(ligandPrepRun.hashCode()));
-          // Map<String, Object> ligandExperimentMetadata = expIDToLigandExp.get(ligandPrepRun);
-          // if (ligandExperimentMetadata == null) {
-          // Map<String, Object> metadata = new HashMap<String, Object>();
-          // expIDToLigandExp.put(ligandPrepRun,
-          // parseLigandExperimentData(row, headerMapping, metadata));
-          // } else
-          // expIDToLigandExp.put(ligandPrepRun,
-          // parseLigandExperimentData(row, headerMapping, ligandExperimentMetadata));
-          // }
-
-          // MSRunCollection msRuns = new MSRunCollection(ligandPrepRun, msRunDate);
-          // msRun.setExperiment(Integer.toString(msRuns.hashCode()));
-          // Map<String, Object> msExperiment = msIDToMSExp.get(msRuns);
-          // if (msExperiment == null)
-          // TODO can we be sure that all metadata is the same if ligand prep run
-          // and ms run date are the same?
-          // msIDToMSExp.put(msRuns,
-          // parseMSExperimentData(row, headerMapping, new HashMap<String, Object>()));
-          // msRun.addParentID(ligandExtrID);
-
-
-
         } // end non-pooled block
       }
     }
@@ -612,19 +588,23 @@ public class MSDesignReader implements IExperimentalDesignReader {
     experimentInfos.put("Q_MS_MEASUREMENT", msExperiments);
     for (MassSpecSampleHierarchy level : order) {
       beans.addAll(samplesInOrder.get(level));
+      // printSampleLevel(samplesInOrder.get(level));
     }
 
     return beans;
   }
 
   private void printSampleLevel(List<ISampleBean> level) {
+    logger.info("###");
+    logger.info("New Level of Samples:");
     for (ISampleBean s : level) {
-      System.out.println("Sample " + s.getSecondaryName() + " (id: " + s.getCode() + ")");
-      System.out.println("Parents: " + s.getParentIDs());
-      System.out.println(s.getType());
-      System.out.println(s.getMetadata());
-      System.out.println("#");
+      logger.info("Sample " + s.getSecondaryName() + " (id: " + s.getCode() + ")");
+      logger.info("Parents: " + s.getParentIDs());
+      logger.info(s.getType());
+      logger.info(s.getMetadata());
+      logger.info("#");
     }
+    logger.info("End of Sample Level");
   }
 
   private List<String> parsePoolParents(String poolName) {

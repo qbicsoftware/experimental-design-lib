@@ -18,6 +18,7 @@ public class MSDesignReaderTest {
 
 
   private File tsv = new File(getClass().getResource("ptx_example1.tsv").getFile());
+  private File altTSV = new File(getClass().getResource("ptx_example_noParents.tsv").getFile());
 
   @Before
   public void setUp() {}
@@ -43,7 +44,7 @@ public class MSDesignReaderTest {
 
     SamplePreparator p = new SamplePreparator();
     p.processTSV(tsv, new MSDesignReader(), false);
-    assert (p.getSummary().size() > 5);
+    assert (p.getSummary().size() == 7);
     List<List<ISampleBean>> levels = p.getProcessed();
     assertEquals(levels.get(0).size(), 1);// organism
     assertEquals(levels.get(1).size(), 2);// tissue
@@ -52,7 +53,18 @@ public class MSDesignReaderTest {
     assertEquals(levels.get(4).size(), 4);// pool of peptides + fractions of peptides
     assertEquals(levels.get(5).size(), 4);// fractions of pool, pool of other peptide fractions
     assertEquals(levels.get(6).size(), 11);// ms measurements
-
+    assertEquals(samples1.size(), 30);
+    
+    p.processTSV(altTSV, new MSDesignReader(), false);
+    assert (p.getSummary().size() == 7);
+    levels = p.getProcessed();
+    assertEquals(levels.get(0).size(), 1);// organism
+    assertEquals(levels.get(1).size(), 2);// tissue
+    assertEquals(levels.get(2).size(), 4);// proteins
+    assertEquals(levels.get(3).size(), 3);// peptides (unpooled samples) + protein pool
+    assertEquals(levels.get(4).size(), 6);// pool of peptides + fractions of peptides
+    assertEquals(levels.get(5).size(), 4);// fractions of pool, pool of other fractions
+    assertEquals(levels.get(6).size(), 9);// ms measurements
     assertEquals(samples1.size(), 30);
     
     System.out.println(p.getExperimentalDesignProperties());
