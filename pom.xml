@@ -20,11 +20,11 @@
 			<artifactId>data-model-lib</artifactId>
 			<version>1.11.0-SNAPSHOT</version>
 		</dependency>
-		<dependency>
+	<!--dependency>
 			<groupId>life.qbic</groupId>
 			<artifactId>isa-creator-lib</artifactId>
 			<version>1.8.0</version>
-		</dependency>
+		</dependency-->
 		<!--dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-collections4</artifactId>
