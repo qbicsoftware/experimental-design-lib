@@ -36,6 +36,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
   private Map<String, List<Map<String, Object>>> experimentInfos;
   private Set<String> speciesSet;
   private Set<String> tissueSet;
+  private Set<String> analyteSet;
   private List<String> tsvByRows;
   private static final Logger logger = LogManager.getLogger(MSDesignReader.class);
 
@@ -209,8 +210,10 @@ public class MSDesignReader implements IExperimentalDesignReader {
     Map<MSProperties, String> msPropertiesToID = new HashMap<>();
     Map<ProteinPeptidePreparationProperties, String> SamplePrepPropertiesToID = new HashMap<>();
 
-    Set<String> speciesSet = new HashSet<String>();
-    Set<String> tissueSet = new HashSet<String>();
+    speciesSet = new HashSet<String>();
+    tissueSet = new HashSet<String>();
+    analyteSet = new HashSet<String>();
+    analyteSet.add("PROTEINS");
     int rowID = 0;
     int sampleID = 0;
 
@@ -237,6 +240,9 @@ public class MSDesignReader implements IExperimentalDesignReader {
         String poolName = row[headerMapping.get("Pooled Sample")];
         String digestType = row[headerMapping.get("Digestion Method")];
         String enzymes = row[headerMapping.get("Digestion enzyme")];
+        if (!digestType.isEmpty()) {
+          analyteSet.add("PEPTIDES");
+        }
 
         String fracType = row[headerMapping.get("Fractionation Type")];
         String enrichType = row[headerMapping.get("Enrichment Method")];
@@ -608,8 +614,6 @@ public class MSDesignReader implements IExperimentalDesignReader {
       beans.addAll(samplesInOrder.get(level));
     }
 
-    this.speciesSet = speciesSet;
-    this.tissueSet = tissueSet;
     return beans;
   }
 
@@ -804,8 +808,12 @@ public class MSDesignReader implements IExperimentalDesignReader {
 
   @Override
   public List<TechnologyType> getTechnologyTypes() {
-    // TODO Auto-generated method stub
-    return null;
+    ArrayList<TechnologyType> res = new ArrayList<>();
+    res.add(new TechnologyType("Proteomics"));
+    if (analyteSet.contains("PEPTIDES")) {
+      res.add(new TechnologyType("Peptidomics"));
+    }
+    return res;
   }
 
 }
