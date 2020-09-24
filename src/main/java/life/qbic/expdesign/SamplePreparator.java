@@ -9,7 +9,6 @@ import life.qbic.expdesign.model.ExperimentalDesignPropertyWrapper;
 import life.qbic.expdesign.model.SampleSummaryBean;
 import life.qbic.expdesign.model.StructuredExperiment;
 import life.qbic.xml.study.TechnologyType;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -21,7 +20,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import javax.xml.bind.JAXBException;
 
 public class SamplePreparator {
@@ -42,7 +40,7 @@ public class SamplePreparator {
   public List<String> getOriginalTSV() {
     return reader.getTSVByRows();
   }
-  
+
   /**
    * Reads in a TSV File containing samples for openBIS registration and their metadata.
    * 
@@ -60,8 +58,9 @@ public class SamplePreparator {
     List<ISampleBean> rawSamps = reader.readSamples(file, parseGraph);
     if (reader instanceof QBiCDesignReader) {
       QBiCDesignReader qReader = (QBiCDesignReader) reader;
-      projectinfo = new ProjectInfo(qReader.getSpace(), qReader.getProject(), qReader.getDescription(), qReader.getSecondaryName(),
-          qReader.isPilot(), qReader.getInvestigator(), qReader.getContact(), qReader.getManager());
+      projectinfo = new ProjectInfo(qReader.getSpace(), qReader.getProject(),
+          qReader.getDescription(), qReader.getSecondaryName(), qReader.isPilot(),
+          qReader.getInvestigator(), qReader.getContact(), qReader.getManager());
     }
     if (reader.getError() != null)
       return false;
@@ -330,6 +329,10 @@ public class SamplePreparator {
 
   public ExperimentalDesignPropertyWrapper getExperimentalDesignProperties() {
     return experimentalDesignXML;
+  }
+
+  public Map<String, List<String>> getParsedCategoriesToValues(ArrayList<String> cats) {
+    return reader.getParsedCategoriesToValues(cats);
   }
 
 }

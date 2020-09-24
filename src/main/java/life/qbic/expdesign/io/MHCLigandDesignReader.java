@@ -19,7 +19,7 @@ import javax.xml.bind.JAXBException;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
+import jline.internal.Log;
 import life.qbic.datamodel.ms.LigandPrepRun;
 import life.qbic.datamodel.ms.MSRunCollection;
 import life.qbic.datamodel.samples.ISampleBean;
@@ -723,6 +723,12 @@ public class MHCLigandDesignReader implements IExperimentalDesignReader {
   public List<TechnologyType> getTechnologyTypes() {
     return new ArrayList<TechnologyType>(
         Arrays.asList(new TechnologyType("Ligandomics"), new TechnologyType("HLA Typing")));
+  }
+
+  @Override
+  public Map<String, List<String>> getParsedCategoriesToValues(List<String> header) {
+    Log.warn("Method getParsedCategoriesToValues not implemented.");
+    return new HashMap<>();
   }
 
 }

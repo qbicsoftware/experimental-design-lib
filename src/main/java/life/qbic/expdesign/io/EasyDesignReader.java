@@ -12,12 +12,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import javax.xml.bind.JAXBException;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import life.qbic.datamodel.samples.ISampleBean;
 import life.qbic.datamodel.samples.SampleSummary;
 import life.qbic.datamodel.samples.SampleType;
@@ -44,6 +41,7 @@ public class EasyDesignReader implements IExperimentalDesignReader {
   private List<String> tsvByRows;
 
   private Map<String, Set<SampleSummary>> nodesForFactorPerLabel;
+  private Map<String, Set<String>> parsedCategoriesToValues;
 
   public EasyDesignReader() {
     Set<String> mandatory =
@@ -69,10 +67,33 @@ public class EasyDesignReader implements IExperimentalDesignReader {
     headersToTypeCodePerSampletype.put(SampleType.Q_TEST_SAMPLE, prepMetadata);
   }
 
+  private void fillParsedCategoriesToValuesForRow(Map<String, Integer> headerMapping,
+      String[] row) {
+    addValueForCategory(headerMapping, row, "Species");
+    addValueForCategory(headerMapping, row, "Organism");
+    addValueForCategory(headerMapping, row, "Analyte");
+    addValueForCategory(headerMapping, row, "Expression System");
+  }
+
+  private void addValueForCategory(Map<String, Integer> headerMapping, String[] row, String cat) {
+    if (headerMapping.containsKey(cat)) {
+      String val = row[headerMapping.get(cat)];
+      if (val != null && !val.isEmpty()) {
+        if (parsedCategoriesToValues.containsKey(cat)) {
+          parsedCategoriesToValues.get(cat).add(val);
+        } else {
+          Set<String> set = new HashSet<String>();
+          set.add(val);
+          parsedCategoriesToValues.put(cat, set);
+        }
+      }
+    }
+  }
+
   public Map<String, List<Map<String, Object>>> getExperimentInfos() {
     return experimentInfos;
   }
-  
+
   public int countEntities(File file) throws IOException {
     Set<String> ids = new HashSet<String>();
     nodesForFactorPerLabel = new HashMap<String, Set<SampleSummary>>();
@@ -153,7 +174,7 @@ public class EasyDesignReader implements IExperimentalDesignReader {
    */
   public List<ISampleBean> readSamples(File file, boolean parseGraph)
       throws IOException, JAXBException {
-
+    parsedCategoriesToValues = new HashMap<>();
     nodesForFactorPerLabel = new HashMap<String, Set<SampleSummary>>();
 
     tsvByRows = new ArrayList<String>();
@@ -301,6 +322,7 @@ public class EasyDesignReader implements IExperimentalDesignReader {
     int rowID = 0;
     // int sampleID = 0;
     for (String[] row : data) {
+      fillParsedCategoriesToValuesForRow(headerMapping, row);
       rowID++;
       // boolean special = false;
       // if (!special) {
@@ -335,8 +357,8 @@ public class EasyDesignReader implements IExperimentalDesignReader {
       if (!analyteIDToSample.containsKey(analyteID)) {
         if (!analyteID.isEmpty()) {// some analytes can be added, while other cells can be empty
           // sampleID++;
-          TSVSampleBean firstASample = new TSVSampleBean(analyteID, SampleType.Q_TEST_SAMPLE, analyteID,
-              fillMetadata(header, row, meta, factors, loci, SampleType.Q_TEST_SAMPLE));
+          TSVSampleBean firstASample = new TSVSampleBean(analyteID, SampleType.Q_TEST_SAMPLE,
+              analyteID, fillMetadata(header, row, meta, factors, loci, SampleType.Q_TEST_SAMPLE));
           firstASample.addProperty("Q_SAMPLE_TYPE", analyte);
           order.get(2).add(firstASample);
           firstASample.addParentID(extractID);
@@ -348,8 +370,9 @@ public class EasyDesignReader implements IExperimentalDesignReader {
         TSVSampleBean sSample = sourceIDToSample.get(sourceID);
         if (!extractIDToSample.containsKey(extractID)) {
           // sampleID++;
-          eSample = new TSVSampleBean(extractID, SampleType.Q_BIOLOGICAL_SAMPLE, extractID,
-              fillMetadata(header, row, meta, extractFactors, loci, SampleType.Q_BIOLOGICAL_SAMPLE));
+          eSample =
+              new TSVSampleBean(extractID, SampleType.Q_BIOLOGICAL_SAMPLE, extractID, fillMetadata(
+                  header, row, meta, extractFactors, loci, SampleType.Q_BIOLOGICAL_SAMPLE));
           eSample.addProperty("Q_PRIMARY_TISSUE", tissue);
           order.get(1).add(eSample);
           extractIDToSample.put(extractID, eSample);
@@ -683,6 +706,19 @@ public class EasyDesignReader implements IExperimentalDesignReader {
   // TODO can't be sure at this point, should be handled in import view/controller
   public List<TechnologyType> getTechnologyTypes() {
     return new ArrayList<TechnologyType>();
+  }
+
+  @Override
+  public Map<String, List<String>> getParsedCategoriesToValues(List<String> header) {
+    Map<String, List<String>> res = new HashMap<>();
+    for (String cat : header) {
+      if (parsedCategoriesToValues.containsKey(cat)) {
+        res.put(cat, new ArrayList<>(parsedCategoriesToValues.get(cat)));
+      } else {
+        logger.warn(cat + " not found");
+      }
+    }
+    return res;
   }
 
 }

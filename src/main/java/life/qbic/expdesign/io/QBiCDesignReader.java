@@ -14,7 +14,7 @@ import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
+import jline.internal.Log;
 import life.qbic.datamodel.identifiers.SampleCodeFunctions;
 import life.qbic.datamodel.samples.ISampleBean;
 import life.qbic.datamodel.samples.SampleType;
@@ -540,6 +540,12 @@ public class QBiCDesignReader implements IExperimentalDesignReader {
 
   public String getProject() {
     return project;
+  }
+
+  @Override
+  public Map<String, List<String>> getParsedCategoriesToValues(List<String> header) {
+    Log.warn("Method getParsedCategoriesToValues not implemented.");
+    return new HashMap<>();
   }
 
 }

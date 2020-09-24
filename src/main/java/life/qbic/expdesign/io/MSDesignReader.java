@@ -31,6 +31,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
   private List<String> mandatoryFilled;
   private List<String> optionalCols;
   private Map<SampleType, Map<String, List<String>>> headersToTypeCodePerSampletype;
+  private Map<String, Set<String>> parsedCategoriesToValues;
 
   private String error;
   private Map<String, List<Map<String, Object>>> experimentInfos;
@@ -50,7 +51,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
     this.optionalCols =
         new ArrayList<>(Arrays.asList("Expression System", "Pooled Sample", "Cycle/Fraction Name",
             "Fractionation Type", "Sample Preparation", "Sample Cleanup (protein)",
-            "Digestion Method", "Digestion enzyme", "Enrichment Method", "Sample Cleanup (peptide)",
+            "Digestion Method", "Digestion Enzyme", "Enrichment Method", "Sample Cleanup (peptide)",
             "Labeling Type", "Label", "Customer Comment", "Facility Comment"));
 
     Map<String, List<String>> sourceMetadata = new HashMap<>();
@@ -82,6 +83,41 @@ public class MSDesignReader implements IExperimentalDesignReader {
     headersToTypeCodePerSampletype.put(SampleType.Q_MS_RUN, msRunMetadata);
   }
 
+  private void fillParsedCategoriesToValuesForRow(Map<String, Integer> headerMapping,
+      String[] row) {
+    addValueForCategory(headerMapping, row, "MS Device");
+    addValueForCategory(headerMapping, row, "LC Column");
+    // addValueForCategory(headerMapping, row, "Sample Cleanup");
+    addValueForCategory(headerMapping, row, "Sample Preparation");
+    addValueForCategory(headerMapping, row, "Digestion Enzyme");
+    addValueForCategory(headerMapping, row, "Digestion Method");
+    addValueForCategory(headerMapping, row, "Fractionation Type");
+    addValueForCategory(headerMapping, row, "Enrichment Method");
+    addValueForCategory(headerMapping, row, "Labeling Type");
+    addValueForCategory(headerMapping, row, "Label");
+    addValueForCategory(headerMapping, row, "Species");
+    addValueForCategory(headerMapping, row, "Expression System");
+    addValueForCategory(headerMapping, row, "Tissue");
+    addValueForCategory(headerMapping, row, "LCMS Method");
+  }
+
+  private void addValueForCategory(Map<String, Integer> headerMapping, String[] row, String cat) {
+    if (headerMapping.containsKey(cat)) {
+      String val = row[headerMapping.get(cat)];
+      if (val != null && !val.isEmpty()) {
+        for (String v : val.split(LIST_SEPARATOR)) {
+          if (parsedCategoriesToValues.containsKey(cat)) {
+            parsedCategoriesToValues.get(cat).add(val);
+          } else {
+            Set<String> set = new HashSet<String>();
+            set.add(val);
+            parsedCategoriesToValues.put(cat, set);
+          }
+        }
+      }
+    }
+  }
+
   public Map<String, List<Map<String, Object>>> getExperimentInfos() {
     return experimentInfos;
   }
@@ -107,6 +143,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
    */
   public List<ISampleBean> readSamples(File file, boolean parseGraph) throws IOException {
     tsvByRows = new ArrayList<String>();
+    parsedCategoriesToValues = new HashMap<>();
 
     BufferedReader reader = new BufferedReader(new FileReader(file));
     ArrayList<String[]> data = new ArrayList<String[]>();
@@ -218,6 +255,9 @@ public class MSDesignReader implements IExperimentalDesignReader {
     int sampleID = 0;
 
     for (String[] row : data) {
+
+      fillParsedCategoriesToValuesForRow(headerMapping, row);
+
       rowID++;
       boolean special = false;
       if (!special) {
@@ -792,6 +832,19 @@ public class MSDesignReader implements IExperimentalDesignReader {
     res.add(new TechnologyType("Proteomics"));
     if (analyteSet.contains("PEPTIDES")) {
       res.add(new TechnologyType("Peptidomics"));
+    }
+    return res;
+  }
+
+  @Override
+  public Map<String, List<String>> getParsedCategoriesToValues(List<String> header) {
+    Map<String, List<String>> res = new HashMap<>();
+    for (String cat : header) {
+      if (parsedCategoriesToValues.containsKey(cat)) {
+        res.put(cat, new ArrayList<>(parsedCategoriesToValues.get(cat)));
+      } else {
+        logger.warn(cat + " not found");
+      }
     }
     return res;
   }

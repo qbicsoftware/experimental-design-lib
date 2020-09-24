@@ -2,6 +2,8 @@ package life.qbic.expdesign.io;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -33,5 +35,7 @@ public interface IExperimentalDesignReader {
   int countEntities(File file) throws IOException;
 
   List<TechnologyType> getTechnologyTypes();
+  
+  public Map<String, List<String>> getParsedCategoriesToValues(List<String> header);
 
 }
