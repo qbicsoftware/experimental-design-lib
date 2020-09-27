@@ -107,10 +107,10 @@ public class MSDesignReader implements IExperimentalDesignReader {
       if (val != null && !val.isEmpty()) {
         for (String v : val.split(LIST_SEPARATOR)) {
           if (parsedCategoriesToValues.containsKey(cat)) {
-            parsedCategoriesToValues.get(cat).add(val);
+            parsedCategoriesToValues.get(cat).add(v);
           } else {
             Set<String> set = new HashSet<String>();
-            set.add(val);
+            set.add(v);
             parsedCategoriesToValues.put(cat, set);
           }
         }
