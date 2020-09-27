@@ -1,4 +1,4 @@
-File Name	Organism ID	Sample Secondary Name	Species	Tissue	Pooled Sample	Cycle/Fraction Name	Fractionation Type	Digestion Method	Digestion enzyme	Enrichment Method	Labeling Type	Label	LC Column	MS Device	LCMS Method	Facility Comment	Customer Comment
+File Name	Organism ID	Sample Secondary Name	Species	Tissue	Pooled Sample	Cycle/Fraction Name	Fractionation Type	Digestion Method	Digestion Enzyme	Enrichment Method	Labeling Type	Label	LC Column	MS Device	LCMS Method	Facility Comment	Customer Comment
 easy.raw	p1	R1	Homo sapiens	Whole blood				Beads	Trypsin				HPLC	HFX	180min_something		
 R2.raw	p1	R2	Homo sapiens	Liver				Beads	Trypsin				HPLC	HFX	180min_something		
 easy_pool.raw	p1	R1R2	Homo sapiens	Whole blood	R1+R2								HPLC	HFX	180min_something		

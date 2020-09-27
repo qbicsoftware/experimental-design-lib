@@ -279,7 +279,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
         String sampleName = row[headerMapping.get("Sample Secondary Name")];
         String poolName = row[headerMapping.get("Pooled Sample")];
         String digestType = row[headerMapping.get("Digestion Method")];
-        String enzymes = row[headerMapping.get("Digestion enzyme")];
+        String enzymes = row[headerMapping.get("Digestion Enzyme")];
         if (!digestType.isEmpty()) {
           analyteSet.add("PEPTIDES");
         }
