@@ -1,6 +1,5 @@
 package life.qbic.expdesign.model;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,26 +7,68 @@ import java.util.Map;
 public class ProteinPeptidePreparationProperties {
 
   private List<String> enzymes;
+  private String digestionMethod;
   private String sampleType;
   private String sampleCleanup;
+  private String samplePrep;
   private String fractionationMethod;
   private String enrichmentMethod;
   private String labelingMethod;
 
-  public ProteinPeptidePreparationProperties(List<String> enzymes, String sampleType,
-      String sampleCleanup, String fractionationMethod, String enrichmentMethod,
-      String labelingMethod) {
+  public ProteinPeptidePreparationProperties(List<String> enzymes, String digestionMethod,
+      String sampleType, String sampleCleanup, String fractionationMethod, String enrichmentMethod,
+      String labelingMethod, String samplePrep) {
     super();
     this.enzymes = enzymes;
+    this.digestionMethod = digestionMethod;
     this.sampleType = sampleType;
     this.sampleCleanup = sampleCleanup;
     this.fractionationMethod = fractionationMethod;
     this.enrichmentMethod = enrichmentMethod;
     this.labelingMethod = labelingMethod;
+    this.samplePrep = samplePrep;
+  }
+  
+  private Map<String, Object> parseSamplePrepData(String[] row, Map<String, Integer> headerMapping,
+      HashMap<String, Object> metadata) {
+    Map<String, String> designMap = new HashMap<String, String>();
+
+    designMap.put("Fractionation Type", "Q_MS_FRACTIONATION_METHOD");
+
+    designMap.put("Labeling Type", "Q_LABELING_METHOD");
+    // TODO digestion type
+    // designMap.put("Digestion Method", "Q_DIGESTION_METHOD");
+    designMap.put("Digestion enzyme", "Q_DIGESTION_METHOD");
+
+    designMap.put("Sample Cleanup (protein)", "Q_MS_PURIFICATION_METHOD");
+
+    designMap.put("Sample Cleanup (peptide)", "Q_MS_PURIFICATION_METHOD");
+
+    designMap.put("Enrichment Method", "Q_MS_ENRICHMENT_METHOD");
+    for (String col : designMap.keySet()) {
+      Object val = "";
+      String openbisType = designMap.get(col);
+      if (headerMapping.containsKey(col)) {
+        val = row[headerMapping.get(col)];
+        if (parsers.containsKey(openbisType)) {
+          val = parsers.get(openbisType).parse((String) val);
+        }
+      }
+      metadata.put(openbisType, val);
+    }
+    return metadata;
   }
 
   public List<String> getEnzymes() {
     return enzymes;
+  }
+
+  public String getSamplePrep() {
+    return samplePrep;
+  }
+
+  public String getDigestionMethod() {
+    return digestionMethod;
   }
 
   public String getSampleType() {
@@ -60,6 +101,8 @@ public class ProteinPeptidePreparationProperties {
     result = prime * result + ((labelingMethod == null) ? 0 : labelingMethod.hashCode());
     result = prime * result + ((sampleCleanup == null) ? 0 : sampleCleanup.hashCode());
     result = prime * result + ((sampleType == null) ? 0 : sampleType.hashCode());
+    result = prime * result + ((samplePrep == null) ? 0 : samplePrep.hashCode());
+    result = prime * result + ((digestionMethod == null) ? 0 : digestionMethod.hashCode());
     return result;
   }
 
@@ -87,6 +130,11 @@ public class ProteinPeptidePreparationProperties {
         return false;
     } else if (!fractionationMethod.equals(other.fractionationMethod))
       return false;
+    if (digestionMethod == null) {
+      if (other.digestionMethod != null)
+        return false;
+    } else if (!digestionMethod.equals(other.digestionMethod))
+      return false;
     if (labelingMethod == null) {
       if (other.labelingMethod != null)
         return false;
@@ -96,6 +144,11 @@ public class ProteinPeptidePreparationProperties {
       if (other.sampleCleanup != null)
         return false;
     } else if (!sampleCleanup.equals(other.sampleCleanup))
+      return false;
+    if (samplePrep == null) {
+      if (other.samplePrep != null)
+        return false;
+    } else if (!samplePrep.equals(other.samplePrep))
       return false;
     if (sampleType == null) {
       if (other.sampleType != null)
@@ -114,13 +167,19 @@ public class ProteinPeptidePreparationProperties {
       res.put("Q_LABELING_METHOD", labelingMethod);
     }
     if (enzymes != null && !enzymes.isEmpty()) {
-      res.put("Q_DIGESTION_METHOD", enzymes);
+      res.put("Q_DIGESTION_ENZYMES", enzymes);
+    }
+    if (digestionMethod != null && !digestionMethod.isEmpty()) {
+      res.put("Q_DIGESTION_METHOD", digestionMethod);
     }
     if (sampleCleanup != null && !sampleCleanup.isEmpty()) {
       res.put("Q_MS_PURIFICATION_METHOD", sampleCleanup);
     }
     if (enrichmentMethod != null && !enrichmentMethod.isEmpty()) {
       res.put("Q_MS_ENRICHMENT_METHOD", enrichmentMethod);// TODO METHOD_DETAILED?
+    }
+    if (samplePrep != null && !samplePrep.isEmpty()) {
+      res.put("Q_SAMPLE_PREPARATION_METHOD", samplePrep);
     }
     return res;
   }
