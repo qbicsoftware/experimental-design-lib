@@ -28,36 +28,6 @@ public class ProteinPeptidePreparationProperties {
     this.labelingMethod = labelingMethod;
     this.samplePrep = samplePrep;
   }
-  
-  private Map<String, Object> parseSamplePrepData(String[] row, Map<String, Integer> headerMapping,
-      HashMap<String, Object> metadata) {
-    Map<String, String> designMap = new HashMap<String, String>();
-
-    designMap.put("Fractionation Type", "Q_MS_FRACTIONATION_METHOD");
-
-    designMap.put("Labeling Type", "Q_LABELING_METHOD");
-    // TODO digestion type
-    // designMap.put("Digestion Method", "Q_DIGESTION_METHOD");
-    designMap.put("Digestion enzyme", "Q_DIGESTION_METHOD");
-
-    designMap.put("Sample Cleanup (protein)", "Q_MS_PURIFICATION_METHOD");
-
-    designMap.put("Sample Cleanup (peptide)", "Q_MS_PURIFICATION_METHOD");
-
-    designMap.put("Enrichment Method", "Q_MS_ENRICHMENT_METHOD");
-    for (String col : designMap.keySet()) {
-      Object val = "";
-      String openbisType = designMap.get(col);
-      if (headerMapping.containsKey(col)) {
-        val = row[headerMapping.get(col)];
-        if (parsers.containsKey(openbisType)) {
-          val = parsers.get(openbisType).parse((String) val);
-        }
-      }
-      metadata.put(openbisType, val);
-    }
-    return metadata;
-  }
 
   public List<String> getEnzymes() {
     return enzymes;
