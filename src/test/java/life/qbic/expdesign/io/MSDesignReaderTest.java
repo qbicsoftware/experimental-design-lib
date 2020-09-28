@@ -31,6 +31,14 @@ public class MSDesignReaderTest {
   }
 
   @Test
+  public void testExperimentProperties() throws IOException, JAXBException {
+    SamplePreparator p = new SamplePreparator();
+    p.processTSV(tsv, new MSDesignReader(), false);
+    System.out.println("experimental properties");
+    System.out.println(p.getSpecialExperimentsOfTypeOrNull("Q_SAMPLE_PREPARATION"));
+  }
+
+  @Test
   public void testGetVocabularyValues() throws IOException, JAXBException {
     MSDesignReader r = new MSDesignReader();
     SamplePreparator p = new SamplePreparator();

@@ -88,7 +88,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
 
   private void fillParsedCategoriesToValuesForRow(Map<String, Integer> headerMapping,
       String[] row) {
-    logger.info("Collecting possible CV entries for row.");
+//    logger.info("Collecting possible CV entries for row.");
     addValueForCategory(headerMapping, row, "MS Device");
     addValueForCategory(headerMapping, row, "LC Column");
     // addValueForCategory(headerMapping, row, "Sample Cleanup");
@@ -280,9 +280,18 @@ public class MSDesignReader implements IExperimentalDesignReader {
         if (!digestType.isEmpty()) {
           analyteSet.add("PEPTIDES");
         }
-        String cleanProt = row[headerMapping.get("Sample Cleanup (protein)")];
-        String cleanPept = row[headerMapping.get("Sample Cleanup (peptide)")];
-        String sampPrepType = row[headerMapping.get("Sample Preparation")];
+        String cleanProt = null;
+        if (headerMapping.containsKey("Sample Cleanup (protein)")) {
+          cleanProt = row[headerMapping.get("Sample Cleanup (protein)")];
+        }
+        String cleanPept = null;
+        if (headerMapping.containsKey("Sample Cleanup (peptide)")) {
+          cleanPept = row[headerMapping.get("Sample Cleanup (peptide)")];
+        }
+        String sampPrepType = null;
+        if (headerMapping.containsKey("Sample Preparation")) {
+          sampPrepType = row[headerMapping.get("Sample Preparation")];
+        }
 
         String fracType = row[headerMapping.get("Fractionation Type")];
         String enrichType = row[headerMapping.get("Enrichment Method")];
@@ -702,25 +711,25 @@ public class MSDesignReader implements IExperimentalDesignReader {
     return new ArrayList<>(Arrays.asList(poolName.split(LIST_SEPARATOR)));
   }
 
-  private Map<String, Object> parseMSExperimentData(String[] row,
-      Map<String, Integer> headerMapping, HashMap<String, Object> metadata) {
-    Map<String, String> designMap = new HashMap<String, String>();
-    designMap.put("MS Device", "Q_MS_DEVICE");
-    designMap.put("LC Column", "Q_CHROMATOGRAPHY_TYPE");
-    designMap.put("LCMS Method", "Q_MS_LCMS_METHOD");
-    for (String col : designMap.keySet()) {
-      Object val = "";
-      String openbisType = designMap.get(col);
-      if (headerMapping.containsKey(col)) {
-        val = row[headerMapping.get(col)];
-        if (parsers.containsKey(openbisType)) {
-          val = parsers.get(openbisType).parse((String) val);
-        }
-      }
-      metadata.put(openbisType, val);
-    }
-    return metadata;
-  }
+//  private Map<String, Object> parseMSExperimentData(String[] row,
+//      Map<String, Integer> headerMapping, HashMap<String, Object> metadata) {
+//    Map<String, String> designMap = new HashMap<String, String>();
+//    designMap.put("MS Device", "Q_MS_DEVICE");
+//    designMap.put("LC Column", "Q_CHROMATOGRAPHY_TYPE");
+//    designMap.put("LCMS Method", "Q_MS_LCMS_METHOD");
+//    for (String col : designMap.keySet()) {
+//      Object val = "";
+//      String openbisType = designMap.get(col);
+//      if (headerMapping.containsKey(col)) {
+//        val = row[headerMapping.get(col)];
+//        if (parsers.containsKey(openbisType)) {
+//          val = parsers.get(openbisType).parse((String) val);
+//        }
+//      }
+//      metadata.put(openbisType, val);
+//    }
+//    return metadata;
+//  }
 
   public Set<String> getSpeciesSet() {
     return speciesSet;
@@ -763,8 +772,8 @@ public class MSDesignReader implements IExperimentalDesignReader {
         if (!data[i].isEmpty() && headersToOpenbisCode.containsKey(label)) {
           for (String propertyCode : headersToOpenbisCode.get(label)) {
             Object val = data[i];
-            if (parsers.containsKey(propertyCode))
-              val = parsers.get(propertyCode).parse(data[i]);
+//            if (parsers.containsKey(propertyCode))
+//              val = parsers.get(propertyCode).parse(data[i]);
             res.put(propertyCode, val);
           }
         }
