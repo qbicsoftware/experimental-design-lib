@@ -225,7 +225,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
       for (String[] row : data) {
         String val = row[col];
         String sourceID = row[headerMapping.get("Organism ID")];
-        String extractID = row[headerMapping.get("Extract ID")];
+        String extractID = row[headerMapping.get("Sample Secondary Name")];
         // if different for same entities: not an entity attribute
         if (idToVal.containsKey(sourceID)) {
           if (!idToVal.get(sourceID).equals(val))
