@@ -20,6 +20,7 @@ public class MSDesignReaderTest {
 
   private File tsv = new File(getClass().getResource("ptx_example1.tsv").getFile());
   private File altTSV = new File(getClass().getResource("ptx_example_noParents.tsv").getFile());
+  private File small = new File(getClass().getResource("ptx_ex_small.tsv").getFile());
 
   @Before
   public void setUp() {}
@@ -51,6 +52,18 @@ public class MSDesignReaderTest {
 
     if (r.getError() != null)
       System.out.println(r.getError());
+  }
+
+  @Test
+  public void testParents() throws IOException, JAXBException {
+    MSDesignReader r = new MSDesignReader();
+    List<ISampleBean> samples1 = r.readSamples(small, false);
+    for(ISampleBean s : samples1) {
+      System.out.println("code "+s.getCode());
+      System.out.println("parents "+s.getParentIDs());
+      System.out.println(s);
+    }
+    System.out.println("lasndlasndlkasnd");
   }
 
   @Test

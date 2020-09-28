@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -16,6 +17,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import life.qbic.datamodel.ms.MSProperties;
 import life.qbic.datamodel.samples.ISampleBean;
+import life.qbic.datamodel.samples.SampleSummary;
 import life.qbic.datamodel.samples.SampleType;
 import life.qbic.datamodel.samples.TSVSampleBean;
 import life.qbic.expdesign.model.MassSpecSampleHierarchy;
@@ -169,10 +171,11 @@ public class MSDesignReader implements IExperimentalDesignReader {
     String[] header = data.get(0);
     data.remove(0);
     // find out where the mandatory and other metadata data is
-    Map<String, Integer> headerMapping = new HashMap<String, Integer>();
-    List<Integer> meta = new ArrayList<Integer>();
-    List<Integer> factors = new ArrayList<Integer>();
-    List<Integer> loci = new ArrayList<Integer>();
+    Map<String, Integer> headerMapping = new HashMap<>();
+    List<Integer> meta = new ArrayList<>();
+    Set<Integer> factors = new HashSet<>();
+    List<Integer> properties = new ArrayList<>();
+    List<Integer> loci = new ArrayList<>();
 
     ArrayList<String> found = new ArrayList<String>(Arrays.asList(header));
     for (String col : mandatoryColumns) {
@@ -212,6 +215,41 @@ public class MSDesignReader implements IExperimentalDesignReader {
         meta.add(i);
       }
     }
+    // sort attributes
+    Set<Integer> entityFactors = new HashSet<Integer>();
+    Set<Integer> extractFactors = new HashSet<Integer>();
+    for (int col : factors) {
+      Map<String, String> idToVal = new HashMap<String, String>();
+      boolean ent = true;
+      boolean extr = true;
+      for (String[] row : data) {
+        String val = row[col];
+        String sourceID = row[headerMapping.get("Organism ID")];
+        String extractID = row[headerMapping.get("Extract ID")];
+        // if different for same entities: not an entity attribute
+        if (idToVal.containsKey(sourceID)) {
+          if (!idToVal.get(sourceID).equals(val))
+            ent = false;
+        }
+        if (idToVal.containsKey(extractID)) {
+          if (!idToVal.get(extractID).equals(val))
+            extr = false;
+        }
+        idToVal.put(sourceID, val);
+        idToVal.put(extractID, val);
+      }
+      if (ent)
+        entityFactors.add(col);
+      if (extr)
+        extractFactors.add(col);
+    }
+//    if (parseGraph) {
+//      for (int factorCol : factors) {
+//        String label = parseXMLPartLabel(header[factorCol]);
+//        nodesForFactorPerLabel.put(label, new LinkedHashSet<SampleSummary>());
+//      }
+//      nodesForFactorPerLabel.put("None", new LinkedHashSet<SampleSummary>());
+//    }
     // create samples
     List<ISampleBean> beans = new ArrayList<>();
 
@@ -354,7 +392,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
 
           sampleSource = new TSVSampleBean(Integer.toString(sampleID),
               SampleType.Q_BIOLOGICAL_ENTITY, sourceID,
-              fillMetadata(header, row, meta, factors, loci, SampleType.Q_BIOLOGICAL_ENTITY));
+              fillMetadata(header, row, meta, entityFactors, loci, SampleType.Q_BIOLOGICAL_ENTITY));
           // sampleSource.addProperty("Q_EXTERNALDB_ID", sourceID);
           samplesInOrder.get(MassSpecSampleHierarchy.Organism).add(sampleSource);
           sourceIDToSample.put(sourceID, sampleSource);
@@ -373,7 +411,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
 
           tissueSample = new TSVSampleBean(Integer.toString(sampleID),
               SampleType.Q_BIOLOGICAL_SAMPLE, tissueID,
-              fillMetadata(header, row, meta, factors, loci, SampleType.Q_BIOLOGICAL_SAMPLE));
+              fillMetadata(header, row, meta, extractFactors, loci, SampleType.Q_BIOLOGICAL_SAMPLE));
           samplesInOrder.get(MassSpecSampleHierarchy.Tissue).add(tissueSample);
           tissueSample.addParentID(sampleSource.getCode());
           tissueSample.addProperty("Q_EXTERNALDB_ID", tissueID);
@@ -763,7 +801,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
   }
 
   private HashMap<String, Object> fillMetadata(String[] header, String[] data, List<Integer> meta,
-      List<Integer> factors, List<Integer> loci, SampleType type) {
+      Set<Integer> factors, List<Integer> loci, SampleType type) {
     Map<String, List<String>> headersToOpenbisCode = headersToTypeCodePerSampletype.get(type);
     HashMap<String, Object> res = new HashMap<String, Object>();
     if (headersToOpenbisCode != null) {
