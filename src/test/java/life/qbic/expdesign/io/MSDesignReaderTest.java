@@ -4,6 +4,7 @@ package life.qbic.expdesign.io;
 import static org.junit.Assert.assertEquals;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -27,6 +28,21 @@ public class MSDesignReaderTest {
   public void testCountEntities() throws IOException {
     MSDesignReader r = new MSDesignReader();
     assertEquals(r.countEntities(tsv), -1);// not implemented
+  }
+
+  @Test
+  public void testGetVocabularyValues() throws IOException, JAXBException {
+    MSDesignReader r = new MSDesignReader();
+    SamplePreparator p = new SamplePreparator();
+    p.processTSV(tsv, new MSDesignReader(), false);
+    System.out.println("vocabs");
+    System.out
+        .println(p.getParsedCategoriesToValues(new ArrayList<String>(Arrays.asList("LC Column",
+            "MS Device", "Fractionation Type", "Enrichment Type", "Labeling Type", "LCMS Method",
+            "Digestion Method", "Digestion Enzyme", "Sample Preparation", "Species", "Tissue"))));
+
+    if (r.getError() != null)
+      System.out.println(r.getError());
   }
 
   @Test
@@ -54,7 +70,7 @@ public class MSDesignReaderTest {
     assertEquals(levels.get(5).size(), 4);// fractions of pool, pool of other peptide fractions
     assertEquals(levels.get(6).size(), 11);// ms measurements
     assertEquals(samples1.size(), 30);
-    
+
     p.processTSV(altTSV, new MSDesignReader(), false);
     assert (p.getSummary().size() == 7);
     levels = p.getProcessed();
@@ -66,14 +82,16 @@ public class MSDesignReaderTest {
     assertEquals(levels.get(5).size(), 4);// fractions of pool, pool of other fractions
     assertEquals(levels.get(6).size(), 9);// ms measurements
     assertEquals(samples1.size(), 30);
-    
+
     System.out.println(p.getExperimentalDesignProperties());
-    System.out.println(p.getSpecialExperimentsOfTypeOrNull(ExperimentType.Q_MS_MEASUREMENT.toString()));
-    System.out.println(p.getSpecialExperimentsOfTypeOrNull(ExperimentType.Q_SAMPLE_PREPARATION.toString()));
-    
-    assert(p.getSpeciesSet().contains("Homo sapiens"));
-    assert(p.getTissueSet().contains("Liver"));
-    assert(p.getTissueSet().contains("Whole blood"));
+    System.out
+        .println(p.getSpecialExperimentsOfTypeOrNull(ExperimentType.Q_MS_MEASUREMENT.toString()));
+    System.out.println(
+        p.getSpecialExperimentsOfTypeOrNull(ExperimentType.Q_SAMPLE_PREPARATION.toString()));
+
+    assert (p.getSpeciesSet().contains("Homo sapiens"));
+    assert (p.getTissueSet().contains("Liver"));
+    assert (p.getTissueSet().contains("Whole blood"));
   }
 
   @Test

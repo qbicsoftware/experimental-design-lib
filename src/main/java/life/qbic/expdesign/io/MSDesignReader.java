@@ -43,6 +43,9 @@ public class MSDesignReader implements IExperimentalDesignReader {
 
   private HashMap<String, Command> parsers;
 
+  public static final String UTF8_BOM = "\uFEFF";
+  public static final String LIST_SEPARATOR = "\\+";
+
   public MSDesignReader() {
     this.mandatoryColumns = new ArrayList<>(Arrays.asList("File Name", "Organism ID",
         "Sample Secondary Name", "Species", "Tissue", "LC Column", "MS Device", "LCMS Method"));
@@ -85,6 +88,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
 
   private void fillParsedCategoriesToValuesForRow(Map<String, Integer> headerMapping,
       String[] row) {
+    logger.info("Collecting possible CV entries for row.");
     addValueForCategory(headerMapping, row, "MS Device");
     addValueForCategory(headerMapping, row, "LC Column");
     // addValueForCategory(headerMapping, row, "Sample Cleanup");
@@ -121,10 +125,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
   public Map<String, List<Map<String, Object>>> getExperimentInfos() {
     return experimentInfos;
   }
-
-  public static final String UTF8_BOM = "\uFEFF";
-  public static final String LIST_SEPARATOR = "\\+";
-
+  
   private static String removeUTF8BOM(String s) {
     if (s.startsWith(UTF8_BOM)) {
       s = s.substring(1);
