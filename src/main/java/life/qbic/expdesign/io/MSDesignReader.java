@@ -46,9 +46,9 @@ public class MSDesignReader implements IExperimentalDesignReader {
 
   public MSDesignReader() {
     this.mandatoryColumns = new ArrayList<>(Arrays.asList("File Name", "Organism ID",
-        "Sample Secondary Name", "Species", "Tissue", "LC Column", "MS Device", "LCMS Method"));
+        "Sample Name", "Secondary Name", "Species", "Tissue", "LC Column", "MS Device", "LCMS Method"));
     this.mandatoryFilled = new ArrayList<>(Arrays.asList("File Name", "Organism ID",
-        "Sample Secondary Name", "Species", "Tissue", "LC Column", "MS Device", "LCMS Method"));
+        "Sample Name", "Secondary Name", "Species", "Tissue", "LC Column", "MS Device", "LCMS Method"));
     this.optionalCols =
         new ArrayList<>(Arrays.asList("Expression System", "Pooled Sample", "Cycle/Fraction Name",
             "Fractionation Type", "Sample Preparation", "Sample Cleanup (protein)",
@@ -71,7 +71,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
 
     Map<String, List<String>> peptideMetadata = new HashMap<>();
     peptideMetadata.put("Label", Collections.singletonList("Q_MOLECULAR_LABEL"));
-    peptideMetadata.put("Sample Secondary Name", Collections.singletonList("Q_SECONDARY_NAME"));
+    peptideMetadata.put("Secondary Name", Collections.singletonList("Q_SECONDARY_NAME"));
     // peptideMetadata.put("Sample Secondary Name", "Q_EXTERNALDB_ID");
 
     Map<String, List<String>> msRunMetadata = new HashMap<>();
@@ -221,7 +221,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
       for (String[] row : data) {
         String val = row[col];
         String sourceID = row[headerMapping.get("Organism ID")];
-        String extractID = row[headerMapping.get("Sample Secondary Name")];
+        String extractID = row[headerMapping.get("Sample Name")];
         // if different for same entities: not an entity attribute
         if (idToVal.containsKey(sourceID)) {
           if (!idToVal.get(sourceID).equals(val))
@@ -303,7 +303,8 @@ public class MSDesignReader implements IExperimentalDesignReader {
         }
         String tissue = row[headerMapping.get("Tissue")];
         String fileName = row[headerMapping.get("File Name")];
-        String sampleName = row[headerMapping.get("Sample Secondary Name")];
+        String sampleName = row[headerMapping.get("Sample Name")];
+        String secName = row[headerMapping.get("Secondary Name")];
         String poolName = row[headerMapping.get("Pooled Sample")];
         String digestType = row[headerMapping.get("Digestion Method")];
         String enzymeString = row[headerMapping.get("Digestion Enzyme")];
@@ -499,7 +500,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
             cleanType = cleanPept;
           }
           TSVSampleBean pool =
-              new TSVSampleBean(Integer.toString(sampleID), SampleType.Q_TEST_SAMPLE, sampleName,
+              new TSVSampleBean(Integer.toString(sampleID), SampleType.Q_TEST_SAMPLE, secName,
                   fillMetadata(header, row, meta, factors, loci, SampleType.Q_TEST_SAMPLE));
           pool.addProperty("Q_EXTERNALDB_ID", sampleName);
 
@@ -520,7 +521,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
           if (!digestType.isEmpty() && !parentsPeptides) {
             sampleID++;
             TSVSampleBean digestedPool =
-                new TSVSampleBean(Integer.toString(sampleID), SampleType.Q_TEST_SAMPLE, sampleName,
+                new TSVSampleBean(Integer.toString(sampleID), SampleType.Q_TEST_SAMPLE, secName,
                     fillMetadata(header, row, meta, factors, loci, SampleType.Q_TEST_SAMPLE));
             digestedPool.addProperty("Q_EXTERNALDB_ID", sampleName);
 
@@ -574,7 +575,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
               sampleID++;
 
               proteinSample = new TSVSampleBean(Integer.toString(sampleID),
-                  SampleType.Q_TEST_SAMPLE, sampleName,
+                  SampleType.Q_TEST_SAMPLE, secName,
                   fillMetadata(header, row, meta, factors, loci, SampleType.Q_TEST_SAMPLE));
               samplesInOrder.get(MassSpecSampleHierarchy.Proteins).add(proteinSample);
               proteinSample.addParentID(tissueSample.getCode());
@@ -598,7 +599,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
                   sampleID++;
 
                   peptideSample = new TSVSampleBean(Integer.toString(sampleID),
-                      SampleType.Q_TEST_SAMPLE, peptideID,
+                      SampleType.Q_TEST_SAMPLE, secName,
                       fillMetadata(header, row, meta, factors, loci, SampleType.Q_TEST_SAMPLE));
                   samplesInOrder.get(MassSpecSampleHierarchy.Peptides).add(peptideSample);
                   peptideSample.addParentID(proteinSample.getCode());

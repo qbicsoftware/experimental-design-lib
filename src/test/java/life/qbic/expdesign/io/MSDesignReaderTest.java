@@ -59,6 +59,7 @@ public class MSDesignReaderTest {
   public void testParents() throws IOException, JAXBException {
     MSDesignReader r = new MSDesignReader();
     List<ISampleBean> samples1 = r.readSamples(small, false);
+    System.out.println(r.getError());
     for (ISampleBean s : samples1) {
       System.out.println("code " + s.getCode());
       System.out.println("parents " + s.getParentIDs());
