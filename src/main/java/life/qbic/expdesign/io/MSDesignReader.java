@@ -9,7 +9,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -17,7 +16,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import life.qbic.datamodel.ms.MSProperties;
 import life.qbic.datamodel.samples.ISampleBean;
-import life.qbic.datamodel.samples.SampleSummary;
 import life.qbic.datamodel.samples.SampleType;
 import life.qbic.datamodel.samples.TSVSampleBean;
 import life.qbic.expdesign.model.MassSpecSampleHierarchy;
@@ -42,8 +40,6 @@ public class MSDesignReader implements IExperimentalDesignReader {
   private Set<String> analyteSet;
   private List<String> tsvByRows;
   private static final Logger logger = LogManager.getLogger(MSDesignReader.class);
-
-  private HashMap<String, Command> parsers;
 
   public static final String UTF8_BOM = "\uFEFF";
   public static final String LIST_SEPARATOR = "\\+";
