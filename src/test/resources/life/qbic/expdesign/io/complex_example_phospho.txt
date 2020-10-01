@@ -1,0 +1,45 @@
+QBiC Barcode	File Name	Secondary Name	Sample Name	Organism ID	Technical Replicates	Condition: health	Condition: gene	Condition: test	Species	Tissue	Comment	Expression System	Pooled Sample	Cycle/Fraction Name	Fractionation Type	Sample Preparation	Sample Cleanup (Protein)	Digestion Method	Digestion Enzyme	Enrichment Method	Sample Cleanup (Peptide)	Labeling Type	Label	LC Column	MS Device	LCMS Method	Comments
+	raw_data_R01	R01	Lab_R01	patient1	1	healthy	WT		Homo sapens	cell line								in gel	Trypsin					UPLC	QF-X	QEX_HCD_TOP07_60MIN	
+	raw_data_R02	R02	Lab_R02	patient1	2	healthy	WT		Homo sapens	cell line								in gel	Trypsin					UPLC	QF-X	QEX_HCD_TOP07_60MIN	
+	raw_data_R03	R03	Lab_R03	patient1	1	healthy	WT		Homo sapens	cell line				R03				in gel	Trypsin	Phospho				UPLC	QF-X	QEX_HCD_TOP12_130MIN	
+	raw_data_R04	R04	Lab_R04	patient1	2	healthy	WT		Homo sapens	cell line				R04				in gel	Trypsin	Phospho				UPLC	QF-X	QEX_HCD_TOP12_130MIN	
+	raw_data_R05	R05	Lab_R05	patient2	1	healthy	WT		Homo sapens	cell line								in gel	Trypsin					UPLC	QF-X	QEX_HCD_TOP07_60MIN	
+	raw_data_R06	R06	Lab_R06	patient2	2	healthy	WT		Homo sapens	cell line								in gel	Trypsin					UPLC	QF-X	QEX_HCD_TOP07_60MIN	
+	raw_data_R07	R07	Lab_R07	patient2	1	healthy	WT		Homo sapens	cell line				R07				in gel	Trypsin	Phospho				UPLC	QF-X	QEX_HCD_TOP12_130MIN	
+	raw_data_R08	R08	Lab_R08	patient2	2	healthy	WT		Homo sapens	cell line				R08				in gel	Trypsin	Phospho				UPLC	QF-X	QEX_HCD_TOP12_130MIN	
+	raw_data_R09	R09	Lab_R09	patient3	1	healthy	WT		Homo sapens	cell line								in gel	Trypsin					UPLC	QF-X	QEX_HCD_TOP07_60MIN	
+	raw_data_R10	R10	Lab_R10	patient3	2	healthy	WT		Homo sapens	cell line								in gel	Trypsin					UPLC	QF-X	QEX_HCD_TOP07_60MIN	
+	raw_data_R11	R11	Lab_R11	patient3	1	healthy	WT		Homo sapens	cell line				R11				in gel	Trypsin	Phospho				UPLC	QF-X	QEX_HCD_TOP12_130MIN	
+	raw_data_R12	R12	Lab_R12	patient3	2	healthy	WT		Homo sapens	cell line				R12				in gel	Trypsin	Phospho				UPLC	QF-X	QEX_HCD_TOP12_130MIN	
+	raw_data_R13	R13	Lab_R13	patient4	1	patient	TDP43		Homo sapens	cell line								in gel	Trypsin					UPLC	QF-X	QEX_HCD_TOP07_60MIN	
+	raw_data_R14	R14	Lab_R14	patient4	2	patient	TDP43		Homo sapens	cell line								in gel	Trypsin					UPLC	QF-X	QEX_HCD_TOP07_60MIN	
+	raw_data_R15	R15	Lab_R15	patient4	1	patient	TDP43		Homo sapens	cell line				R15				in gel	Trypsin	Phospho				UPLC	QF-X	QEX_HCD_TOP12_130MIN	
+	raw_data_R16	R16	Lab_R16	patient4	2	patient	TDP43		Homo sapens	cell line				R16				in gel	Trypsin	Phospho				UPLC	QF-X	QEX_HCD_TOP12_130MIN	
+	raw_data_R17	R17	Lab_R17	patient5	1	patient	TDP43		Homo sapens	cell line								in gel	Trypsin					UPLC	QF-X	QEX_HCD_TOP07_60MIN	
+	raw_data_R18	R18	Lab_R18	patient5	2	patient	TDP43		Homo sapens	cell line								in gel	Trypsin					UPLC	QF-X	QEX_HCD_TOP07_60MIN	
+	raw_data_R19	R19	Lab_R19	patient5	1	patient	TDP43		Homo sapens	cell line				R19				in gel	Trypsin	Phospho				UPLC	QF-X	QEX_HCD_TOP12_130MIN	
+	raw_data_R20	R20	Lab_R20	patient5	2	patient	TDP43		Homo sapens	cell line				R20				in gel	Trypsin	Phospho				UPLC	QF-X	QEX_HCD_TOP12_130MIN	
+	raw_data_R21	R21	Lab_R21	patient6	1	patient	TBK1		Homo sapens	cell line								in gel	Trypsin					UPLC	QF-X	QEX_HCD_TOP07_60MIN	
+	raw_data_R22	R22	Lab_R22	patient6	2	patient	TBK1		Homo sapens	cell line								in gel	Trypsin					UPLC	QF-X	QEX_HCD_TOP07_60MIN	
+	raw_data_R23	R23	Lab_R23	patient6	1	patient	TBK1		Homo sapens	cell line				R23				in gel	Trypsin	Phospho				UPLC	QF-X	QEX_HCD_TOP12_130MIN	
+	raw_data_R24	R24	Lab_R24	patient6	2	patient	TBK1		Homo sapens	cell line				R24				in gel	Trypsin	Phospho				UPLC	QF-X	QEX_HCD_TOP12_130MIN	
+	raw_data_R25	R25	Lab_R25	patient7	1	patient	TBK1		Homo sapens	cell line								in gel	Trypsin					UPLC	QF-X	QEX_HCD_TOP07_60MIN	
+	raw_data_R26	R26	Lab_R26	patient7	2	patient	TBK1		Homo sapens	cell line								in gel	Trypsin					UPLC	QF-X	QEX_HCD_TOP07_60MIN	
+	raw_data_R27	R27	Lab_R27	patient7	1	patient	TBK1		Homo sapens	cell line				R27				in gel	Trypsin	Phospho				UPLC	QF-X	QEX_HCD_TOP12_130MIN	
+	raw_data_R28	R28	Lab_R28	patient7	2	patient	TBK1		Homo sapens	cell line				R28				in gel	Trypsin	Phospho				UPLC	QF-X	QEX_HCD_TOP12_130MIN	
+	raw_data_R29	R29	Lab_R29	patient8	1	patient	FUS		Homo sapens	cell line								in gel	Trypsin					UPLC	QF-X	QEX_HCD_TOP07_60MIN	
+	raw_data_R30	R30	Lab_R30	patient8	2	patient	FUS		Homo sapens	cell line								in gel	Trypsin					UPLC	QF-X	QEX_HCD_TOP07_60MIN	
+	raw_data_R31	R31	Lab_R31	patient8	1	patient	FUS		Homo sapens	cell line				R31				in gel	Trypsin	Phospho				UPLC	QF-X	QEX_HCD_TOP12_130MIN	
+	raw_data_R32	R32	Lab_R32	patient8	2	patient	FUS		Homo sapens	cell line				R32				in gel	Trypsin	Phospho				UPLC	QF-X	QEX_HCD_TOP12_130MIN	
+	raw_data_R33	R33	Lab_R33	patient9	1	patient	FUS		Homo sapens	cell line								in gel	Trypsin					UPLC	QF-X	QEX_HCD_TOP07_60MIN	
+	raw_data_R34	R34	Lab_R34	patient9	2	patient	FUS		Homo sapens	cell line								in gel	Trypsin					UPLC	QF-X	QEX_HCD_TOP07_60MIN	
+	raw_data_R35	R35	Lab_R35	patient9	1	patient	FUS		Homo sapens	cell line				R35				in gel	Trypsin	Phospho				UPLC	QF-X	QEX_HCD_TOP12_130MIN	
+	raw_data_R36	R36	Lab_R36	patient9	2	patient	FUS		Homo sapens	cell line				R36				in gel	Trypsin	Phospho				UPLC	QF-X	QEX_HCD_TOP12_130MIN	
+	raw_data_R37	R37	Lab_R37	patient10	1	patient	C9orf72		Homo sapens	cell line								in gel	Trypsin					UPLC	QF-X	QEX_HCD_TOP07_60MIN	
+	raw_data_R38	R38	Lab_R38	patient10	2	patient	C9orf72		Homo sapens	cell line								in gel	Trypsin					UPLC	QF-X	QEX_HCD_TOP07_60MIN	
+	raw_data_R39	R39	Lab_R39	patient10	1	patient	C9orf72		Homo sapens	cell line				R39				in gel	Trypsin	Phospho				UPLC	QF-X	QEX_HCD_TOP12_130MIN	
+	raw_data_R40	R40	Lab_R40	patient10	2	patient	C9orf72		Homo sapens	cell line				R40				in gel	Trypsin	Phospho				UPLC	QF-X	QEX_HCD_TOP12_130MIN	
+	raw_data_R41	R41	Lab_R41	patient11	1	patient	C9orf72		Homo sapens	cell line								in gel	Trypsin					UPLC	QF-X	QEX_HCD_TOP07_60MIN	
+	raw_data_R42	R42	Lab_R42	patient11	2	patient	C9orf72		Homo sapens	cell line								in gel	Trypsin					UPLC	QF-X	QEX_HCD_TOP07_60MIN	
+	raw_data_R43	R43	Lab_R43	patient11	1	patient	C9orf72		Homo sapens	cell line				R43				in gel	Trypsin	Phospho				UPLC	QF-X	QEX_HCD_TOP12_130MIN	
+	raw_data_R44	R44	Lab_R44	patient11	2	patient	C9orf72		Homo sapens	cell line				R44				in gel	Trypsin	Phospho				UPLC	QF-X	QEX_HCD_TOP12_130MIN	

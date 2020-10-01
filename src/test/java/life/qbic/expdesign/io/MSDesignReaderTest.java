@@ -22,6 +22,7 @@ public class MSDesignReaderTest {
   private File altTSV = new File(getClass().getResource("ptx_example_noParents.tsv").getFile());
   private File small = new File(getClass().getResource("ptx_ex_small.tsv").getFile());
   private File big = new File(getClass().getResource("ptx_big_example.tsv").getFile());
+  private File enrich_big = new File(getClass().getResource("complex_example_phospho.txt").getFile());
 
   @Before
   public void setUp() {}
@@ -37,6 +38,14 @@ public class MSDesignReaderTest {
     SamplePreparator p = new SamplePreparator();
     p.processTSV(tsv, new MSDesignReader(), false);
     System.out.println("experimental properties");
+    System.out.println(p.getSpecialExperimentsOfTypeOrNull("Q_SAMPLE_PREPARATION"));
+  }
+  
+  @Test
+  public void testEnrichment() throws IOException, JAXBException {
+    SamplePreparator p = new SamplePreparator();
+    MSDesignReader r = new MSDesignReader();
+    p.processTSV(enrich_big, new MSDesignReader(), false);
     System.out.println(p.getSpecialExperimentsOfTypeOrNull("Q_SAMPLE_PREPARATION"));
   }
 

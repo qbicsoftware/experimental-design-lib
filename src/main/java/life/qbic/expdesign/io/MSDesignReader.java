@@ -45,14 +45,16 @@ public class MSDesignReader implements IExperimentalDesignReader {
   public static final String LIST_SEPARATOR = "\\+";
 
   public MSDesignReader() {
-    this.mandatoryColumns = new ArrayList<>(Arrays.asList("File Name", "Organism ID",
-        "Sample Name", "Secondary Name", "Species", "Tissue", "LC Column", "MS Device", "LCMS Method"));
-    this.mandatoryFilled = new ArrayList<>(Arrays.asList("File Name", "Organism ID",
-        "Sample Name", "Secondary Name", "Species", "Tissue", "LC Column", "MS Device", "LCMS Method"));
+    this.mandatoryColumns = new ArrayList<>(
+        Arrays.asList("File Name", "Organism ID", "Technical Replicates", "Sample Name",
+            "Secondary Name", "Species", "Tissue", "LC Column", "MS Device", "LCMS Method"));
+    this.mandatoryFilled = new ArrayList<>(
+        Arrays.asList("File Name", "Organism ID", "Technical Replicates", "Sample Name",
+            "Secondary Name", "Species", "Tissue", "LC Column", "MS Device", "LCMS Method"));
     this.optionalCols =
         new ArrayList<>(Arrays.asList("Expression System", "Pooled Sample", "Cycle/Fraction Name",
-            "Fractionation Type", "Sample Preparation", "Sample Cleanup (protein)",
-            "Digestion Method", "Digestion Enzyme", "Enrichment Method", "Sample Cleanup (peptide)",
+            "Fractionation Type", "Sample Preparation", "Sample Cleanup (Protein)",
+            "Digestion Method", "Digestion Enzyme", "Enrichment Method", "Sample Cleanup (Peptide)",
             "Labeling Type", "Label", "Customer Comment", "Facility Comment"));
 
     Map<String, List<String>> sourceMetadata = new HashMap<>();
@@ -86,7 +88,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
 
   private void fillParsedCategoriesToValuesForRow(Map<String, Integer> headerMapping,
       String[] row) {
-//    logger.info("Collecting possible CV entries for row.");
+    // logger.info("Collecting possible CV entries for row.");
     addValueForCategory(headerMapping, row, "MS Device");
     addValueForCategory(headerMapping, row, "LC Column");
     // addValueForCategory(headerMapping, row, "Sample Cleanup");
@@ -221,7 +223,8 @@ public class MSDesignReader implements IExperimentalDesignReader {
       for (String[] row : data) {
         String val = row[col];
         String sourceID = row[headerMapping.get("Organism ID")];
-        String extractID = row[headerMapping.get("Sample Name")];
+        String extractID = sourceID + row[headerMapping.get("Tissue")]
+            + row[headerMapping.get("Technical Replicates")];
         // if different for same entities: not an entity attribute
         if (idToVal.containsKey(sourceID)) {
           if (!idToVal.get(sourceID).equals(val))
@@ -239,13 +242,13 @@ public class MSDesignReader implements IExperimentalDesignReader {
       if (extr)
         extractFactors.add(col);
     }
-//    if (parseGraph) {
-//      for (int factorCol : factors) {
-//        String label = parseXMLPartLabel(header[factorCol]);
-//        nodesForFactorPerLabel.put(label, new LinkedHashSet<SampleSummary>());
-//      }
-//      nodesForFactorPerLabel.put("None", new LinkedHashSet<SampleSummary>());
-//    }
+    // if (parseGraph) {
+    // for (int factorCol : factors) {
+    // String label = parseXMLPartLabel(header[factorCol]);
+    // nodesForFactorPerLabel.put(label, new LinkedHashSet<SampleSummary>());
+    // }
+    // nodesForFactorPerLabel.put("None", new LinkedHashSet<SampleSummary>());
+    // }
     // create samples
     List<ISampleBean> beans = new ArrayList<>();
 
@@ -302,6 +305,8 @@ public class MSDesignReader implements IExperimentalDesignReader {
           expressionSystem = row[headerMapping.get("Expression System")];
         }
         String tissue = row[headerMapping.get("Tissue")];
+        String replicateID = row[headerMapping.get("Technical Replicates")];
+
         String fileName = row[headerMapping.get("File Name")];
         String sampleName = row[headerMapping.get("Sample Name")];
         String secName = row[headerMapping.get("Secondary Name")];
@@ -401,14 +406,14 @@ public class MSDesignReader implements IExperimentalDesignReader {
         }
         // we don't have tissue ids, so we build unique identifiers by adding sourceID and tissue
         // name
-        String tissueID = sourceID + "-" + tissue;
+        String tissueID = sourceID + "-" + tissue + "-" + replicateID;
         TSVSampleBean tissueSample = tissueToSample.get(tissueID);
         if (tissueSample == null) {
           sampleID++;
 
           tissueSample = new TSVSampleBean(Integer.toString(sampleID),
-              SampleType.Q_BIOLOGICAL_SAMPLE, tissueID,
-              fillMetadata(header, row, meta, extractFactors, loci, SampleType.Q_BIOLOGICAL_SAMPLE));
+              SampleType.Q_BIOLOGICAL_SAMPLE, tissueID, fillMetadata(header, row, meta,
+                  extractFactors, loci, SampleType.Q_BIOLOGICAL_SAMPLE));
           samplesInOrder.get(MassSpecSampleHierarchy.Tissue).add(tissueSample);
           tissueSample.addParentID(sampleSource.getCode());
           tissueSample.addProperty("Q_EXTERNALDB_ID", tissueID);
@@ -574,9 +579,9 @@ public class MSDesignReader implements IExperimentalDesignReader {
             if (proteinSample == null) {
               sampleID++;
 
-              proteinSample = new TSVSampleBean(Integer.toString(sampleID),
-                  SampleType.Q_TEST_SAMPLE, secName,
-                  fillMetadata(header, row, meta, factors, loci, SampleType.Q_TEST_SAMPLE));
+              proteinSample =
+                  new TSVSampleBean(Integer.toString(sampleID), SampleType.Q_TEST_SAMPLE, secName,
+                      fillMetadata(header, row, meta, factors, loci, SampleType.Q_TEST_SAMPLE));
               samplesInOrder.get(MassSpecSampleHierarchy.Proteins).add(proteinSample);
               proteinSample.addParentID(tissueSample.getCode());
               proteinSample.addProperty("Q_EXTERNALDB_ID", sampleName);
@@ -746,25 +751,25 @@ public class MSDesignReader implements IExperimentalDesignReader {
     return new ArrayList<>(Arrays.asList(poolName.split(LIST_SEPARATOR)));
   }
 
-//  private Map<String, Object> parseMSExperimentData(String[] row,
-//      Map<String, Integer> headerMapping, HashMap<String, Object> metadata) {
-//    Map<String, String> designMap = new HashMap<String, String>();
-//    designMap.put("MS Device", "Q_MS_DEVICE");
-//    designMap.put("LC Column", "Q_CHROMATOGRAPHY_TYPE");
-//    designMap.put("LCMS Method", "Q_MS_LCMS_METHOD");
-//    for (String col : designMap.keySet()) {
-//      Object val = "";
-//      String openbisType = designMap.get(col);
-//      if (headerMapping.containsKey(col)) {
-//        val = row[headerMapping.get(col)];
-//        if (parsers.containsKey(openbisType)) {
-//          val = parsers.get(openbisType).parse((String) val);
-//        }
-//      }
-//      metadata.put(openbisType, val);
-//    }
-//    return metadata;
-//  }
+  // private Map<String, Object> parseMSExperimentData(String[] row,
+  // Map<String, Integer> headerMapping, HashMap<String, Object> metadata) {
+  // Map<String, String> designMap = new HashMap<String, String>();
+  // designMap.put("MS Device", "Q_MS_DEVICE");
+  // designMap.put("LC Column", "Q_CHROMATOGRAPHY_TYPE");
+  // designMap.put("LCMS Method", "Q_MS_LCMS_METHOD");
+  // for (String col : designMap.keySet()) {
+  // Object val = "";
+  // String openbisType = designMap.get(col);
+  // if (headerMapping.containsKey(col)) {
+  // val = row[headerMapping.get(col)];
+  // if (parsers.containsKey(openbisType)) {
+  // val = parsers.get(openbisType).parse((String) val);
+  // }
+  // }
+  // metadata.put(openbisType, val);
+  // }
+  // return metadata;
+  // }
 
   public Set<String> getSpeciesSet() {
     return speciesSet;
@@ -807,8 +812,8 @@ public class MSDesignReader implements IExperimentalDesignReader {
         if (!data[i].isEmpty() && headersToOpenbisCode.containsKey(label)) {
           for (String propertyCode : headersToOpenbisCode.get(label)) {
             Object val = data[i];
-//            if (parsers.containsKey(propertyCode))
-//              val = parsers.get(propertyCode).parse(data[i]);
+            // if (parsers.containsKey(propertyCode))
+            // val = parsers.get(propertyCode).parse(data[i]);
             res.put(propertyCode, val);
           }
         }
