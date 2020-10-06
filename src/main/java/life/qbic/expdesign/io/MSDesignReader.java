@@ -45,17 +45,16 @@ public class MSDesignReader implements IExperimentalDesignReader {
   public static final String LIST_SEPARATOR = "\\+";
 
   public MSDesignReader() {
-    this.mandatoryColumns = new ArrayList<>(
-        Arrays.asList("File Name", "Organism ID", "Technical Replicates", "Sample Name",
-            "Secondary Name", "Species", "Tissue", "LC Column", "MS Device", "LCMS Method"));
-    this.mandatoryFilled = new ArrayList<>(
-        Arrays.asList("File Name", "Organism ID", "Technical Replicates", "Sample Name",
-            "Secondary Name", "Species", "Tissue", "LC Column", "MS Device", "LCMS Method"));
-    this.optionalCols =
-        new ArrayList<>(Arrays.asList("Expression System", "Pooled Sample", "Cycle/Fraction Name",
-            "Fractionation Type", "Sample Preparation", "Sample Cleanup (Protein)",
-            "Digestion Method", "Digestion Enzyme", "Enrichment Method", "Sample Cleanup (Peptide)",
-            "Labeling Type", "Label", "Customer Comment", "Facility Comment"));
+    this.mandatoryColumns = new ArrayList<>(Arrays.asList("Labeling Type", "File Name",
+        "Organism ID", "Technical Replicates", "Sample Name", "Secondary Name", "Species", "Tissue",
+        "LC Column", "MS Device", "LCMS Method", "Injection Volume"));
+    this.mandatoryFilled = new ArrayList<>(Arrays.asList("Labeling Type", "File Name",
+        "Organism ID", "Technical Replicates", "Sample Name", "Secondary Name", "Species", "Tissue",
+        "LC Column", "MS Device", "LCMS Method"));
+    this.optionalCols = new ArrayList<>(Arrays.asList("Expression System", "Pooled Sample",
+        "Cycle/Fraction Name", "Fractionation Type", "Sample Preparation",
+        "Sample Cleanup (Protein)", "Digestion Method", "Digestion Enzyme", "Enrichment Method",
+        "Sample Cleanup (Peptide)", "Label", "Customer Comment", "Facility Comment"));
 
     Map<String, List<String>> sourceMetadata = new HashMap<>();
     sourceMetadata.put("Species", Collections.singletonList("Q_NCBI_ORGANISM"));
@@ -78,6 +77,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
 
     Map<String, List<String>> msRunMetadata = new HashMap<>();
     msRunMetadata.put("Facility Comment", Collections.singletonList("Q_ADDITIONAL_INFO"));
+    msRunMetadata.put("Injection Volume", Collections.singletonList("Q_INJECTION_VOLUME"));
 
     headersToTypeCodePerSampletype = new HashMap<>();
     headersToTypeCodePerSampletype.put(SampleType.Q_BIOLOGICAL_ENTITY, sourceMetadata);
@@ -340,7 +340,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
         String isoLabel = row[headerMapping.get("Label")];
 
         // perform some sanity testing using XOR operator
-        if (isoLabelType.isEmpty() ^ isoLabel.isEmpty()) {
+        if ((isoLabelType.isEmpty() ^ isoLabel.isEmpty()) && !isoLabelType.equalsIgnoreCase("LFQ")) {
           error = String.format(
               "Error in line %s: If sample label is specified, the isotope labeling type must be set and vice versa.",
               rowID);

@@ -22,7 +22,7 @@ public class MSDesignReaderTest {
   private File altTSV = new File(getClass().getResource("ptx_example_noParents.tsv").getFile());
   private File small = new File(getClass().getResource("ptx_ex_small.tsv").getFile());
   private File big = new File(getClass().getResource("ptx_big_example.tsv").getFile());
-  private File enrich_big = new File(getClass().getResource("complex_example_phospho.txt").getFile());
+  private File enrich_big = new File(getClass().getResource("changed_FBS_complex_example_phospho.txt").getFile());
 
   @Before
   public void setUp() {}
@@ -68,7 +68,10 @@ public class MSDesignReaderTest {
   public void testParents() throws IOException, JAXBException {
     MSDesignReader r = new MSDesignReader();
     List<ISampleBean> samples1 = r.readSamples(small, false);
+    
+    System.out.println("error: ");
     System.out.println(r.getError());
+    
     for (ISampleBean s : samples1) {
       System.out.println("code " + s.getCode());
       System.out.println("parents " + s.getParentIDs());
