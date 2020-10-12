@@ -44,7 +44,6 @@ public class MSDesignReaderTest {
   @Test
   public void testEnrichment() throws IOException, JAXBException {
     SamplePreparator p = new SamplePreparator();
-    MSDesignReader r = new MSDesignReader();
     p.processTSV(enrich_big, new MSDesignReader(), false);
     System.out.println(p.getSpecialExperimentsOfTypeOrNull("Q_SAMPLE_PREPARATION"));
   }
@@ -77,7 +76,6 @@ public class MSDesignReaderTest {
       System.out.println("parents " + s.getParentIDs());
       System.out.println(s);
     }
-    System.out.println("lasndlasndlkasnd");
   }
 
   @Test
@@ -111,6 +109,10 @@ public class MSDesignReaderTest {
     assertEquals(levels.get(5).size(), 4);// fractions of pool, pool of other peptide fractions
     assertEquals(levels.get(6).size(), 11);// ms measurements
     assertEquals(samples1.size(), 30);
+    for(List<ISampleBean> l : levels) {
+      System.out.println("level");
+      System.out.println(l);
+    }
 
     p.processTSV(altTSV, new MSDesignReader(), false);
     assert (p.getSummary().size() == 7);
@@ -123,12 +125,6 @@ public class MSDesignReaderTest {
     assertEquals(levels.get(5).size(), 4);// fractions of pool, pool of other fractions
     assertEquals(levels.get(6).size(), 9);// ms measurements
     assertEquals(samples1.size(), 30);
-
-    System.out.println(p.getExperimentalDesignProperties());
-    System.out
-        .println(p.getSpecialExperimentsOfTypeOrNull(ExperimentType.Q_MS_MEASUREMENT.toString()));
-    System.out.println(
-        p.getSpecialExperimentsOfTypeOrNull(ExperimentType.Q_SAMPLE_PREPARATION.toString()));
 
     assert (p.getSpeciesSet().contains("Homo sapiens"));
     assert (p.getTissueSet().contains("Liver"));
