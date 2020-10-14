@@ -321,12 +321,12 @@ public class MSDesignReader implements IExperimentalDesignReader {
           analyteSet.add("PEPTIDES");
         }
         String cleanProt = null;
-        if (headerMapping.containsKey("Sample Cleanup (protein)")) {
-          cleanProt = row[headerMapping.get("Sample Cleanup (protein)")];
+        if (headerMapping.containsKey("Sample Cleanup (Protein)")) {
+          cleanProt = row[headerMapping.get("Sample Cleanup (Protein)")];
         }
         String cleanPept = null;
-        if (headerMapping.containsKey("Sample Cleanup (peptide)")) {
-          cleanPept = row[headerMapping.get("Sample Cleanup (peptide)")];
+        if (headerMapping.containsKey("Sample Cleanup (Peptide)")) {
+          cleanPept = row[headerMapping.get("Sample Cleanup (Peptide)")];
         }
         String sampPrepType = null;
         if (headerMapping.containsKey("Sample Preparation")) {
@@ -730,7 +730,6 @@ public class MSDesignReader implements IExperimentalDesignReader {
       beans.addAll(samplesInOrder.get(level));
       // printSampleLevel(samplesInOrder.get(level));
     }
-
     return beans;
   }
 

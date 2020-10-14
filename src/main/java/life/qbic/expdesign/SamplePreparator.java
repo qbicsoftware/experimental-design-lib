@@ -125,7 +125,12 @@ public class SamplePreparator {
     this.summary = summary;
   }
 
-  public Map<String, Map<String, Object>> getSpecialExperimentsOfTypeOrNull(String experimentType) {
+  /**
+   * should only be called once after each parsing
+   * @param experimentType
+   * @return
+   */
+  public Map<String, Map<String, Object>> transformAndReturnSpecialExperimentsOfTypeOrNull(String experimentType) {
     if (reader.getExperimentInfos() == null)
       return null;
     List<Map<String, Object>> exps = reader.getExperimentInfos().get(experimentType);
