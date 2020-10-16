@@ -44,6 +44,9 @@ public class MSDesignReader implements IExperimentalDesignReader {
   public static final String UTF8_BOM = "\uFEFF";
   public static final String LIST_SEPARATOR = "\\+";
 
+  public static final String SAMPLE_KEYWORD = "Secondary Name";
+  public static final String SAMPLE_ALTNAME_KEYWORD = "Sample Name";
+
   public MSDesignReader() {
     this.mandatoryColumns = new ArrayList<>(Arrays.asList("Labeling Type", "File Name",
         "Organism ID", "Technical Replicates", "Sample Name", "Secondary Name", "Species", "Tissue",
@@ -308,8 +311,10 @@ public class MSDesignReader implements IExperimentalDesignReader {
         String replicateID = row[headerMapping.get("Technical Replicates")];
 
         String fileName = row[headerMapping.get("File Name")];
-        String sampleName = row[headerMapping.get("Sample Name")];
-        String secName = row[headerMapping.get("Secondary Name")];
+
+        String sampleKey = row[headerMapping.get(SAMPLE_KEYWORD)];
+        String sampleAltName = row[headerMapping.get(SAMPLE_ALTNAME_KEYWORD)];
+
         String poolName = row[headerMapping.get("Pooled Sample")];
         String digestType = row[headerMapping.get("Digestion Method")];
         String enzymeString = row[headerMapping.get("Digestion Enzyme")];
@@ -340,7 +345,8 @@ public class MSDesignReader implements IExperimentalDesignReader {
         String isoLabel = row[headerMapping.get("Label")];
 
         // perform some sanity testing using XOR operator
-        if ((isoLabelType.isEmpty() ^ isoLabel.isEmpty()) && !isoLabelType.equalsIgnoreCase("LFQ")) {
+        if ((isoLabelType.isEmpty() ^ isoLabel.isEmpty())
+            && !isoLabelType.equalsIgnoreCase("LFQ")) {
           error = String.format(
               "Error in line %s: If sample label is specified, the isotope labeling type must be set and vice versa.",
               rowID);
@@ -505,9 +511,9 @@ public class MSDesignReader implements IExperimentalDesignReader {
             cleanType = cleanPept;
           }
           TSVSampleBean pool =
-              new TSVSampleBean(Integer.toString(sampleID), SampleType.Q_TEST_SAMPLE, secName,
+              new TSVSampleBean(Integer.toString(sampleID), SampleType.Q_TEST_SAMPLE, sampleAltName,
                   fillMetadata(header, row, meta, factors, loci, SampleType.Q_TEST_SAMPLE));
-          pool.addProperty("Q_EXTERNALDB_ID", sampleName);
+          pool.addProperty("Q_EXTERNALDB_ID", sampleKey);
 
           ProteinPeptidePreparationProperties props =
               new ProteinPeptidePreparationProperties(enzymes, digestType, analyte, cleanType,
@@ -525,10 +531,10 @@ public class MSDesignReader implements IExperimentalDesignReader {
           // and parent sample(s) are not already peptides
           if (!digestType.isEmpty() && !parentsPeptides) {
             sampleID++;
-            TSVSampleBean digestedPool =
-                new TSVSampleBean(Integer.toString(sampleID), SampleType.Q_TEST_SAMPLE, secName,
-                    fillMetadata(header, row, meta, factors, loci, SampleType.Q_TEST_SAMPLE));
-            digestedPool.addProperty("Q_EXTERNALDB_ID", sampleName);
+            TSVSampleBean digestedPool = new TSVSampleBean(Integer.toString(sampleID),
+                SampleType.Q_TEST_SAMPLE, sampleAltName,
+                fillMetadata(header, row, meta, factors, loci, SampleType.Q_TEST_SAMPLE));
+            digestedPool.addProperty("Q_EXTERNALDB_ID", sampleKey);
 
             props = new ProteinPeptidePreparationProperties(enzymes, digestType, "PEPTIDES",
                 cleanPept, fracType, enrichType, isoLabelType, sampPrepType);
@@ -537,12 +543,12 @@ public class MSDesignReader implements IExperimentalDesignReader {
             digestedPool.setExperiment(prepExpID);
 
             if (fractParents) {
-              fracPeptPoolToSample.put(sampleName, digestedPool);
+              fracPeptPoolToSample.put(sampleKey, digestedPool);
               samplesInOrder.get(MassSpecSampleHierarchy.PooledFractionedPeptides)
                   .add(digestedPool);
             } else {
               samplesInOrder.get(MassSpecSampleHierarchy.PooledPeptides).add(digestedPool);
-              peptPoolToSample.put(sampleName, digestedPool);
+              peptPoolToSample.put(sampleKey, digestedPool);
             }
             pool.addProperty("Q_SAMPLE_TYPE", "PEPTIDES");
             msRun.addParentID(digestedPool.getCode());
@@ -554,16 +560,16 @@ public class MSDesignReader implements IExperimentalDesignReader {
           // the lowest possible previous levels
           if (parentsPeptides && fractParents) {
             samplesInOrder.get(MassSpecSampleHierarchy.PooledFractionedPeptides).add(pool);
-            fracPeptPoolToSample.put(sampleName, pool);
+            fracPeptPoolToSample.put(sampleKey, pool);
           } else if (parentsPeptides && !fractParents) {
             samplesInOrder.get(MassSpecSampleHierarchy.PooledPeptides).add(pool);
-            peptPoolToSample.put(sampleName, pool);
+            peptPoolToSample.put(sampleKey, pool);
           } else if (!parentsPeptides && fractParents) {
             samplesInOrder.get(MassSpecSampleHierarchy.PooledFractionedProteins).add(pool);
-            fracProtPoolToSample.put(sampleName, pool);
+            fracProtPoolToSample.put(sampleKey, pool);
           } else {
             samplesInOrder.get(MassSpecSampleHierarchy.PooledProteins).add(pool);
-            protPoolToSample.put(sampleName, pool);
+            protPoolToSample.put(sampleKey, pool);
           }
 
         } else {
@@ -572,20 +578,20 @@ public class MSDesignReader implements IExperimentalDesignReader {
 
           // if sample secondary name not known => create protein sample
           // but: ignore, if this is a fractionation of a known pooled sample
-          if (fracName.isEmpty() || (!peptPoolToSample.containsKey(sampleName)
-              && !protPoolToSample.containsKey(sampleName))) {
+          if (fracName.isEmpty() || (!peptPoolToSample.containsKey(sampleKey)
+              && !protPoolToSample.containsKey(sampleKey))) {
 
-            TSVSampleBean proteinSample = proteinToSample.get(sampleName);
+            TSVSampleBean proteinSample = proteinToSample.get(sampleKey);
             if (proteinSample == null) {
               sampleID++;
 
-              proteinSample =
-                  new TSVSampleBean(Integer.toString(sampleID), SampleType.Q_TEST_SAMPLE, secName,
-                      fillMetadata(header, row, meta, factors, loci, SampleType.Q_TEST_SAMPLE));
+              proteinSample = new TSVSampleBean(Integer.toString(sampleID),
+                  SampleType.Q_TEST_SAMPLE, sampleAltName,
+                  fillMetadata(header, row, meta, factors, loci, SampleType.Q_TEST_SAMPLE));
               samplesInOrder.get(MassSpecSampleHierarchy.Proteins).add(proteinSample);
               proteinSample.addParentID(tissueSample.getCode());
-              proteinSample.addProperty("Q_EXTERNALDB_ID", sampleName);
-              proteinToSample.put(sampleName, proteinSample);
+              proteinSample.addProperty("Q_EXTERNALDB_ID", sampleKey);
+              proteinToSample.put(sampleKey, proteinSample);
               proteinSample.addProperty("Q_SAMPLE_TYPE", "PROTEINS");
 
               ProteinPeptidePreparationProperties props =
@@ -598,13 +604,13 @@ public class MSDesignReader implements IExperimentalDesignReader {
               // TODO compare: fractionation/enrichment, check pooling
               // if sample is digested, the peptide sample will relate to the sample name
               if (!digestType.isEmpty()) {
-                String peptideID = sampleName;
+                String peptideID = sampleKey;
                 TSVSampleBean peptideSample = peptideToSample.get(peptideID);
                 if (peptideSample == null) {
                   sampleID++;
 
                   peptideSample = new TSVSampleBean(Integer.toString(sampleID),
-                      SampleType.Q_TEST_SAMPLE, secName,
+                      SampleType.Q_TEST_SAMPLE, sampleAltName,
                       fillMetadata(header, row, meta, factors, loci, SampleType.Q_TEST_SAMPLE));
                   samplesInOrder.get(MassSpecSampleHierarchy.Peptides).add(peptideSample);
                   peptideSample.addParentID(proteinSample.getCode());
@@ -635,21 +641,21 @@ public class MSDesignReader implements IExperimentalDesignReader {
             // (peptides of pools)
             String parentID = null;
             boolean parentPeptides = false;
-            if (peptPoolToSample.containsKey(sampleName)) {
-              parentID = peptPoolToSample.get(sampleName).getCode();
+            if (peptPoolToSample.containsKey(sampleKey)) {
+              parentID = peptPoolToSample.get(sampleKey).getCode();
               parentPeptides = true;
-            } else if (protPoolToSample.containsKey(sampleName)) {
-              parentID = protPoolToSample.get(sampleName).getCode();
-            } else if (peptideToSample.containsKey(sampleName)) {
-              parentID = peptideToSample.get(sampleName).getCode();
+            } else if (protPoolToSample.containsKey(sampleKey)) {
+              parentID = protPoolToSample.get(sampleKey).getCode();
+            } else if (peptideToSample.containsKey(sampleKey)) {
+              parentID = peptideToSample.get(sampleKey).getCode();
               parentPeptides = true;
-            } else if (proteinToSample.containsKey(sampleName)) {
-              parentID = proteinToSample.get(sampleName).getCode();
+            } else if (proteinToSample.containsKey(sampleKey)) {
+              parentID = proteinToSample.get(sampleKey).getCode();
             }
             if (parentID == null) {
               error = String.format(
                   "Error in line %s: Sample identifier %s used in fractionation/enrichment %s must be defined in previous line.",
-                  rowID, sampleName, fracName);
+                  rowID, sampleKey, fracName);
               return null;
             }
 

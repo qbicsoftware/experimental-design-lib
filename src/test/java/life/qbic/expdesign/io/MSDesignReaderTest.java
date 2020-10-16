@@ -196,12 +196,12 @@ public class MSDesignReaderTest {
     List<List<ISampleBean>> levels = p.getProcessed();
     assertEquals(levels.get(0).size(), 1);// organism
     assertEquals(levels.get(1).size(), 2);// tissue
-    assertEquals(levels.get(2).size(), 4);// proteins
-    assertEquals(levels.get(3).size(), 4);// peptides
-    assertEquals(levels.get(4).size(), 4);// pool of peptides + fractions of peptides
+    assertEquals(levels.get(2).size(), 6);// proteins
+    assertEquals(levels.get(3).size(), 5);// peptides
+    assertEquals(levels.get(4).size(), 6);// pool of peptides + fractions of peptides
     assertEquals(levels.get(5).size(), 4);// fractions of pool, pool of other peptide fractions
     assertEquals(levels.get(6).size(), 11);// ms measurements
-    assertEquals(samples1.size(), 30);
+    assertEquals(samples1.size(), 35);
     for (List<ISampleBean> l : levels) {
       System.out.println("level");
       System.out.println(l);
@@ -217,7 +217,7 @@ public class MSDesignReaderTest {
     assertEquals(levels.get(4).size(), 6);// pool of peptides + fractions of peptides
     assertEquals(levels.get(5).size(), 4);// fractions of pool, pool of other fractions
     assertEquals(levels.get(6).size(), 9);// ms measurements
-    assertEquals(samples1.size(), 30);
+    assertEquals(samples1.size(), 35);
 
     assert (p.getSpeciesSet().contains("Homo sapiens"));
     assert (p.getTissueSet().contains("Liver"));
