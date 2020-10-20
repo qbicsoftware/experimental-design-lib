@@ -170,6 +170,11 @@ public class MSDesignReader implements IExperimentalDesignReader {
     reader.close();
 
     String[] header = data.get(0);
+    String[] trimmedHeader = new String[header.length];
+    for (int j = 0; j < header.length; j++) {
+      trimmedHeader[j] = header[j].trim();
+    }
+    header = trimmedHeader;
     data.remove(0);
     // find out where the mandatory and other metadata data is
     Map<String, Integer> headerMapping = new HashMap<>();
@@ -288,7 +293,6 @@ public class MSDesignReader implements IExperimentalDesignReader {
     int sampleID = 0;
 
     for (String[] row : data) {
-
       fillParsedCategoriesToValuesForRow(headerMapping, row);
 
       rowID++;
@@ -300,7 +304,6 @@ public class MSDesignReader implements IExperimentalDesignReader {
             return null;
           }
         }
-
         String sourceID = row[headerMapping.get("Organism ID")];
         String species = row[headerMapping.get("Species")];
         String expressionSystem = null;
@@ -379,7 +382,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
         // always one new measurement per row
         sampleID++;
         TSVSampleBean msRun = new TSVSampleBean(Integer.toString(sampleID), SampleType.Q_MS_RUN, "",
-            fillMetadata(header, row, meta, factors, loci, SampleType.Q_MS_RUN));
+            fillMetadata(header, row, meta, factors, new ArrayList<>(), SampleType.Q_MS_RUN));
         msRun.addProperty("File", fileName);
 
         String lcmsMethod = row[headerMapping.get("LCMS Method")];
@@ -711,6 +714,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
           }
         } // end non-pooled block
       }
+
     }
     experimentInfos = new HashMap<String, List<Map<String, Object>>>();
 
