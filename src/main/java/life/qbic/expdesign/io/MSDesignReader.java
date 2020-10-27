@@ -50,13 +50,13 @@ public class MSDesignReader implements IExperimentalDesignReader {
   public MSDesignReader() {
     this.mandatoryColumns = new ArrayList<>(Arrays.asList("Labeling Type", "File Name",
         "Organism ID", "Technical Replicates", "Sample Name", "Secondary Name", "Species", "Tissue",
-        "LC Column", "MS Device", "LCMS Method", "Injection Volume"));
+        "LC Column", "MS Device", "LCMS Method", "Injection Volume", "Digestion Enzyme"));
     this.mandatoryFilled = new ArrayList<>(Arrays.asList("Labeling Type", "File Name",
         "Organism ID", "Technical Replicates", "Sample Name", "Secondary Name", "Species", "Tissue",
-        "LC Column", "MS Device", "LCMS Method"));
+        "LC Column", "MS Device", "LCMS Method", "Digestion Enzyme"));
     this.optionalCols = new ArrayList<>(Arrays.asList("Expression System", "Pooled Sample",
         "Cycle/Fraction Name", "Fractionation Type", "Sample Preparation",
-        "Sample Cleanup (Protein)", "Digestion Method", "Digestion Enzyme", "Enrichment Method",
+        "Sample Cleanup (Protein)", "Digestion Method", "Enrichment Method",
         "Sample Cleanup (Peptide)", "Label", "Customer Comment", "Facility Comment"));
 
     Map<String, List<String>> sourceMetadata = new HashMap<>();
@@ -367,6 +367,11 @@ public class MSDesignReader implements IExperimentalDesignReader {
               rowID);
           return null;
         }
+        if(!poolName.isEmpty() && !poolName.contains(LIST_SEPARATOR)) {
+          error = String.format(
+              "Error in line %s: Pool name %s must reference more than one previously defined sample, separated by '+'.",
+              rowID, poolName);
+        }
         if (!fracName.isEmpty() && !poolName.isEmpty()) {
           error = String.format(
               "Error in line %s: Cannot define fractionation/enrichment samples in the same line as pooled samples. Please refer "
@@ -620,25 +625,27 @@ public class MSDesignReader implements IExperimentalDesignReader {
                   peptideSample.addProperty("Q_EXTERNALDB_ID", peptideID);
                   peptideToSample.put(peptideID, peptideSample);
                   peptideSample.addProperty("Q_SAMPLE_TYPE", "PEPTIDES");
-                  if (fracName.isEmpty()) {
-                    msRun.addParentID(peptideSample.getCode());
-                  }
 
                   props = new ProteinPeptidePreparationProperties(enzymes, digestType, "PEPTIDES",
                       cleanPept, fracType, enrichType, isoLabelType, sampPrepType);
                   prepExpID = Integer.toString(props.hashCode());
                   SamplePrepPropertiesToID.put(props, prepExpID);
                   peptideSample.setExperiment(prepExpID);
-
                 }
-              } else {
+                // peptide sample is parent of ms run irrespective of being newly created or already
+                // existing (multiple measurements of existing samples)
                 if (fracName.isEmpty()) {
-                  msRun.addParentID(proteinSample.getCode());
+                  msRun.addParentID(peptideSample.getCode());
                 }
               }
+
+            }
+            // if no peptide sample needed, protein sample is parent of ms run irrespective of being
+            // newly created or already existing (multiple measurements of existing samples)
+            if (digestType.isEmpty() && fracName.isEmpty()) {
+              msRun.addParentID(proteinSample.getCode());
             }
           }
-          // TODO place in right context
           if (!fracName.isEmpty()) {
             // find parent of fraction by sampleName, starting at the lowest possible hierachy
             // (peptides of pools)

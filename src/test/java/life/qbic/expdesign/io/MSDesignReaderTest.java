@@ -27,14 +27,13 @@ public class MSDesignReaderTest {
   private File altTSV = new File(getClass().getResource("ptx_example_noParents.tsv").getFile());
   private File small = new File(getClass().getResource("ptx_ex_small.tsv").getFile());
   private File big = new File(getClass().getResource("ptx_big_example.tsv").getFile());
-  private File bug =
-      new File(getClass().getResource("false1.txt").getFile());
+  private File bug = new File(getClass().getResource("false1.txt").getFile());
   private File enrich_big =
       new File(getClass().getResource("changed_FBS_complex_example_phospho.txt").getFile());
-  private File falseHeader =
-      new File(getClass().getResource("wrongHeader.txt").getFile());
-  private File trimmableHeader =
-      new File(getClass().getResource("trimHeader.txt").getFile());
+  private File falseHeader = new File(getClass().getResource("wrongHeader.txt").getFile());
+  private File trimmableHeader = new File(getClass().getResource("trimHeader.txt").getFile());
+  private File noparents = new File(getClass().getResource("noparents.txt").getFile());
+  private File noPeptides = new File(getClass().getResource("noPeptides.txt").getFile());
 
   @Before
   public void setUp() {}
@@ -69,6 +68,20 @@ public class MSDesignReaderTest {
     for (Entry<String, Object> entry : msProps.entrySet()) {
       assert (searchExperimentsForProperty(msExps, msType, entry));
     }
+  }
+
+  @Test
+  public void testParentsx() throws IOException, JAXBException {
+    SamplePreparator p = new SamplePreparator();
+    p.processTSV(noparents, new MSDesignReader(), false);
+//    System.err.println(p.getProcessed());
+  }
+
+  @Test
+  public void testPeptides() throws IOException, JAXBException {
+    SamplePreparator p = new SamplePreparator();
+    p.processTSV(noPeptides, new MSDesignReader(), false);
+    System.err.println(p.getProcessed());
   }
 
   private boolean searchExperimentsForProperty(
@@ -151,30 +164,30 @@ public class MSDesignReaderTest {
   public void testTrimHeader() throws IOException {
     MSDesignReader r = new MSDesignReader();
     r.readSamples(trimmableHeader, false);
-    assert(r.getError()==null);
+    assert (r.getError() == null);
     r.readSamples(falseHeader, false);
-    assert(!r.getError().isEmpty());
-    assert(r.getError().contains("Organism ID"));
+    assert (!r.getError().isEmpty());
+    assert (r.getError().contains("Organism ID"));
   }
-  
-//  @Test
-//  public void testFactors() throws IOException, JAXBException {
-//    System.err.println("XXXXX");
-//    System.err.println("XXXXX");
-//    System.err.println("XXXXX");
-//    SamplePreparator p = new SamplePreparator();
-//    p.processTSV(bug, new MSDesignReader(), false);
-//    for(List<ISampleBean> lvl : p.getProcessed()) {
-//      System.err.println("______");
-//      for(ISampleBean b : lvl) {
-//        System.out.println(b.getCode());
-//        System.out.println(b.getSecondaryName());
-//      }
-//    }
-//    System.err.println("XXXXX");
-//    System.err.println("XXXXX");
-//    System.err.println("XXXXX");
-//  }
+
+  // @Test
+  // public void testFactors() throws IOException, JAXBException {
+  // System.err.println("XXXXX");
+  // System.err.println("XXXXX");
+  // System.err.println("XXXXX");
+  // SamplePreparator p = new SamplePreparator();
+  // p.processTSV(bug, new MSDesignReader(), false);
+  // for(List<ISampleBean> lvl : p.getProcessed()) {
+  // System.err.println("______");
+  // for(ISampleBean b : lvl) {
+  // System.out.println(b.getCode());
+  // System.out.println(b.getSecondaryName());
+  // }
+  // }
+  // System.err.println("XXXXX");
+  // System.err.println("XXXXX");
+  // System.err.println("XXXXX");
+  // }
 
   @Test
   public void testGetVocabularyValues() throws IOException, JAXBException {
@@ -209,16 +222,11 @@ public class MSDesignReaderTest {
   @Test
   public void testReadSamples() throws IOException, JAXBException {
     MSDesignReader r = new MSDesignReader();
-    List<ISampleBean> samples = r.readSamples(big, false);
 
-    if (r.getError() != null)
-      System.out.println(r.getError());
-
-    r = new MSDesignReader();
     List<ISampleBean> samples1 = r.readSamples(tsv, false);
 
     if (r.getError() != null)
-      System.out.println(r.getError());
+      System.err.println("2"+r.getError());
 
     r = new MSDesignReader();
     List<ISampleBean> samples2 = r.readSamples(tsv, true);
@@ -227,6 +235,7 @@ public class MSDesignReaderTest {
 
     SamplePreparator p = new SamplePreparator();
     p.processTSV(tsv, new MSDesignReader(), false);
+    System.err.print(p.getSummary());
     assert (p.getSummary().size() == 7);
     List<List<ISampleBean>> levels = p.getProcessed();
     assertEquals(levels.get(0).size(), 1);// organism
@@ -284,9 +293,9 @@ public class MSDesignReaderTest {
   }
 
   public void testGetTissueSet() throws IOException {
-   MSDesignReader r = new MSDesignReader();
-   r.readSamples(tsv, false);
-   assertEquals(r.getTissueSet(), new HashSet<String>(Arrays.asList("Whole blood")));
+    MSDesignReader r = new MSDesignReader();
+    r.readSamples(tsv, false);
+    assertEquals(r.getTissueSet(), new HashSet<String>(Arrays.asList("Whole blood")));
   }
 
 }
