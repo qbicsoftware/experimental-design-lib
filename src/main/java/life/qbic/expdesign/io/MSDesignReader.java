@@ -50,14 +50,15 @@ public class MSDesignReader implements IExperimentalDesignReader {
   public MSDesignReader() {
     this.mandatoryColumns = new ArrayList<>(Arrays.asList("Labeling Type", "File Name",
         "Organism ID", "Technical Replicates", "Sample Name", "Secondary Name", "Species", "Tissue",
-        "LC Column", "MS Device", "LCMS Method", "Injection Volume", "Digestion Enzyme"));
+        "LC Column", "MS Device", "LCMS Method", "Injection Volume"));
     this.mandatoryFilled = new ArrayList<>(Arrays.asList("Labeling Type", "File Name",
         "Organism ID", "Technical Replicates", "Sample Name", "Secondary Name", "Species", "Tissue",
-        "LC Column", "MS Device", "LCMS Method", "Digestion Enzyme"));
-    this.optionalCols = new ArrayList<>(Arrays.asList("Expression System", "Pooled Sample",
-        "Cycle/Fraction Name", "Fractionation Type", "Sample Preparation",
-        "Sample Cleanup (Protein)", "Digestion Method", "Enrichment Method",
-        "Sample Cleanup (Peptide)", "Label", "Customer Comment", "Facility Comment"));
+        "LC Column", "MS Device", "LCMS Method"));
+    this.optionalCols =
+        new ArrayList<>(Arrays.asList("Expression System", "Pooled Sample", "Cycle/Fraction Name",
+            "Fractionation Type", "Sample Preparation", "Sample Cleanup (Protein)",
+            "Digestion Method", "Enrichment Method", "Sample Cleanup (Peptide)", "Label",
+            "Customer Comment", "Facility Comment", "Digestion Enzyme"));
 
     Map<String, List<String>> sourceMetadata = new HashMap<>();
     sourceMetadata.put("Species", Collections.singletonList("Q_NCBI_ORGANISM"));
@@ -75,7 +76,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
 
     Map<String, List<String>> peptideMetadata = new HashMap<>();
     peptideMetadata.put("Label", Collections.singletonList("Q_MOLECULAR_LABEL"));
-    peptideMetadata.put("Secondary Name", Collections.singletonList("Q_SECONDARY_NAME"));
+//    peptideMetadata.put("Secondary Name", Collections.singletonList("Q_SECONDARY_NAME"));
     // peptideMetadata.put("Sample Secondary Name", "Q_EXTERNALDB_ID");
 
     Map<String, List<String>> msRunMetadata = new HashMap<>();
@@ -85,7 +86,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
     headersToTypeCodePerSampletype = new HashMap<>();
     headersToTypeCodePerSampletype.put(SampleType.Q_BIOLOGICAL_ENTITY, sourceMetadata);
     headersToTypeCodePerSampletype.put(SampleType.Q_BIOLOGICAL_SAMPLE, extractMetadata);
-    headersToTypeCodePerSampletype.put(SampleType.Q_TEST_SAMPLE, new HashMap<>());
+    headersToTypeCodePerSampletype.put(SampleType.Q_TEST_SAMPLE, peptideMetadata);//TODO
     headersToTypeCodePerSampletype.put(SampleType.Q_MS_RUN, msRunMetadata);
   }
 
@@ -367,7 +368,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
               rowID);
           return null;
         }
-        if(!poolName.isEmpty() && !poolName.contains(LIST_SEPARATOR)) {
+        if (!poolName.isEmpty() && !poolName.contains(LIST_SEPARATOR.replace("\\", ""))) {
           error = String.format(
               "Error in line %s: Pool name %s must reference more than one previously defined sample, separated by '+'.",
               rowID, poolName);
