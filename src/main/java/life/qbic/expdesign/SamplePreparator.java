@@ -4,12 +4,12 @@ import life.qbic.datamodel.projects.ProjectInfo;
 import life.qbic.datamodel.samples.ISampleBean;
 import life.qbic.datamodel.samples.SampleType;
 import life.qbic.expdesign.io.IExperimentalDesignReader;
+import life.qbic.expdesign.io.MSDesignReader;
 import life.qbic.expdesign.io.QBiCDesignReader;
 import life.qbic.expdesign.model.ExperimentalDesignPropertyWrapper;
 import life.qbic.expdesign.model.SampleSummaryBean;
 import life.qbic.expdesign.model.StructuredExperiment;
 import life.qbic.xml.study.TechnologyType;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -21,7 +21,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import javax.xml.bind.JAXBException;
 
 public class SamplePreparator {
@@ -38,11 +37,11 @@ public class SamplePreparator {
     processed = new ArrayList<List<ISampleBean>>();
     summary = new ArrayList<SampleSummaryBean>();
   }
-
+  
   public List<String> getOriginalTSV() {
     return reader.getTSVByRows();
   }
-  
+
   /**
    * Reads in a TSV File containing samples for openBIS registration and their metadata.
    * 
@@ -60,8 +59,9 @@ public class SamplePreparator {
     List<ISampleBean> rawSamps = reader.readSamples(file, parseGraph);
     if (reader instanceof QBiCDesignReader) {
       QBiCDesignReader qReader = (QBiCDesignReader) reader;
-      projectinfo = new ProjectInfo(qReader.getSpace(), qReader.getProject(), qReader.getDescription(), qReader.getSecondaryName(),
-          qReader.isPilot(), qReader.getInvestigator(), qReader.getContact(), qReader.getManager());
+      projectinfo = new ProjectInfo(qReader.getSpace(), qReader.getProject(),
+          qReader.getDescription(), qReader.getSecondaryName(), qReader.isPilot(),
+          qReader.getInvestigator(), qReader.getContact(), qReader.getManager());
     }
     if (reader.getError() != null)
       return false;
@@ -126,7 +126,12 @@ public class SamplePreparator {
     this.summary = summary;
   }
 
-  public Map<String, Map<String, Object>> getSpecialExperimentsOfTypeOrNull(String experimentType) {
+  /**
+   * should only be called once after each parsing
+   * @param experimentType
+   * @return
+   */
+  public Map<String, Map<String, Object>> transformAndReturnSpecialExperimentsOfTypeOrNull(String experimentType) {
     if (reader.getExperimentInfos() == null)
       return null;
     List<Map<String, Object>> exps = reader.getExperimentInfos().get(experimentType);
@@ -330,6 +335,10 @@ public class SamplePreparator {
 
   public ExperimentalDesignPropertyWrapper getExperimentalDesignProperties() {
     return experimentalDesignXML;
+  }
+
+  public Map<String, List<String>> getParsedCategoriesToValues(ArrayList<String> cats) {
+    return reader.getParsedCategoriesToValues(cats);
   }
 
 }

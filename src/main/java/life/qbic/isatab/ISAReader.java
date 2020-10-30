@@ -724,7 +724,6 @@ public class ISAReader implements IExperimentalDesignReader {
 
   @Override
   public Map<String, List<Map<String, Object>>> getExperimentInfos() {
-    // TODO Auto-generated method stub
     return null;
   }
 
@@ -754,5 +753,10 @@ public class ISAReader implements IExperimentalDesignReader {
   @Override
   public List<TechnologyType> getTechnologyTypes() {
     return technologyTypes;
+  }
+
+  @Override
+  public Map<String, List<String>> getParsedCategoriesToValues(List<String> header) {
+    return null;
   }
 }

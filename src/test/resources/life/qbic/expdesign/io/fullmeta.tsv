@@ -1,0 +1,5 @@
+File Name	Injection Volume	Organism ID	Technical Replicates	Secondary Name	Sample Name	Sample Preparation	Species	Tissue	Pooled Sample	Cycle/Fraction Name	Fractionation Type	Digestion Method	Digestion Enzyme	Enrichment Method	Labeling Type	Label	LC Column	MS Device	LCMS Method	Facility Comment	Customer Comment	Expression System	Sample Cleanup (Peptide)	Sample Cleanup (Protein)
+easy.raw	10	p1	1	R1 sec	R1	prep	Homo sapiens	Liver		c1		Beads	Trypsin+Enzyme2	phospho	SILAC	medium	HPLC	HFX	30MIN	facility	customer	E. coli		puri
+easy2.raw	10	p1	1	R3 sec	R3	prep	Homo sapiens	Liver		c2		Beads	Trypsin+Enzyme2	phospho	SILAC	heavy	HPLC	HFX	30MIN	facility	customer	E. coli		puri
+easymix.raw	10	p1	1	R1R3 sec	R1R3	prep	Homo sapiens	Liver	R1 sec+R3 sec			Beads	Trypsin+Enzyme2		SILAC	mix	HPLC	HFX	30MIN	facility	customer	E. coli		puri
+R2.raw		p1	1	R2 sec	R2	asdadsad	Homo sapiens	Liver		f1	Offgel	in gel	Trypsin+X		LFQ		HPLC	HFX	180min_something			E. coli		puri

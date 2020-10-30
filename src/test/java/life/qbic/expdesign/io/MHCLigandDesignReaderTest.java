@@ -45,7 +45,7 @@ public class MHCLigandDesignReaderTest {
 
   @Test
   public void testGetGraphStructure() throws IOException, JAXBException {
-    QBiCDesignReader r = new QBiCDesignReader();
+    MHCLigandDesignReader r = new MHCLigandDesignReader();
     r.readSamples(tsv, true);
     assertEquals(r.getGraphStructure(), null);
     // TODO
@@ -57,9 +57,6 @@ public class MHCLigandDesignReaderTest {
     r.readSamples(tsv, true);
     assertEquals(r.getTSVByRows().size(), 97);
   }
-
-  @Test
-  public void parseMHCClass() {}
 
   public void testGetSpeciesSet() throws IOException {
     MHCLigandDesignReader r = new MHCLigandDesignReader();

@@ -6,12 +6,12 @@
 	<parent>
 		<groupId>life.qbic</groupId>
 		<artifactId>parent-pom</artifactId>
-		<version>3.1.0</version>
+		<version>3.1.4</version>
 	</parent>
 
 	<artifactId>experimental-design-lib</artifactId>
 	<packaging>jar</packaging>
-	<version>0.16.3</version>
+	<version>0.17.0</version>
 	<name>Experimental Design Library</name>
 	<url>http://maven.apache.org</url>
 
@@ -21,13 +21,11 @@
 			<artifactId>data-model-lib</artifactId>
 			<version>1.11.0</version>
 		</dependency>
-		<dependency>
+	<dependency>
 			<groupId>life.qbic</groupId>
 			<artifactId>isa-creator-lib</artifactId>
-			<version>1.8.1</version>
+			<version>1.9.0</version>
 		</dependency>
-		<!--dependency> <groupId>org.apache.commons</groupId> <artifactId>commons-collections4</artifactId> 
-			<version>4.0</version> </dependency -->
 	</dependencies>
 
 	<!-- we only need to tell maven where to find our parent pom and other QBiC 
@@ -44,7 +42,7 @@
 			</snapshots>
 			<id>nexus-snapshots</id>
 			<name>QBiC Snapshots</name>
-			<url>http://qbic-repo.qbic.uni-tuebingen.de:8081/repository/maven-snapshots</url>
+			<url>https://qbic-repo.qbic.uni-tuebingen.de/repository/maven-snapshots</url>
 		</repository>
 		<repository>
 			<releases>
@@ -57,7 +55,7 @@
 			</snapshots>
 			<id>nexus-releases</id>
 			<name>QBiC Releases</name>
-			<url>http://qbic-repo.qbic.uni-tuebingen.de:8081/repository/maven-releases</url>
+			<url>https://qbic-repo.qbic.uni-tuebingen.de/repository/maven-releases</url>
 		</repository>
 	</repositories>
 
