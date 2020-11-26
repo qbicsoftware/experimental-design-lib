@@ -1,4 +1,4 @@
-File Name	Injection Volume	Organism ID	Technical Replicates	Secondary Name	Sample Name	Species	Tissue	Pooled Sample	Cycle/Fraction Name	Fractionation Type	Digestion Method	Digestion Enzyme	Enrichment Method	Labeling Type	Label	LC Column	MS Device	LCMS Method	Facility Comment	Customer Comment
+File Name	Injection Volume (uL)	Organism ID	Technical Replicates	Secondary Name	Sample Name	Species	Tissue	Pooled Sample	Cycle/Fraction Name	Fractionation Type	Digestion Method	Digestion Enzyme	Enrichment Method	Labeling Type	Label	LC Column	MS Device	LCMS Method	Facility Comment	Customer Comment
 easy_pool.raw		p1	1	R1R2 sec	R1R2	Homo sapiens	Whole blood	R1+R2						LFQ		HPLC	HFX	180min_something		
 fraction1.raw		p1	1	R3 sec	R3	Homo sapiens	Whole blood		R3F1	Offgel	Beads	Trypsin		SILAC	light	UPLC	HFX	120min_x		
 fraction2.raw		p1	1	R3 sec	R3	Homo sapiens	Whole blood		R3F2	Offgel	Beads	Trypsin		SILAC	medium	UPLC	HFX	120min_x		
