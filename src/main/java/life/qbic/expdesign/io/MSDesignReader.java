@@ -6,6 +6,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -43,22 +44,23 @@ public class MSDesignReader implements IExperimentalDesignReader {
 
   public static final String UTF8_BOM = "\uFEFF";
   public static final String LIST_SEPARATOR = "\\+";
-
+  public static final Set<String> LABELING_TYPES_WITHOUT_LABELS =
+      new HashSet<>(Arrays.asList("LFQ", "None"));
   public static final String SAMPLE_KEYWORD = "Secondary Name";
   public static final String SAMPLE_ALTNAME_KEYWORD = "Sample Name";
 
   public MSDesignReader() {
-    this.mandatoryColumns = new ArrayList<>(Arrays.asList("Labeling Type", "File Name",
-        "Organism ID", "Technical Replicates", "Sample Name", "Secondary Name", "Species", "Tissue",
-        "LC Column", "MS Device", "LCMS Method", "Injection Volume"));
-    this.mandatoryFilled = new ArrayList<>(Arrays.asList("Labeling Type", "File Name",
-        "Organism ID", "Technical Replicates", "Sample Name", "Secondary Name", "Species", "Tissue",
-        "LC Column", "MS Device", "LCMS Method"));
-    this.optionalCols =
-        new ArrayList<>(Arrays.asList("Expression System", "Pooled Sample", "Cycle/Fraction Name",
-            "Fractionation Type", "Sample Preparation", "Sample Cleanup (Protein)",
-            "Digestion Method", "Enrichment Method", "Sample Cleanup (Peptide)", "Label",
-            "Customer Comment", "Facility Comment", "Digestion Enzyme"));
+    this.mandatoryColumns = new ArrayList<>(
+        Arrays.asList("Labeling Type", "File Name", "Organism ID", "Sample Name", "Secondary Name",
+            "Species", "Tissue", "LC Column", "MS Device", "LCMS Method", "Injection Volume (uL)"));
+    this.mandatoryFilled =
+        new ArrayList<>(Arrays.asList("Labeling Type", "File Name", "Organism ID", "Sample Name",
+            "Secondary Name", "Species", "Tissue", "LC Column", "MS Device", "LCMS Method"));
+    this.optionalCols = new ArrayList<>(Arrays.asList("Expression System", "Technical Replicates",
+        "Pooled Sample", "Cycle/Fraction Name", "Fractionation Type", "Sample Preparation",
+        "Sample Cleanup (Protein)", "Digestion Method", "Enrichment Method",
+        "Sample Cleanup (Peptide)", "Label", "Customer Comment", "Facility Comment",
+        "Digestion Enzyme"));
 
     Map<String, List<String>> sourceMetadata = new HashMap<>();
     sourceMetadata.put("Species", Collections.singletonList("Q_NCBI_ORGANISM"));
@@ -76,18 +78,27 @@ public class MSDesignReader implements IExperimentalDesignReader {
 
     Map<String, List<String>> peptideMetadata = new HashMap<>();
     peptideMetadata.put("Label", Collections.singletonList("Q_MOLECULAR_LABEL"));
-//    peptideMetadata.put("Secondary Name", Collections.singletonList("Q_SECONDARY_NAME"));
+    // peptideMetadata.put("Secondary Name", Collections.singletonList("Q_SECONDARY_NAME"));
     // peptideMetadata.put("Sample Secondary Name", "Q_EXTERNALDB_ID");
 
     Map<String, List<String>> msRunMetadata = new HashMap<>();
     msRunMetadata.put("Facility Comment", Collections.singletonList("Q_ADDITIONAL_INFO"));
-    msRunMetadata.put("Injection Volume", Collections.singletonList("Q_INJECTION_VOLUME"));
+    msRunMetadata.put("Injection Volume (uL)", Collections.singletonList("Q_INJECTION_VOLUME"));
 
     headersToTypeCodePerSampletype = new HashMap<>();
     headersToTypeCodePerSampletype.put(SampleType.Q_BIOLOGICAL_ENTITY, sourceMetadata);
     headersToTypeCodePerSampletype.put(SampleType.Q_BIOLOGICAL_SAMPLE, extractMetadata);
-    headersToTypeCodePerSampletype.put(SampleType.Q_TEST_SAMPLE, peptideMetadata);//TODO
+    headersToTypeCodePerSampletype.put(SampleType.Q_TEST_SAMPLE, peptideMetadata);// TODO
     headersToTypeCodePerSampletype.put(SampleType.Q_MS_RUN, msRunMetadata);
+  }
+
+  private boolean collectionContainsStringCaseInsensitive(Collection<String> collection,
+      String str) {
+    boolean res = false;
+    for (String s : collection) {
+      res |= s.equalsIgnoreCase(str);
+    }
+    return res;
   }
 
   private void fillParsedCategoriesToValuesForRow(Map<String, Integer> headerMapping,
@@ -95,7 +106,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
     // logger.info("Collecting possible CV entries for row.");
     addValueForCategory(headerMapping, row, "MS Device");
     addValueForCategory(headerMapping, row, "LC Column");
-    // addValueForCategory(headerMapping, row, "Sample Cleanup");
+    addValueForCategory(headerMapping, row, "Sample Cleanup (Protein)");
     addValueForCategory(headerMapping, row, "Sample Preparation");
     addValueForCategory(headerMapping, row, "Digestion Enzyme");
     addValueForCategory(headerMapping, row, "Digestion Method");
@@ -232,8 +243,11 @@ public class MSDesignReader implements IExperimentalDesignReader {
       for (String[] row : data) {
         String val = row[col];
         String sourceID = row[headerMapping.get("Organism ID")];
-        String extractID = sourceID + row[headerMapping.get("Tissue")]
-            + row[headerMapping.get("Technical Replicates")];
+        String replicateID = "";
+        if (headerMapping.containsKey("Technical Replicates")) {
+          replicateID = row[headerMapping.get("Technical Replicates")];
+        }
+        String extractID = sourceID + row[headerMapping.get("Tissue")] + replicateID;
         // if different for same entities: not an entity attribute
         if (idToVal.containsKey(sourceID)) {
           if (!idToVal.get(sourceID).equals(val))
@@ -312,7 +326,10 @@ public class MSDesignReader implements IExperimentalDesignReader {
           expressionSystem = row[headerMapping.get("Expression System")];
         }
         String tissue = row[headerMapping.get("Tissue")];
-        String replicateID = row[headerMapping.get("Technical Replicates")];
+        String replicateID = "";
+        if (headerMapping.containsKey("Technical Replicates")) {
+          replicateID = row[headerMapping.get("Technical Replicates")];
+        }
 
         String fileName = row[headerMapping.get("File Name")];
 
@@ -350,7 +367,8 @@ public class MSDesignReader implements IExperimentalDesignReader {
 
         // perform some sanity testing using XOR operator
         if ((isoLabelType.isEmpty() ^ isoLabel.isEmpty())
-            && !isoLabelType.equalsIgnoreCase("LFQ")) {
+            && !collectionContainsStringCaseInsensitive(LABELING_TYPES_WITHOUT_LABELS,
+                isoLabelType)) {
           error = String.format(
               "Error in line %s: If sample label is specified, the isotope labeling type must be set and vice versa.",
               rowID);
