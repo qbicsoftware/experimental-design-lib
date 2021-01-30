@@ -1,4 +1,0 @@
-File Name	Injection Volume (uL)	Organism ID	Technical Replicates	Secondary Name	Sample Name	Sample Preparation	Species	Tissue	Pooled Sample	Cycle/Fraction Name	Fractionation Type	Digestion Method	Digestion Enzyme	Enrichment Method	Labeling Type	Label	LC Column	MS Device	LCMS Method	Facility Comment	Customer Comment
-easy.raw		p1	1	R1 sec	R1	asd	Homo sapiens	Whole blood				in gel	Trypsin+X		LFQ		HPLC	HFX	180min_something		
-R2.raw		p1	1	R2 sec	R2	asdadsad	Homo sapiens	Liver				in gel	Trypsin+X		LFQ		HPLC	HFX	180min_something		
-easy_pool.raw		p1	1	R1R2 sec	R1R2		Homo sapiens	Whole blood	R1+R2			in gel	X		LFQ		HPLC	HFX	180min_something		
