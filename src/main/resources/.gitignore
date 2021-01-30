@@ -1,3 +1,4 @@
+
 /.project
 /.settings
 /pom.xml.releaseBackup
@@ -6,3 +7,6 @@
 /pom.xml.next
 /pom.xml.tag
 d3demo/
+
+# this is some sort of a "hack" because git saves only files, not folders, so if 
+# we wanted this folder to be present, git must see a file in it
