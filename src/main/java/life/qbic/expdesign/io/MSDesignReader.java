@@ -107,6 +107,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
     addValueForCategory(headerMapping, row, "MS Device");
     addValueForCategory(headerMapping, row, "LC Column");
     addValueForCategory(headerMapping, row, "Sample Cleanup (Protein)");
+    addValueForCategory(headerMapping, row, "Sample Cleanup (Peptide)");
     addValueForCategory(headerMapping, row, "Sample Preparation");
     addValueForCategory(headerMapping, row, "Digestion Enzyme");
     addValueForCategory(headerMapping, row, "Digestion Method");
