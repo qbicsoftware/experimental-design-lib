@@ -60,20 +60,6 @@ under the License.
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/qbicsoftware/experimental-design-lib/checkstyle.html#life.qbic.expdesign.io.MHCLigandDesignReader.java">life/qbic/expdesign/io/MHCLigandDesignReader.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  94
-                </td>
-                <td>
-                  0
-                </td>
-              </tr>
-                          <tr>
-                <td>
                   <a href="https://github.com/qbicsoftware/experimental-design-lib/checkstyle.html#life.qbic.package-info.java">life/qbic/package-info.java</a>
                 </td>
                 <td>
@@ -81,6 +67,20 @@ under the License.
                 </td>
                 <td>
                   0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/qbicsoftware/experimental-design-lib/checkstyle.html#life.qbic.expdesign.io.MHCLigandDesignReader.java">life/qbic/expdesign/io/MHCLigandDesignReader.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  94
                 </td>
                 <td>
                   0
@@ -186,20 +186,6 @@ under the License.
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/qbicsoftware/experimental-design-lib/checkstyle.html#life.qbic.expdesign.ParserHelpers.java">life/qbic/expdesign/ParserHelpers.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  67
-                </td>
-                <td>
-                  0
-                </td>
-              </tr>
-                          <tr>
-                <td>
                   <a href="https://github.com/qbicsoftware/experimental-design-lib/checkstyle.html#life.qbic.expdesign.model.StructuredExperiment.java">life/qbic/expdesign/model/StructuredExperiment.java</a>
                 </td>
                 <td>
@@ -207,6 +193,20 @@ under the License.
                 </td>
                 <td>
                   17
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/qbicsoftware/experimental-design-lib/checkstyle.html#life.qbic.expdesign.ParserHelpers.java">life/qbic/expdesign/ParserHelpers.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  67
                 </td>
                 <td>
                   0
