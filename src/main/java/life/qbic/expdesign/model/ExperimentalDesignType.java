@@ -29,6 +29,10 @@ public enum ExperimentalDesignType {
       "Format to describe sample preparation and MS / LCMS measurement of protein or peptide samples.",
       Arrays.asList(""), Arrays.asList("")),
 
+  Metabolomics_LCMS("Metabolomics LCMS",
+      "Format to describe sample preparation and MS / LCMS measurement of metabolome samples.",
+      Arrays.asList(""), Arrays.asList("")),
+
   MHC_Ligands_Plan("", "", Arrays.asList(), Arrays.asList());
 
   private final String name;
