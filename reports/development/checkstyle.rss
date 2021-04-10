@@ -25,9 +25,9 @@ under the License.
     <language>en-us</language>
     <copyright>&#169;2021</copyright>
     <item>
-      <title>File: 22,
+      <title>File: 26,
              Errors: 0,
-             Warnings: 604,
+             Warnings: 710,
              Infos: 0
       </title>
             <link>https://github.com/qbicsoftware/experimental-design-lib/checkstyle.html</link>
@@ -46,34 +46,6 @@ under the License.
           <tbody>
                           <tr>
                 <td>
-                  <a href="https://github.com/qbicsoftware/experimental-design-lib/checkstyle.html#life.qbic.isatab.ISAToReadable.java">life/qbic/isatab/ISAToReadable.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  8
-                </td>
-                <td>
-                  0
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/qbicsoftware/experimental-design-lib/checkstyle.html#life.qbic.package-info.java">life/qbic/package-info.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-              </tr>
-                          <tr>
-                <td>
                   <a href="https://github.com/qbicsoftware/experimental-design-lib/checkstyle.html#life.qbic.expdesign.io.MHCLigandDesignReader.java">life/qbic/expdesign/io/MHCLigandDesignReader.java</a>
                 </td>
                 <td>
@@ -81,48 +53,6 @@ under the License.
                 </td>
                 <td>
                   94
-                </td>
-                <td>
-                  0
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/qbicsoftware/experimental-design-lib/checkstyle.html#life.qbic.isatab.ISAToQBIC.java">life/qbic/isatab/ISAToQBIC.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  8
-                </td>
-                <td>
-                  0
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/qbicsoftware/experimental-design-lib/checkstyle.html#life.qbic.expdesign.io.Command.java">life/qbic/expdesign/io/Command.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/qbicsoftware/experimental-design-lib/checkstyle.html#life.qbic.expdesign.model.MassSpecSampleHierarchy.java">life/qbic/expdesign/model/MassSpecSampleHierarchy.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  1
                 </td>
                 <td>
                   0
@@ -144,20 +74,6 @@ under the License.
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/qbicsoftware/experimental-design-lib/checkstyle.html#life.qbic.expdesign.VocabularyValidator.java">life/qbic/expdesign/VocabularyValidator.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  4
-                </td>
-                <td>
-                  0
-                </td>
-              </tr>
-                          <tr>
-                <td>
                   <a href="https://github.com/qbicsoftware/experimental-design-lib/checkstyle.html#life.qbic.expdesign.model.ProteinPeptidePreparationProperties.java">life/qbic/expdesign/model/ProteinPeptidePreparationProperties.java</a>
                 </td>
                 <td>
@@ -172,48 +88,6 @@ under the License.
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/qbicsoftware/experimental-design-lib/checkstyle.html#life.qbic.expdesign.io.IExperimentalDesignReader.java">life/qbic/expdesign/io/IExperimentalDesignReader.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  4
-                </td>
-                <td>
-                  0
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/qbicsoftware/experimental-design-lib/checkstyle.html#life.qbic.expdesign.model.StructuredExperiment.java">life/qbic/expdesign/model/StructuredExperiment.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  17
-                </td>
-                <td>
-                  0
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/qbicsoftware/experimental-design-lib/checkstyle.html#life.qbic.expdesign.ParserHelpers.java">life/qbic/expdesign/ParserHelpers.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  67
-                </td>
-                <td>
-                  0
-                </td>
-              </tr>
-                          <tr>
-                <td>
                   <a href="https://github.com/qbicsoftware/experimental-design-lib/checkstyle.html#life.qbic.isatab.IKeywordToUITextMapper.java">life/qbic/isatab/IKeywordToUITextMapper.java</a>
                 </td>
                 <td>
@@ -221,6 +95,20 @@ under the License.
                 </td>
                 <td>
                   3
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/qbicsoftware/experimental-design-lib/checkstyle.html#life.qbic.expdesign.model.ExtendedMSProperties.java">life/qbic/expdesign/model/ExtendedMSProperties.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  37
                 </td>
                 <td>
                   0
@@ -256,20 +144,6 @@ under the License.
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/qbicsoftware/experimental-design-lib/checkstyle.html#life.qbic.isatab.ISAReader.java">life/qbic/isatab/ISAReader.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  107
-                </td>
-                <td>
-                  0
-                </td>
-              </tr>
-                          <tr>
-                <td>
                   <a href="https://github.com/qbicsoftware/experimental-design-lib/checkstyle.html#life.qbic.expdesign.model.SampleSummaryBean.java">life/qbic/expdesign/model/SampleSummaryBean.java</a>
                 </td>
                 <td>
@@ -298,20 +172,6 @@ under the License.
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/qbicsoftware/experimental-design-lib/checkstyle.html#life.qbic.expdesign.model.ExperimentalDesignPropertyWrapper.java">life/qbic/expdesign/model/ExperimentalDesignPropertyWrapper.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  4
-                </td>
-                <td>
-                  0
-                </td>
-              </tr>
-                          <tr>
-                <td>
                   <a href="https://github.com/qbicsoftware/experimental-design-lib/checkstyle.html#life.qbic.expdesign.SampleTypeComparator.java">life/qbic/expdesign/SampleTypeComparator.java</a>
                 </td>
                 <td>
@@ -333,6 +193,202 @@ under the License.
                 </td>
                 <td>
                   68
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/qbicsoftware/experimental-design-lib/checkstyle.html#life.qbic.isatab.ISAToReadable.java">life/qbic/isatab/ISAToReadable.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  8
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/qbicsoftware/experimental-design-lib/checkstyle.html#life.qbic.package-info.java">life/qbic/package-info.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/qbicsoftware/experimental-design-lib/checkstyle.html#life.qbic.expdesign.model.MetaboSampleHierarchy.java">life/qbic/expdesign/model/MetaboSampleHierarchy.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/qbicsoftware/experimental-design-lib/checkstyle.html#life.qbic.isatab.ISAToQBIC.java">life/qbic/isatab/ISAToQBIC.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  8
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/qbicsoftware/experimental-design-lib/checkstyle.html#life.qbic.expdesign.model.MassSpecSampleHierarchy.java">life/qbic/expdesign/model/MassSpecSampleHierarchy.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  1
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/qbicsoftware/experimental-design-lib/checkstyle.html#life.qbic.expdesign.io.Command.java">life/qbic/expdesign/io/Command.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/qbicsoftware/experimental-design-lib/checkstyle.html#life.qbic.expdesign.VocabularyValidator.java">life/qbic/expdesign/VocabularyValidator.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  4
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/qbicsoftware/experimental-design-lib/checkstyle.html#life.qbic.expdesign.ParserHelpers.java">life/qbic/expdesign/ParserHelpers.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  67
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/qbicsoftware/experimental-design-lib/checkstyle.html#life.qbic.expdesign.model.StructuredExperiment.java">life/qbic/expdesign/model/StructuredExperiment.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  17
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/qbicsoftware/experimental-design-lib/checkstyle.html#life.qbic.expdesign.io.IExperimentalDesignReader.java">life/qbic/expdesign/io/IExperimentalDesignReader.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  4
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/qbicsoftware/experimental-design-lib/checkstyle.html#life.qbic.expdesign.model.MetabolitePrepProperties.java">life/qbic/expdesign/model/MetabolitePrepProperties.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  13
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/qbicsoftware/experimental-design-lib/checkstyle.html#life.qbic.isatab.ISAReader.java">life/qbic/isatab/ISAReader.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  107
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/qbicsoftware/experimental-design-lib/checkstyle.html#life.qbic.expdesign.model.ExperimentalDesignPropertyWrapper.java">life/qbic/expdesign/model/ExperimentalDesignPropertyWrapper.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  4
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/qbicsoftware/experimental-design-lib/checkstyle.html#life.qbic.expdesign.io.MetaboDesignReader.java">life/qbic/expdesign/io/MetaboDesignReader.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  56
                 </td>
                 <td>
                   0

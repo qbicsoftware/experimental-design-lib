@@ -16,10 +16,10 @@
 'UTF-8'
 -Xdoclint:all
 -doctitle
-'Experimental Design Library 0.19.0-SNAPSHOT API'
+'Experimental Design Library 0.20.0-SNAPSHOT API'
 -linkoffline
 'https://docs.oracle.com/javase/8/docs/api' '/home/runner/work/experimental-design-lib/experimental-design-lib/target/javadoc-bundle-options'
 -use
 -version
 -windowtitle
-'Experimental Design Library 0.19.0-SNAPSHOT API'
+'Experimental Design Library 0.20.0-SNAPSHOT API'
