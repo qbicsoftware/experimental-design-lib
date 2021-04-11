@@ -1,0 +1,5 @@
+QBiC Barcode	File Name	Secondary Name	Sample Name	Organism ID	Technical Replicates	Condition: treatment	Condition: condition2	Condition: condition3	Species	Tissue	Customer Comment	Expression System	Pooled Sample	Cycle/Fraction Name	Fractionation Type	Sample Preparation	Sample Cleanup (Protein)	Digestion Method	Digestion Enzyme	Enrichment Method	Sample Cleanup (Peptide)	Labeling Type	Label	Injection Volume (uL)	LC Column	MS Device	LCMS Method	Facility Comment
+	RawData_R4-R7	R4-R7	uninf	plant pool 1	1	uninfected			Athaliana	Leaf				HpHmix1	highph			in solution	Trypsin			DIMETHYL	Dimethyl light	1	RP	qex	e90	
+	RawData_R8-R11	R8-R11	nc2	plant pool 1	1	nc2			Athaliana	Leaf	infected			HpHmix1	highph			in solution	Trypsin			DIMETHYL	Dimethyl medium	1	RP	qex	e90	
+	RawData_R12R16	R12R16	nc14	plant pool 1	1	nc14			Athaliana	Leaf	infected			HpHmix1	highph			in solution	Trypsin			DIMETHYL	Dimethyl heavy	1	RP	qex	e90	
+	RawData_Mix1	Mix1	Mix	plant pool 1	1	Mix			Athaliana	Leaf			uninf+nc2+nc14					in solution	Trypsin			DIMETHYL	Mix	1	RP	qex	e90	

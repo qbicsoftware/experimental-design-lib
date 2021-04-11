@@ -345,7 +345,7 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
         sampleID++;
         TSVSampleBean msRun = new TSVSampleBean(Integer.toString(sampleID), SampleType.Q_MS_RUN, "",
             fillMetadata(header, row, meta, factors, new ArrayList<>(), SampleType.Q_MS_RUN));
-        // msRun.addProperty("File", fileName);//TODO?
+         msRun.addProperty("File", sampleKey);//TODO? file name
         msRun.addProperty("Q_SAMPLE_SOLVENT", sampleSolvent);
 
         String lcmsMethod = row[headerMapping.get("LC MS Method Name")];

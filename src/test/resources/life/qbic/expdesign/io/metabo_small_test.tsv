@@ -1,0 +1,14 @@
+QBiC Barcode	Secondary Name	Sample type	Species	Strain Lab collection number 	Culture type	Growth conditions: Temperature	Growth conditions: Time 	Growth conditions: rpm	Medium	Condition: Stimulus	Stimulation OD	Stimulation  Time	Harvesting conditions	Washing solvent	Cell Lysis	Lysis parameters	Sample solvent	Injection volume (uL)	LC MS Method Name	LC device	LC detection method	LC column name	MS device	MS ion mode	SOP reference code for techcnial information
+	S1	cell wall	E. coli	12345	solid	5	4	3	MH	inhibitor	2	1	centrifugation	alcohol	boiling	lysis stuff	neer	10	1_D_M_ZIC_pHILIC_neg_85-900	HPLC	UV	SeQuant ZIC-pHILIC	HFX	negative	
+	S2	cell wall	E. coli	12346	solid	5	4	3	MH	inhibitor	2	1	centrifugation	alcohol	boiling	lysis stuff	neer	11	1_D_M_ZIC_pHILIC_neg_85-901	HPLC	UV	SeQuant ZIC-pHILIC	HFX	negative	
+	S3	cell wall	E. coli	12347	solid	5	4	3	MH	inhibitor	2	1	centrifugation	alcohol	boiling	lysis stuff	neer	12	1_D_M_ZIC_pHILIC_neg_85-902	HPLC	UV	SeQuant ZIC-pHILIC	HFX	negative	
+	S4	cell wall	E. coli	12348	solid	5	4	3	MH	inhibitor	2	1	centrifugation	alcohol	boiling	lysis stuff	neer	13	1_D_M_ZIC_pHILIC_neg_85-903	HPLC	UV	SeQuant ZIC-pHILIC	HFX	negative	
+	S5	cell wall	E. coli	12349	solid	5	4	3	MH	inhibitor	2	1	centrifugation	alcohol	boiling	lysis stuff	neer	14	1_D_M_ZIC_pHILIC_neg_85-904	HPLC	UV	SeQuant ZIC-pHILIC	HFX	negative	
+	S6	cell wall	E. coli	12350	solid	5	4	3	MH	inhibitor	2	1	centrifugation	alcohol	boiling	lysis stuff	neer	15	1_D_M_ZIC_pHILIC_neg_85-905	HPLC	UV	SeQuant ZIC-pHILIC	HFX	negative	
+	S7	cell wall	E. coli	12351	solid	5	4	3	MH	inhibitor	2	1	centrifugation	alcohol	boiling	lysis stuff	neer	16	1_D_M_ZIC_pHILIC_neg_85-906	HPLC	UV	SeQuant ZIC-pHILIC	HFX	negative	
+	S8	cell wall	E. coli	12352	solid	5	4	3	MH	inhibitor	2	1	centrifugation	alcohol	boiling	lysis stuff	neer	17	1_D_M_ZIC_pHILIC_neg_85-907	HPLC	UV	SeQuant ZIC-pHILIC	HFX	negative	
+	S9	cell wall	E. coli	12353	solid	5	4	3	MH	inhibitor	2	1	centrifugation	alcohol	boiling	lysis stuff	neer	18	1_D_M_ZIC_pHILIC_neg_85-908	HPLC	UV	SeQuant ZIC-pHILIC	HFX	negative	
+	S10	cell wall	E. coli	12354	solid	5	4	3	MH	inhibitor	2	1	centrifugation	alcohol	boiling	lysis stuff	neer	19	1_D_M_ZIC_pHILIC_neg_85-909	HPLC	UV	SeQuant ZIC-pHILIC	HFX	negative	
+	S11	cell wall	E. coli	12355	solid	5	4	3	MH	inhibitor	2	1	centrifugation	alcohol	boiling	lysis stuff	neer	20	1_D_M_ZIC_pHILIC_neg_85-910	HPLC	UV	SeQuant ZIC-pHILIC	HFX	negative	
+	S12	cell wall	E. coli	12356	solid	5	4	3	MH	inhibitor	2	1	centrifugation	alcohol	boiling	lysis stuff	neer	21	1_D_M_ZIC_pHILIC_neg_85-911	HPLC	UV	SeQuant ZIC-pHILIC	HFX	negative	
+	S13	cell wall	E. coli	12357	solid	5	4	3	MH	inhibitor	2	1	centrifugation	alcohol	boiling	lysis stuff	neer	22	1_D_M_ZIC_pHILIC_neg_85-912	HPLC	UV	SeQuant ZIC-pHILIC	HFX	negative	
