@@ -25,637 +25,654 @@
 <a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> life.qbic.datamodel.samples.ISampleBean;
 <a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">import</strong> life.qbic.datamodel.samples.SampleType;
 <a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> life.qbic.datamodel.samples.TSVSampleBean;
-<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">import</strong> life.qbic.expdesign.model.ExtendedMSProperties;
-<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> life.qbic.expdesign.model.MetaboSampleHierarchy;
-<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">import</strong> life.qbic.expdesign.model.MetabolitePrepProperties;
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">import</strong> life.qbic.expdesign.model.StructuredExperiment;
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">import</strong> life.qbic.xml.properties.Unit;
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <strong class="jxr_keyword">import</strong> life.qbic.xml.study.TechnologyType;
-<a class="jxr_linenumber" name="L26" href="#L26">26</a>  
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">import</strong> life.qbic.expdesign.model.CultureProperties;
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> life.qbic.expdesign.model.ExtendedMSProperties;
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">import</strong> life.qbic.expdesign.model.MetaboSampleHierarchy;
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">import</strong> life.qbic.expdesign.model.MetabolitePrepProperties;
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">import</strong> life.qbic.expdesign.model.StructuredExperiment;
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <strong class="jxr_keyword">import</strong> life.qbic.xml.properties.Unit;
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">import</strong> life.qbic.xml.study.TechnologyType;
 <a class="jxr_linenumber" name="L27" href="#L27">27</a>  
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="MetaboDesignReader" href="../../../../life/qbic/expdesign/io/MetaboDesignReader.html#MetaboDesignReader">MetaboDesignReader</a> <strong class="jxr_keyword">implements</strong> <a name="IExperimentalDesignReader" href="../../../../life/qbic/expdesign/io/IExperimentalDesignReader.html#IExperimentalDesignReader">IExperimentalDesignReader</a> {
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>  
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>    <strong class="jxr_keyword">private</strong> List&lt;String&gt; mandatoryColumns;
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>    <strong class="jxr_keyword">private</strong> List&lt;String&gt; mandatoryFilled;
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>    <strong class="jxr_keyword">private</strong> List&lt;String&gt; optionalCols;
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>    <strong class="jxr_keyword">private</strong> Map&lt;SampleType, Map&lt;String, List&lt;String&gt;&gt;&gt; headersToTypeCodePerSampletype;
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>    <strong class="jxr_keyword">private</strong> Map&lt;String, Set&lt;String&gt;&gt; parsedCategoriesToValues;
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>  
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>    <strong class="jxr_keyword">private</strong> String error;
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>    <strong class="jxr_keyword">private</strong> Map&lt;String, List&lt;Map&lt;String, Object&gt;&gt;&gt; experimentInfos;
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>    <strong class="jxr_keyword">private</strong> Set&lt;String&gt; speciesSet;
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>    <strong class="jxr_keyword">private</strong> Set&lt;String&gt; tissueSet;
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>    <strong class="jxr_keyword">private</strong> Set&lt;String&gt; analyteSet;
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>    <strong class="jxr_keyword">private</strong> List&lt;String&gt; tsvByRows;
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Logger logger = LogManager.getLogger(MetaboDesignReader.<strong class="jxr_keyword">class</strong>);
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>  
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String UTF8_BOM = <span class="jxr_string">"\uFEFF"</span>;
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String LIST_SEPARATOR = <span class="jxr_string">"&#92;&#92;+"</span>;
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Set&lt;String&gt; LABELING_TYPES_WITHOUT_LABELS =
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>        <strong class="jxr_keyword">new</strong> HashSet&lt;&gt;(Arrays.asList(<span class="jxr_string">"LFQ"</span>, <span class="jxr_string">"None"</span>));
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String SAMPLE_KEYWORD = <span class="jxr_string">"Secondary Name"</span>;
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>  <em class="jxr_comment">//  public static final String SAMPLE_ALTNAME_KEYWORD = "Sample Name";</em>
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>  
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>  
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="MetaboDesignReader" href="../../../../life/qbic/expdesign/io/MetaboDesignReader.html#MetaboDesignReader">MetaboDesignReader</a> <strong class="jxr_keyword">implements</strong> <a name="IExperimentalDesignReader" href="../../../../life/qbic/expdesign/io/IExperimentalDesignReader.html#IExperimentalDesignReader">IExperimentalDesignReader</a> {
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>  
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>    <strong class="jxr_keyword">private</strong> List&lt;String&gt; mandatoryColumns;
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>    <strong class="jxr_keyword">private</strong> List&lt;String&gt; mandatoryFilled;
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>    <strong class="jxr_keyword">private</strong> List&lt;String&gt; optionalCols;
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>    <strong class="jxr_keyword">private</strong> Map&lt;SampleType, Map&lt;String, List&lt;String&gt;&gt;&gt; headersToTypeCodePerSampletype;
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>    <strong class="jxr_keyword">private</strong> Map&lt;String, Set&lt;String&gt;&gt; parsedCategoriesToValues;
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>  
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>    <strong class="jxr_keyword">private</strong> String error;
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>    <strong class="jxr_keyword">private</strong> Map&lt;String, List&lt;Map&lt;String, Object&gt;&gt;&gt; experimentInfos;
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>    <strong class="jxr_keyword">private</strong> Set&lt;String&gt; speciesSet;
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>    <strong class="jxr_keyword">private</strong> Set&lt;String&gt; tissueSet;
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>    <strong class="jxr_keyword">private</strong> Set&lt;String&gt; analyteSet;
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>    <strong class="jxr_keyword">private</strong> List&lt;String&gt; tsvByRows;
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Logger logger = LogManager.getLogger(MetaboDesignReader.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>  
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String UTF8_BOM = <span class="jxr_string">"\uFEFF"</span>;
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String LIST_SEPARATOR = <span class="jxr_string">"&#92;&#92;+"</span>;
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Set&lt;String&gt; LABELING_TYPES_WITHOUT_LABELS =
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>        <strong class="jxr_keyword">new</strong> HashSet&lt;&gt;(Arrays.asList(<span class="jxr_string">"LFQ"</span>, <span class="jxr_string">"None"</span>));
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String SAMPLE_KEYWORD = <span class="jxr_string">"Secondary Name"</span>;
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>    <em class="jxr_comment">// public static final String SAMPLE_ALTNAME_KEYWORD = "Sample Name";</em>
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>  
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>  
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>    <strong class="jxr_keyword">public</strong> <a name="MetaboDesignReader" href="../../../../life/qbic/expdesign/io/MetaboDesignReader.html#MetaboDesignReader">MetaboDesignReader</a>() {
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>      <strong class="jxr_keyword">this</strong>.mandatoryColumns = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;(Arrays.asList(<span class="jxr_string">"Secondary Name"</span>, <span class="jxr_string">"Sample type"</span>,
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>          <span class="jxr_string">"Species"</span>, <span class="jxr_string">"Injection volume (uL)"</span>, <span class="jxr_string">"LC MS Method Name"</span>, <span class="jxr_string">"LC device"</span>, <span class="jxr_string">"LC detection method"</span>,
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>          <span class="jxr_string">"LC column name"</span>, <span class="jxr_string">"MS device"</span>, <span class="jxr_string">"MS ion mode"</span>));
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>      <strong class="jxr_keyword">this</strong>.mandatoryFilled = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;(
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>          Arrays.asList(<span class="jxr_string">"Secondary Name"</span>, <span class="jxr_string">"Sample type"</span>, <span class="jxr_string">"Species"</span>, <span class="jxr_string">"LC MS Method Name"</span>, <span class="jxr_string">"LC device"</span>,
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>              <span class="jxr_string">"LC detection method"</span>, <span class="jxr_string">"LC column name"</span>, <span class="jxr_string">"MS device"</span>, <span class="jxr_string">"MS ion mode"</span>));
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>      <strong class="jxr_keyword">this</strong>.optionalCols = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;(Arrays.asList(<span class="jxr_string">"Strain lab collection number"</span>,
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>          <span class="jxr_string">"Culture type"</span>, <span class="jxr_string">"Growth conditions: Temperature (°C)"</span>, <span class="jxr_string">"Growth conditions: Time "</span>,
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>          <span class="jxr_string">"Growth conditions: rpm"</span>, <span class="jxr_string">"Medium"</span>, <span class="jxr_string">"Condition: Stimulus"</span>, <span class="jxr_string">"Stimulation OD"</span>,
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>          <span class="jxr_string">"Stimulation  Time"</span>, <span class="jxr_string">"Harvesting conditions"</span>, <span class="jxr_string">"Washing solvent"</span>, <span class="jxr_string">"Cell lysis"</span>,
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>          <span class="jxr_string">"Lysis parameters"</span>, <span class="jxr_string">"Sample solvent"</span>, <span class="jxr_string">"SOP reference code for technical information"</span>));
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>  
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>      Map&lt;String, List&lt;String&gt;&gt; sourceMetadata = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>      sourceMetadata.put(<span class="jxr_string">"Species"</span>, Collections.singletonList(<span class="jxr_string">"Q_NCBI_ORGANISM"</span>));
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>      sourceMetadata.put(<span class="jxr_string">"Expression system"</span>, Collections.singletonList(<span class="jxr_string">"Q_EXPRESSION_SYSTEM"</span>));
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>      sourceMetadata.put(<span class="jxr_string">"Strain lab collection number"</span>,
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>          Arrays.asList(<span class="jxr_string">"Q_STRAIN_LAB_COLLECTION_NUMBER"</span>));
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>  
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>      sourceMetadata.put(<span class="jxr_string">"Medium"</span>, Arrays.asList());<em class="jxr_comment">// TODO</em>
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>      sourceMetadata.put(<span class="jxr_string">"Culture type"</span>, Arrays.asList());<em class="jxr_comment">// TODO</em>
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>  
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>      Map&lt;String, List&lt;String&gt;&gt; extractMetadata = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>      extractMetadata.put(<span class="jxr_string">"Tissue"</span>, Collections.singletonList(<span class="jxr_string">"Q_PRIMARY_TISSUE"</span>));
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>      <em class="jxr_comment">// extractMetadata.put("Customer Comment", Collections.singletonList("Q_ADDITIONAL_INFO"));</em>
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>      extractMetadata.put(<span class="jxr_string">"Sample type"</span>, Collections.singletonList(<span class="jxr_string">"Q_TISSUE_DETAILED"</span>));
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>  
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>  
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>    <strong class="jxr_keyword">public</strong> <a name="MetaboDesignReader" href="../../../../life/qbic/expdesign/io/MetaboDesignReader.html#MetaboDesignReader">MetaboDesignReader</a>() {
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>      <strong class="jxr_keyword">this</strong>.mandatoryColumns = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;(Arrays.asList(<span class="jxr_string">"Secondary Name"</span>, <span class="jxr_string">"Sample type"</span>,
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>          <span class="jxr_string">"Species"</span>, <span class="jxr_string">"Injection volume (uL)"</span>, <span class="jxr_string">"LC MS Method Name"</span>, <span class="jxr_string">"LC device"</span>, <span class="jxr_string">"LC detection method"</span>,
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>          <span class="jxr_string">"LC column name"</span>, <span class="jxr_string">"MS device"</span>, <span class="jxr_string">"MS ion mode"</span>));
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>      <strong class="jxr_keyword">this</strong>.mandatoryFilled = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;(
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>          Arrays.asList(<span class="jxr_string">"Secondary Name"</span>, <span class="jxr_string">"Sample type"</span>, <span class="jxr_string">"Species"</span>, <span class="jxr_string">"LC MS Method Name"</span>, <span class="jxr_string">"LC device"</span>,
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>              <span class="jxr_string">"LC detection method"</span>, <span class="jxr_string">"LC column name"</span>, <span class="jxr_string">"MS device"</span>, <span class="jxr_string">"MS ion mode"</span>));
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>      <strong class="jxr_keyword">this</strong>.optionalCols = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;(Arrays.asList(<span class="jxr_string">"Strain lab collection number"</span>,
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>          <span class="jxr_string">"Culture type"</span>, <span class="jxr_string">"Growth conditions: Temperature (°C)"</span>, <span class="jxr_string">"Growth conditions: Time "</span>,
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>          <span class="jxr_string">"Growth conditions: rpm"</span>, <span class="jxr_string">"Medium"</span>, <span class="jxr_string">"Condition: Stimulus"</span>, <span class="jxr_string">"Stimulation OD"</span>,
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>          <span class="jxr_string">"Stimulation  Time"</span>, <span class="jxr_string">"Harvesting conditions"</span>, <span class="jxr_string">"Washing solvent"</span>, <span class="jxr_string">"Cell lysis"</span>,
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>          <span class="jxr_string">"Lysis parameters"</span>, <span class="jxr_string">"Sample solvent"</span>, <span class="jxr_string">"SOP reference code for technical information"</span>));
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>  
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>      Map&lt;String, List&lt;String&gt;&gt; sourceMetadata = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>      sourceMetadata.put(<span class="jxr_string">"Species"</span>, Collections.singletonList(<span class="jxr_string">"Q_NCBI_ORGANISM"</span>));
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>      sourceMetadata.put(<span class="jxr_string">"Expression system"</span>, Collections.singletonList(<span class="jxr_string">"Q_EXPRESSION_SYSTEM"</span>));
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>      sourceMetadata.put(<span class="jxr_string">"Strain lab collection number"</span>,
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>          Arrays.asList(<span class="jxr_string">"Q_STRAIN_LAB_COLLECTION_NUMBER"</span>));
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>  
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>      sourceMetadata.put(<span class="jxr_string">"Medium"</span>, Arrays.asList());<em class="jxr_comment">// TODO</em>
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>      sourceMetadata.put(<span class="jxr_string">"Culture type"</span>, Arrays.asList());<em class="jxr_comment">// TODO</em>
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>  
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>      Map&lt;String, List&lt;String&gt;&gt; extractMetadata = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>      extractMetadata.put(<span class="jxr_string">"Tissue"</span>, Collections.singletonList(<span class="jxr_string">"Q_PRIMARY_TISSUE"</span>));
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>      <em class="jxr_comment">// extractMetadata.put("Customer Comment", Collections.singletonList("Q_ADDITIONAL_INFO"));</em>
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>      extractMetadata.put(<span class="jxr_string">"Sample type"</span>, Collections.singletonList(<span class="jxr_string">"Q_TISSUE_DETAILED"</span>));
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>  
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>      Map&lt;String, List&lt;String&gt;&gt; molMetadata = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>      molMetadata.put(<span class="jxr_string">"Sample solvent"</span>, Collections.singletonList(<span class="jxr_string">"Q_SAMPLE_SOLVENT"</span>));
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>      molMetadata.put(<span class="jxr_string">"Washing solvent"</span>, Collections.singletonList(<span class="jxr_string">"Q_WASHING_SOLVENT"</span>));
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>      <em class="jxr_comment">// peptideMetadata.put("Label", Collections.singletonList("Q_MOLECULAR_LABEL"));</em>
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>      <em class="jxr_comment">// peptideMetadata.put("Secondary Name", Collections.singletonList("Q_SECONDARY_NAME"));</em>
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>      <em class="jxr_comment">// peptideMetadata.put("Sample Secondary Name", "Q_EXTERNALDB_ID");</em>
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>  
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>      Map&lt;String, List&lt;String&gt;&gt; msRunMetadata = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>      <em class="jxr_comment">// msRunMetadata.put("Facility Comment", Collections.singletonList("Q_ADDITIONAL_INFO"));</em>
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>      msRunMetadata.put(<span class="jxr_string">"Injection volume (uL)"</span>, Collections.singletonList(<span class="jxr_string">"Q_INJECTION_VOLUME"</span>));
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>  
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>      headersToTypeCodePerSampletype = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>      headersToTypeCodePerSampletype.put(SampleType.Q_BIOLOGICAL_ENTITY, sourceMetadata);
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>      headersToTypeCodePerSampletype.put(SampleType.Q_BIOLOGICAL_SAMPLE, extractMetadata);
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>      headersToTypeCodePerSampletype.put(SampleType.Q_TEST_SAMPLE, molMetadata);
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>      headersToTypeCodePerSampletype.put(SampleType.Q_MS_RUN, msRunMetadata);
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>    }
-<a class="jxr_linenumber" name="L98" href="#L98">98</a>  
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> fillParsedCategoriesToValuesForRow(Map&lt;String, Integer&gt; headerMapping,
-<a class="jxr_linenumber" name="L100" href="#L100">100</a>       String[] row) {
-<a class="jxr_linenumber" name="L101" href="#L101">101</a>     <em class="jxr_comment">// logger.info("Collecting possible CV entries for row.");</em>
-<a class="jxr_linenumber" name="L102" href="#L102">102</a>     addValueForCategory(headerMapping, row, <span class="jxr_string">"Sample type"</span>);
-<a class="jxr_linenumber" name="L103" href="#L103">103</a>     addValueForCategory(headerMapping, row, <span class="jxr_string">"Species"</span>);
-<a class="jxr_linenumber" name="L104" href="#L104">104</a>     addValueForCategory(headerMapping, row, <span class="jxr_string">"Culture type"</span>);
-<a class="jxr_linenumber" name="L105" href="#L105">105</a>     addValueForCategory(headerMapping, row, <span class="jxr_string">"Medium"</span>);
-<a class="jxr_linenumber" name="L106" href="#L106">106</a>     addValueForCategory(headerMapping, row, <span class="jxr_string">"Harvesting conditions"</span>);
-<a class="jxr_linenumber" name="L107" href="#L107">107</a>     addValueForCategory(headerMapping, row, <span class="jxr_string">"Cell lysis"</span>);
-<a class="jxr_linenumber" name="L108" href="#L108">108</a>     addValueForCategory(headerMapping, row, <span class="jxr_string">"Lysis parameters"</span>);
-<a class="jxr_linenumber" name="L109" href="#L109">109</a>     addValueForCategory(headerMapping, row, <span class="jxr_string">"LC MS Method Name"</span>);
-<a class="jxr_linenumber" name="L110" href="#L110">110</a>     addValueForCategory(headerMapping, row, <span class="jxr_string">"LC device"</span>);
-<a class="jxr_linenumber" name="L111" href="#L111">111</a>     addValueForCategory(headerMapping, row, <span class="jxr_string">"LC detection method"</span>);
-<a class="jxr_linenumber" name="L112" href="#L112">112</a>     addValueForCategory(headerMapping, row, <span class="jxr_string">"LC column name"</span>);
-<a class="jxr_linenumber" name="L113" href="#L113">113</a>     addValueForCategory(headerMapping, row, <span class="jxr_string">"MS device"</span>);
-<a class="jxr_linenumber" name="L114" href="#L114">114</a>     addValueForCategory(headerMapping, row, <span class="jxr_string">"MS ion mode"</span>);
-<a class="jxr_linenumber" name="L115" href="#L115">115</a>   }
-<a class="jxr_linenumber" name="L116" href="#L116">116</a> 
-<a class="jxr_linenumber" name="L117" href="#L117">117</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> addValueForCategory(Map&lt;String, Integer&gt; headerMapping, String[] row, String cat) {
-<a class="jxr_linenumber" name="L118" href="#L118">118</a>     <strong class="jxr_keyword">if</strong> (headerMapping.containsKey(cat)) {
-<a class="jxr_linenumber" name="L119" href="#L119">119</a>       String val = row[headerMapping.get(cat)];
-<a class="jxr_linenumber" name="L120" href="#L120">120</a>       <strong class="jxr_keyword">if</strong> (val != <strong class="jxr_keyword">null</strong> &amp;&amp; !val.isEmpty()) {
-<a class="jxr_linenumber" name="L121" href="#L121">121</a>         <strong class="jxr_keyword">for</strong> (String v : val.split(LIST_SEPARATOR)) {
-<a class="jxr_linenumber" name="L122" href="#L122">122</a>           <strong class="jxr_keyword">if</strong> (parsedCategoriesToValues.containsKey(cat)) {
-<a class="jxr_linenumber" name="L123" href="#L123">123</a>             parsedCategoriesToValues.get(cat).add(v);
-<a class="jxr_linenumber" name="L124" href="#L124">124</a>           } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L125" href="#L125">125</a>             Set&lt;String&gt; set = <strong class="jxr_keyword">new</strong> HashSet&lt;String&gt;();
-<a class="jxr_linenumber" name="L126" href="#L126">126</a>             set.add(v);
-<a class="jxr_linenumber" name="L127" href="#L127">127</a>             parsedCategoriesToValues.put(cat, set);
-<a class="jxr_linenumber" name="L128" href="#L128">128</a>           }
-<a class="jxr_linenumber" name="L129" href="#L129">129</a>         }
-<a class="jxr_linenumber" name="L130" href="#L130">130</a>       }
-<a class="jxr_linenumber" name="L131" href="#L131">131</a>     }
-<a class="jxr_linenumber" name="L132" href="#L132">132</a>   }
-<a class="jxr_linenumber" name="L133" href="#L133">133</a> 
-<a class="jxr_linenumber" name="L134" href="#L134">134</a>   <strong class="jxr_keyword">public</strong> Map&lt;String, List&lt;Map&lt;String, Object&gt;&gt;&gt; getExperimentInfos() {
-<a class="jxr_linenumber" name="L135" href="#L135">135</a>     <strong class="jxr_keyword">return</strong> experimentInfos;
-<a class="jxr_linenumber" name="L136" href="#L136">136</a>   }
-<a class="jxr_linenumber" name="L137" href="#L137">137</a> 
-<a class="jxr_linenumber" name="L138" href="#L138">138</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String removeUTF8BOM(String s) {
-<a class="jxr_linenumber" name="L139" href="#L139">139</a>     <strong class="jxr_keyword">if</strong> (s.startsWith(UTF8_BOM)) {
-<a class="jxr_linenumber" name="L140" href="#L140">140</a>       s = s.substring(1);
-<a class="jxr_linenumber" name="L141" href="#L141">141</a>     }
-<a class="jxr_linenumber" name="L142" href="#L142">142</a>     <strong class="jxr_keyword">return</strong> s;
-<a class="jxr_linenumber" name="L143" href="#L143">143</a>   }
-<a class="jxr_linenumber" name="L144" href="#L144">144</a> 
-<a class="jxr_linenumber" name="L145" href="#L145">145</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L146" href="#L146">146</a> <em class="jxr_javadoccomment">   * Reads in a TSV file containing openBIS samples that should be registered. Returns a List of</em>
-<a class="jxr_linenumber" name="L147" href="#L147">147</a> <em class="jxr_javadoccomment">   * TSVSampleBeans containing all the necessary information to register each sample with its meta</em>
-<a class="jxr_linenumber" name="L148" href="#L148">148</a> <em class="jxr_javadoccomment">   * information to openBIS, given that the types and parents exist.</em>
-<a class="jxr_linenumber" name="L149" href="#L149">149</a> <em class="jxr_javadoccomment">   * </em>
-<a class="jxr_linenumber" name="L150" href="#L150">150</a> <em class="jxr_javadoccomment">   * @param file</em>
-<a class="jxr_linenumber" name="L151" href="#L151">151</a> <em class="jxr_javadoccomment">   * @return ArrayList of TSVSampleBeans</em>
-<a class="jxr_linenumber" name="L152" href="#L152">152</a> <em class="jxr_javadoccomment">   * @throws IOException</em>
-<a class="jxr_linenumber" name="L153" href="#L153">153</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L154" href="#L154">154</a>   <strong class="jxr_keyword">public</strong> List&lt;ISampleBean&gt; readSamples(File file, <strong class="jxr_keyword">boolean</strong> parseGraph) <strong class="jxr_keyword">throws</strong> IOException {
-<a class="jxr_linenumber" name="L155" href="#L155">155</a>     tsvByRows = <strong class="jxr_keyword">new</strong> ArrayList&lt;String&gt;();
-<a class="jxr_linenumber" name="L156" href="#L156">156</a>     parsedCategoriesToValues = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
-<a class="jxr_linenumber" name="L157" href="#L157">157</a> 
-<a class="jxr_linenumber" name="L158" href="#L158">158</a>     BufferedReader reader = <strong class="jxr_keyword">new</strong> BufferedReader(<strong class="jxr_keyword">new</strong> FileReader(file));
-<a class="jxr_linenumber" name="L159" href="#L159">159</a>     ArrayList&lt;String[]&gt; data = <strong class="jxr_keyword">new</strong> ArrayList&lt;String[]&gt;();
-<a class="jxr_linenumber" name="L160" href="#L160">160</a>     String next;
-<a class="jxr_linenumber" name="L161" href="#L161">161</a>     <strong class="jxr_keyword">int</strong> i = 0;
-<a class="jxr_linenumber" name="L162" href="#L162">162</a>     <strong class="jxr_keyword">while</strong> ((next = reader.readLine()) != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L163" href="#L163">163</a>       i++;
-<a class="jxr_linenumber" name="L164" href="#L164">164</a>       next = removeUTF8BOM(next);
-<a class="jxr_linenumber" name="L165" href="#L165">165</a>       tsvByRows.add(next);
-<a class="jxr_linenumber" name="L166" href="#L166">166</a>       String[] nextLine = next.split(<span class="jxr_string">"\t"</span>, -1);<em class="jxr_comment">// this is needed for trailing tabs</em>
-<a class="jxr_linenumber" name="L167" href="#L167">167</a>       <strong class="jxr_keyword">if</strong> (data.isEmpty() || nextLine.length == data.get(0).length) {
-<a class="jxr_linenumber" name="L168" href="#L168">168</a>         data.add(nextLine);
-<a class="jxr_linenumber" name="L169" href="#L169">169</a>       } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L170" href="#L170">170</a>         error = <span class="jxr_string">"Wrong number of columns in row "</span> + i;
-<a class="jxr_linenumber" name="L171" href="#L171">171</a>         reader.close();
-<a class="jxr_linenumber" name="L172" href="#L172">172</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L173" href="#L173">173</a>       }
-<a class="jxr_linenumber" name="L174" href="#L174">174</a>     }
-<a class="jxr_linenumber" name="L175" href="#L175">175</a>     reader.close();
-<a class="jxr_linenumber" name="L176" href="#L176">176</a> 
-<a class="jxr_linenumber" name="L177" href="#L177">177</a>     String[] header = data.get(0);
-<a class="jxr_linenumber" name="L178" href="#L178">178</a>     String[] trimmedHeader = <strong class="jxr_keyword">new</strong> String[header.length];
-<a class="jxr_linenumber" name="L179" href="#L179">179</a>     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 0; j &lt; header.length; j++) {
-<a class="jxr_linenumber" name="L180" href="#L180">180</a>       trimmedHeader[j] = header[j].trim();
-<a class="jxr_linenumber" name="L181" href="#L181">181</a>     }
-<a class="jxr_linenumber" name="L182" href="#L182">182</a>     header = trimmedHeader;
-<a class="jxr_linenumber" name="L183" href="#L183">183</a>     data.remove(0);
-<a class="jxr_linenumber" name="L184" href="#L184">184</a>     <em class="jxr_comment">// find out where the mandatory and other metadata data is</em>
-<a class="jxr_linenumber" name="L185" href="#L185">185</a>     Map&lt;String, Integer&gt; headerMapping = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
-<a class="jxr_linenumber" name="L186" href="#L186">186</a>     List&lt;Integer&gt; meta = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
-<a class="jxr_linenumber" name="L187" href="#L187">187</a>     Set&lt;Integer&gt; factors = <strong class="jxr_keyword">new</strong> HashSet&lt;&gt;();
-<a class="jxr_linenumber" name="L188" href="#L188">188</a>     List&lt;Integer&gt; properties = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
-<a class="jxr_linenumber" name="L189" href="#L189">189</a>     List&lt;Integer&gt; loci = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
-<a class="jxr_linenumber" name="L190" href="#L190">190</a> 
-<a class="jxr_linenumber" name="L191" href="#L191">191</a>     ArrayList&lt;String&gt; found = <strong class="jxr_keyword">new</strong> ArrayList&lt;String&gt;(Arrays.asList(header));
-<a class="jxr_linenumber" name="L192" href="#L192">192</a>     <strong class="jxr_keyword">for</strong> (String col : mandatoryColumns) {
-<a class="jxr_linenumber" name="L193" href="#L193">193</a>       <strong class="jxr_keyword">if</strong> (!found.contains(col)) {
-<a class="jxr_linenumber" name="L194" href="#L194">194</a>         error = <span class="jxr_string">"Mandatory column "</span> + col + <span class="jxr_string">" not found."</span>;
-<a class="jxr_linenumber" name="L195" href="#L195">195</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L196" href="#L196">196</a>       }
-<a class="jxr_linenumber" name="L197" href="#L197">197</a>     }
-<a class="jxr_linenumber" name="L198" href="#L198">198</a>     <strong class="jxr_keyword">for</strong> (i = 0; i &lt; header.length; i++) {
-<a class="jxr_linenumber" name="L199" href="#L199">199</a>       <strong class="jxr_keyword">int</strong> position = mandatoryColumns.indexOf(header[i]);
-<a class="jxr_linenumber" name="L200" href="#L200">200</a>       <strong class="jxr_keyword">if</strong> (position == -1)
-<a class="jxr_linenumber" name="L201" href="#L201">201</a>         position = optionalCols.indexOf(header[i]);
-<a class="jxr_linenumber" name="L202" href="#L202">202</a>       <strong class="jxr_keyword">if</strong> (position &gt; -1) {
-<a class="jxr_linenumber" name="L203" href="#L203">203</a>         headerMapping.put(header[i], i);
-<a class="jxr_linenumber" name="L204" href="#L204">204</a>         meta.add(i);
-<a class="jxr_linenumber" name="L205" href="#L205">205</a>       } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (header[i].contains(<span class="jxr_string">"condition"</span>) &amp;&amp; header[i].contains(<span class="jxr_string">":"</span>)) {
-<a class="jxr_linenumber" name="L206" href="#L206">206</a>         String condition = tryReplacePredefinedConditionNames(header[i]);
-<a class="jxr_linenumber" name="L207" href="#L207">207</a>         <strong class="jxr_keyword">if</strong> (condition.contains(<span class="jxr_string">":"</span>)) {
-<a class="jxr_linenumber" name="L208" href="#L208">208</a>           condition = header[i].split(<span class="jxr_string">":"</span>)[1].trim();
-<a class="jxr_linenumber" name="L209" href="#L209">209</a>         }
-<a class="jxr_linenumber" name="L210" href="#L210">210</a> 
-<a class="jxr_linenumber" name="L211" href="#L211">211</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">char</strong> c : condition.toCharArray()) {
-<a class="jxr_linenumber" name="L212" href="#L212">212</a>           <strong class="jxr_keyword">if</strong> (Character.isUpperCase(c)) {
-<a class="jxr_linenumber" name="L213" href="#L213">213</a>             error = <span class="jxr_string">"Conditions are not allowed to contain upper case characters: "</span> + condition;
-<a class="jxr_linenumber" name="L214" href="#L214">214</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L215" href="#L215">215</a>           }
-<a class="jxr_linenumber" name="L216" href="#L216">216</a>         }
-<a class="jxr_linenumber" name="L217" href="#L217">217</a>         <strong class="jxr_keyword">if</strong> (condition.contains(<span class="jxr_string">" "</span>)) {
-<a class="jxr_linenumber" name="L218" href="#L218">218</a>           error = <span class="jxr_string">"Conditions are not allowed to contain spaces: "</span> + condition;
-<a class="jxr_linenumber" name="L219" href="#L219">219</a>           <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L220" href="#L220">220</a>         }
-<a class="jxr_linenumber" name="L221" href="#L221">221</a>         <strong class="jxr_keyword">char</strong> first = condition.charAt(0);
-<a class="jxr_linenumber" name="L222" href="#L222">222</a>         <strong class="jxr_keyword">if</strong> (first &gt;= '0' &amp;&amp; first &lt;= '9') {
-<a class="jxr_linenumber" name="L223" href="#L223">223</a>           error = <span class="jxr_string">"Conditions are not allowed to start with a number: "</span> + condition;
-<a class="jxr_linenumber" name="L224" href="#L224">224</a>           <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L225" href="#L225">225</a>         }
-<a class="jxr_linenumber" name="L226" href="#L226">226</a>         factors.add(i);
-<a class="jxr_linenumber" name="L227" href="#L227">227</a>       } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (header[i].contains(<span class="jxr_string">"Locus:"</span>)) {
-<a class="jxr_linenumber" name="L228" href="#L228">228</a>         loci.add(i);
-<a class="jxr_linenumber" name="L229" href="#L229">229</a>       } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L230" href="#L230">230</a>         meta.add(i);
-<a class="jxr_linenumber" name="L231" href="#L231">231</a>       }
-<a class="jxr_linenumber" name="L232" href="#L232">232</a>     }
-<a class="jxr_linenumber" name="L233" href="#L233">233</a>     <em class="jxr_comment">// sort attributes</em>
-<a class="jxr_linenumber" name="L234" href="#L234">234</a>     Set&lt;Integer&gt; entityFactors = <strong class="jxr_keyword">new</strong> HashSet&lt;Integer&gt;();
-<a class="jxr_linenumber" name="L235" href="#L235">235</a>     Set&lt;Integer&gt; extractFactors = <strong class="jxr_keyword">new</strong> HashSet&lt;Integer&gt;();
-<a class="jxr_linenumber" name="L236" href="#L236">236</a>     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> col : factors) {
-<a class="jxr_linenumber" name="L237" href="#L237">237</a>       Map&lt;String, String&gt; idToVal = <strong class="jxr_keyword">new</strong> HashMap&lt;String, String&gt;();
-<a class="jxr_linenumber" name="L238" href="#L238">238</a>       <strong class="jxr_keyword">boolean</strong> ent = <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L239" href="#L239">239</a>       <strong class="jxr_keyword">boolean</strong> extr = <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L240" href="#L240">240</a>       <strong class="jxr_keyword">for</strong> (String[] row : data) {
-<a class="jxr_linenumber" name="L241" href="#L241">241</a>         String val = row[col];
-<a class="jxr_linenumber" name="L242" href="#L242">242</a>         String sourceID = row[headerMapping.get(<span class="jxr_string">"Secondary Name"</span>)]; <em class="jxr_comment">// for now: one row, one new</em>
-<a class="jxr_linenumber" name="L243" href="#L243">243</a>                                                                     <em class="jxr_comment">// source</em>
-<a class="jxr_linenumber" name="L244" href="#L244">244</a>         <em class="jxr_comment">// String replicateID = "";</em>
-<a class="jxr_linenumber" name="L245" href="#L245">245</a>         <em class="jxr_comment">// if (headerMapping.containsKey("Technical Replicates")) {</em>
-<a class="jxr_linenumber" name="L246" href="#L246">246</a>         <em class="jxr_comment">// replicateID = row[headerMapping.get("Technical Replicates")];</em>
-<a class="jxr_linenumber" name="L247" href="#L247">247</a>         <em class="jxr_comment">// }</em>
-<a class="jxr_linenumber" name="L248" href="#L248">248</a>         String extractID = sourceID + row[headerMapping.get(<span class="jxr_string">"Sample type"</span>)];<em class="jxr_comment">// + replicateID; TODO</em>
-<a class="jxr_linenumber" name="L249" href="#L249">249</a>                                                                             <em class="jxr_comment">// might use more cols</em>
-<a class="jxr_linenumber" name="L250" href="#L250">250</a>         <em class="jxr_comment">// if different for same entities: not an entity attribute</em>
-<a class="jxr_linenumber" name="L251" href="#L251">251</a>         <strong class="jxr_keyword">if</strong> (idToVal.containsKey(sourceID)) {
-<a class="jxr_linenumber" name="L252" href="#L252">252</a>           <strong class="jxr_keyword">if</strong> (!idToVal.get(sourceID).equals(val))
-<a class="jxr_linenumber" name="L253" href="#L253">253</a>             ent = false;
-<a class="jxr_linenumber" name="L254" href="#L254">254</a>         }
-<a class="jxr_linenumber" name="L255" href="#L255">255</a>         <strong class="jxr_keyword">if</strong> (idToVal.containsKey(extractID)) {
-<a class="jxr_linenumber" name="L256" href="#L256">256</a>           <strong class="jxr_keyword">if</strong> (!idToVal.get(extractID).equals(val))
-<a class="jxr_linenumber" name="L257" href="#L257">257</a>             extr = false;
-<a class="jxr_linenumber" name="L258" href="#L258">258</a>         }
-<a class="jxr_linenumber" name="L259" href="#L259">259</a>         idToVal.put(sourceID, val);
-<a class="jxr_linenumber" name="L260" href="#L260">260</a>         idToVal.put(extractID, val);
-<a class="jxr_linenumber" name="L261" href="#L261">261</a>       }
-<a class="jxr_linenumber" name="L262" href="#L262">262</a>       <strong class="jxr_keyword">if</strong> (ent)
-<a class="jxr_linenumber" name="L263" href="#L263">263</a>         entityFactors.add(col);
-<a class="jxr_linenumber" name="L264" href="#L264">264</a>       <strong class="jxr_keyword">if</strong> (extr)
-<a class="jxr_linenumber" name="L265" href="#L265">265</a>         extractFactors.add(col);
-<a class="jxr_linenumber" name="L266" href="#L266">266</a>     }
-<a class="jxr_linenumber" name="L267" href="#L267">267</a>     <em class="jxr_comment">// if (parseGraph) {</em>
-<a class="jxr_linenumber" name="L268" href="#L268">268</a>     <em class="jxr_comment">// for (int factorCol : factors) {</em>
-<a class="jxr_linenumber" name="L269" href="#L269">269</a>     <em class="jxr_comment">// String label = parseXMLPartLabel(header[factorCol]);</em>
-<a class="jxr_linenumber" name="L270" href="#L270">270</a>     <em class="jxr_comment">// nodesForFactorPerLabel.put(label, new LinkedHashSet&lt;SampleSummary&gt;());</em>
-<a class="jxr_linenumber" name="L271" href="#L271">271</a>     <em class="jxr_comment">// }</em>
-<a class="jxr_linenumber" name="L272" href="#L272">272</a>     <em class="jxr_comment">// nodesForFactorPerLabel.put("None", new LinkedHashSet&lt;SampleSummary&gt;());</em>
-<a class="jxr_linenumber" name="L273" href="#L273">273</a>     <em class="jxr_comment">// }</em>
-<a class="jxr_linenumber" name="L274" href="#L274">274</a>     <em class="jxr_comment">// create samples</em>
-<a class="jxr_linenumber" name="L275" href="#L275">275</a>     List&lt;ISampleBean&gt; beans = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
-<a class="jxr_linenumber" name="L276" href="#L276">276</a> 
-<a class="jxr_linenumber" name="L277" href="#L277">277</a>     <em class="jxr_comment">// worst case order of samples (hierarchy):</em>
-<a class="jxr_linenumber" name="L278" href="#L278">278</a>     <em class="jxr_comment">// organism - tissue - protein - peptide - protein pool - peptides of pool - protein</em>
-<a class="jxr_linenumber" name="L279" href="#L279">279</a>     <em class="jxr_comment">// fractions/cycles - peptides of fractions/cycles - pool of fractions - peptides of pool - ms</em>
-<a class="jxr_linenumber" name="L280" href="#L280">280</a>     <em class="jxr_comment">// measurements</em>
-<a class="jxr_linenumber" name="L281" href="#L281">281</a>     List&lt;MetaboSampleHierarchy&gt; order =
-<a class="jxr_linenumber" name="L282" href="#L282">282</a>         <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;(Arrays.asList(MetaboSampleHierarchy.values()));
-<a class="jxr_linenumber" name="L283" href="#L283">283</a>     Map&lt;MetaboSampleHierarchy, List&lt;ISampleBean&gt;&gt; samplesInOrder = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
-<a class="jxr_linenumber" name="L284" href="#L284">284</a>     <strong class="jxr_keyword">for</strong> (<a name="MetaboSampleHierarchy" href="../../../../life/qbic/expdesign/model/MetaboSampleHierarchy.html#MetaboSampleHierarchy">MetaboSampleHierarchy</a> level : order) {
-<a class="jxr_linenumber" name="L285" href="#L285">285</a>       samplesInOrder.put(level, <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;());
-<a class="jxr_linenumber" name="L286" href="#L286">286</a>     }
-<a class="jxr_linenumber" name="L287" href="#L287">287</a> 
-<a class="jxr_linenumber" name="L288" href="#L288">288</a>     Map&lt;String, TSVSampleBean&gt; sourceIDToSample = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
-<a class="jxr_linenumber" name="L289" href="#L289">289</a>     Map&lt;String, TSVSampleBean&gt; tissueToSample = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
-<a class="jxr_linenumber" name="L290" href="#L290">290</a>     Map&lt;String, TSVSampleBean&gt; metaboliteToSample = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
-<a class="jxr_linenumber" name="L291" href="#L291">291</a>     <em class="jxr_comment">// TODO another level of measurements?</em>
-<a class="jxr_linenumber" name="L292" href="#L292">292</a>     Map&lt;ExtendedMSProperties, String&gt; msPropertiesToID = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
-<a class="jxr_linenumber" name="L293" href="#L293">293</a>     <em class="jxr_comment">// TODO something similar needed?</em>
-<a class="jxr_linenumber" name="L294" href="#L294">294</a>     Map&lt;MetabolitePrepProperties, String&gt; metaboPrepPropertiesToID = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
-<a class="jxr_linenumber" name="L295" href="#L295">295</a> 
-<a class="jxr_linenumber" name="L296" href="#L296">296</a>     speciesSet = <strong class="jxr_keyword">new</strong> HashSet&lt;String&gt;();
-<a class="jxr_linenumber" name="L297" href="#L297">297</a>     tissueSet = <strong class="jxr_keyword">new</strong> HashSet&lt;String&gt;();
-<a class="jxr_linenumber" name="L298" href="#L298">298</a>     analyteSet = <strong class="jxr_keyword">new</strong> HashSet&lt;String&gt;();
-<a class="jxr_linenumber" name="L299" href="#L299">299</a>     analyteSet.add(<span class="jxr_string">"SMALLMOLECULES"</span>);
-<a class="jxr_linenumber" name="L300" href="#L300">300</a>     <strong class="jxr_keyword">int</strong> rowID = 0;
-<a class="jxr_linenumber" name="L301" href="#L301">301</a>     <strong class="jxr_keyword">int</strong> sampleID = 0;
-<a class="jxr_linenumber" name="L302" href="#L302">302</a> 
-<a class="jxr_linenumber" name="L303" href="#L303">303</a>     <strong class="jxr_keyword">for</strong> (String[] row : data) {
-<a class="jxr_linenumber" name="L304" href="#L304">304</a>       fillParsedCategoriesToValuesForRow(headerMapping, row);
-<a class="jxr_linenumber" name="L305" href="#L305">305</a>       rowID++;
-<a class="jxr_linenumber" name="L306" href="#L306">306</a>       <strong class="jxr_keyword">boolean</strong> special = false;
-<a class="jxr_linenumber" name="L307" href="#L307">307</a>       <strong class="jxr_keyword">if</strong> (!special) {
-<a class="jxr_linenumber" name="L308" href="#L308">308</a>         <strong class="jxr_keyword">for</strong> (String col : mandatoryFilled) {
-<a class="jxr_linenumber" name="L309" href="#L309">309</a>           <strong class="jxr_keyword">if</strong> (row[headerMapping.get(col)].isEmpty()) {
-<a class="jxr_linenumber" name="L310" href="#L310">310</a>             error = col + <span class="jxr_string">" is a mandatory field, but it is not set for row "</span> + rowID + <span class="jxr_string">"!"</span>;
-<a class="jxr_linenumber" name="L311" href="#L311">311</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L312" href="#L312">312</a>           }
-<a class="jxr_linenumber" name="L313" href="#L313">313</a>         }
-<a class="jxr_linenumber" name="L314" href="#L314">314</a>         String sourceID = row[headerMapping.get(<span class="jxr_string">"Secondary Name"</span>)];
-<a class="jxr_linenumber" name="L315" href="#L315">315</a>         String species = row[headerMapping.get(<span class="jxr_string">"Species"</span>)];
-<a class="jxr_linenumber" name="L316" href="#L316">316</a>         String expressionSystem = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L317" href="#L317">317</a>         <em class="jxr_comment">// if (headerMapping.containsKey("Expression System")) {</em>
-<a class="jxr_linenumber" name="L318" href="#L318">318</a>         <em class="jxr_comment">// expressionSystem = row[headerMapping.get("Expression System")];</em>
-<a class="jxr_linenumber" name="L319" href="#L319">319</a>         <em class="jxr_comment">// }</em>
-<a class="jxr_linenumber" name="L320" href="#L320">320</a>         <em class="jxr_comment">// String tissue = row[headerMapping.get("Tissue")];//TODO whole organism?</em>
-<a class="jxr_linenumber" name="L321" href="#L321">321</a>         String replicateID = <span class="jxr_string">""</span>;
-<a class="jxr_linenumber" name="L322" href="#L322">322</a>         <em class="jxr_comment">// if (headerMapping.containsKey("Technical Replicates")) {</em>
-<a class="jxr_linenumber" name="L323" href="#L323">323</a>         <em class="jxr_comment">// replicateID = row[headerMapping.get("Technical Replicates")];</em>
-<a class="jxr_linenumber" name="L324" href="#L324">324</a>         <em class="jxr_comment">// }</em>
-<a class="jxr_linenumber" name="L325" href="#L325">325</a> 
-<a class="jxr_linenumber" name="L326" href="#L326">326</a>         <em class="jxr_comment">// String fileName = row[headerMapping.get("File Name")];// TODO Sample Number?</em>
-<a class="jxr_linenumber" name="L327" href="#L327">327</a> 
-<a class="jxr_linenumber" name="L328" href="#L328">328</a>         String sampleKey = row[headerMapping.get(SAMPLE_KEYWORD)];
-<a class="jxr_linenumber" name="L329" href="#L329">329</a> <em class="jxr_comment">//        String sampleAltName = row[headerMapping.get(SAMPLE_ALTNAME_KEYWORD)];</em>
-<a class="jxr_linenumber" name="L330" href="#L330">330</a> 
-<a class="jxr_linenumber" name="L331" href="#L331">331</a>         String cultureMedium = row[headerMapping.get(<span class="jxr_string">"Medium"</span>)];
-<a class="jxr_linenumber" name="L332" href="#L332">332</a>         String harvestingConditions = row[headerMapping.get(<span class="jxr_string">"Harvesting conditions"</span>)];
-<a class="jxr_linenumber" name="L333" href="#L333">333</a>         String washingSolvent = row[headerMapping.get(<span class="jxr_string">"Washing solvent"</span>)];
-<a class="jxr_linenumber" name="L334" href="#L334">334</a>         String sampleSolvent = row[headerMapping.get(<span class="jxr_string">"Sample solvent"</span>)];
-<a class="jxr_linenumber" name="L335" href="#L335">335</a>         String cultureType = row[headerMapping.get(<span class="jxr_string">"Culture type"</span>)];
-<a class="jxr_linenumber" name="L336" href="#L336">336</a>         String sampleType = row[headerMapping.get(<span class="jxr_string">"Sample type"</span>)];
-<a class="jxr_linenumber" name="L337" href="#L337">337</a>         String cellLysis = row[headerMapping.get(<span class="jxr_string">"Cell lysis"</span>)];
-<a class="jxr_linenumber" name="L338" href="#L338">338</a>         String strainCollNumber = row[headerMapping.get(<span class="jxr_string">"Strain lab collection number"</span>)];
-<a class="jxr_linenumber" name="L339" href="#L339">339</a> 
-<a class="jxr_linenumber" name="L340" href="#L340">340</a>         speciesSet.add(species);
-<a class="jxr_linenumber" name="L341" href="#L341">341</a>         <em class="jxr_comment">// tissueSet.add(tissue);//TODO set standard name and show user?</em>
-<a class="jxr_linenumber" name="L342" href="#L342">342</a> 
-<a class="jxr_linenumber" name="L343" href="#L343">343</a>         <em class="jxr_comment">// always one new measurement per row</em>
-<a class="jxr_linenumber" name="L344" href="#L344">344</a>         sampleID++;
-<a class="jxr_linenumber" name="L345" href="#L345">345</a>         TSVSampleBean msRun = <strong class="jxr_keyword">new</strong> TSVSampleBean(Integer.toString(sampleID), SampleType.Q_MS_RUN, <span class="jxr_string">""</span>,
-<a class="jxr_linenumber" name="L346" href="#L346">346</a>             fillMetadata(header, row, meta, factors, <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;(), SampleType.Q_MS_RUN));
-<a class="jxr_linenumber" name="L347" href="#L347">347</a>         <em class="jxr_comment">// msRun.addProperty("File", fileName);</em>
-<a class="jxr_linenumber" name="L348" href="#L348">348</a> 
-<a class="jxr_linenumber" name="L349" href="#L349">349</a>         String lcmsMethod = row[headerMapping.get(<span class="jxr_string">"LC MS Method Name"</span>)];
-<a class="jxr_linenumber" name="L350" href="#L350">350</a>         String msDevice = row[headerMapping.get(<span class="jxr_string">"MS device"</span>)];
-<a class="jxr_linenumber" name="L351" href="#L351">351</a>         String lcDevice = row[headerMapping.get(<span class="jxr_string">"LC device"</span>)];
-<a class="jxr_linenumber" name="L352" href="#L352">352</a>         String column = row[headerMapping.get(<span class="jxr_string">"LC column name"</span>)];
-<a class="jxr_linenumber" name="L353" href="#L353">353</a>         String ionMode = row[headerMapping.get(<span class="jxr_string">"MS ion mode"</span>)];
-<a class="jxr_linenumber" name="L354" href="#L354">354</a>         String lcDetectionMethod = row[headerMapping.get(<span class="jxr_string">"LC detection method"</span>)];<em class="jxr_comment">//TODO do not put this into ms props</em>
-<a class="jxr_linenumber" name="L355" href="#L355">355</a>         <a name="ExtendedMSProperties" href="../../../../life/qbic/expdesign/model/Ex<a name="ExtendedMSProperties" href="../../../../life/qbic/expdesign/model/ExtendedMSProperties.html#ExtendedMSProperties">ExtendedMSProperties</a>tml#ExtendedMSProperties">ExtendedMSProperties</a> msProperties = <strong class="jxr_keyword">new</strong> <a name="ExtendedMSProperties" href="../../../../life/qbic/expdesign/model/ExtendedMSProperties.html#ExtendedMSProperties">ExtendedMSProperties</a>(lcmsMethod, msDevice);
-<a class="jxr_linenumber" name="L356" href="#L356">356</a>         msProperties.setLCDetectionMethod(lcDetectionMethod);
-<a class="jxr_linenumber" name="L357" href="#L357">357</a>         msProperties.setLCDevice(lcDevice);
-<a class="jxr_linenumber" name="L358" href="#L358">358</a>         msProperties.setIonizationMode(ionMode);
-<a class="jxr_linenumber" name="L359" href="#L359">359</a>         msProperties.setColumnName(column);
-<a class="jxr_linenumber" name="L360" href="#L360">360</a>         String expID = Integer.toString(msProperties.hashCode());
-<a class="jxr_linenumber" name="L361" href="#L361">361</a>         msPropertiesToID.put(msProperties, expID);
-<a class="jxr_linenumber" name="L362" href="#L362">362</a>         msRun.setExperiment(expID);
-<a class="jxr_linenumber" name="L363" href="#L363">363</a> 
-<a class="jxr_linenumber" name="L364" href="#L364">364</a>         samplesInOrder.get(MetaboSampleHierarchy.MassSpecRun).add(msRun);
-<a class="jxr_linenumber" name="L365" href="#L365">365</a> 
-<a class="jxr_linenumber" name="L366" href="#L366">366</a>         <em class="jxr_comment">// if organism id not known =&gt; create organism entity. put in map.</em>
-<a class="jxr_linenumber" name="L367" href="#L367">367</a>         <em class="jxr_comment">// else get organism entity. same for tissue. this is done for pool rows, as well</em>
-<a class="jxr_linenumber" name="L368" href="#L368">368</a>         TSVSampleBean sampleSource = sourceIDToSample.get(sourceID);
-<a class="jxr_linenumber" name="L369" href="#L369">369</a>         <strong class="jxr_keyword">if</strong> (sampleSource == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L370" href="#L370">370</a>           sampleID++;
-<a class="jxr_linenumber" name="L371" href="#L371">371</a> 
-<a class="jxr_linenumber" name="L372" href="#L372">372</a>           sampleSource = <strong class="jxr_keyword">new</strong> TSVSampleBean(Integer.toString(sampleID),
-<a class="jxr_linenumber" name="L373" href="#L373">373</a>               SampleType.Q_BIOLOGICAL_ENTITY, sourceID,
-<a class="jxr_linenumber" name="L374" href="#L374">374</a>               fillMetadata(header, row, meta, entityFactors, loci, SampleType.Q_BIOLOGICAL_ENTITY));
-<a class="jxr_linenumber" name="L375" href="#L375">375</a>           sampleSource.addProperty(<span class="jxr_string">"Q_STRAIN_LAB_COLLECTION_NUMBER"</span>, strainCollNumber);
-<a class="jxr_linenumber" name="L376" href="#L376">376</a>           <em class="jxr_comment">// sampleSource.addProperty("Q_EXTERNALDB_ID", sourceID);</em>
-<a class="jxr_linenumber" name="L377" href="#L377">377</a>           samplesInOrder.get(MetaboSampleHierarchy.Organism).add(sampleSource);
-<a class="jxr_linenumber" name="L378" href="#L378">378</a>           sourceIDToSample.put(sourceID, sampleSource);
-<a class="jxr_linenumber" name="L379" href="#L379">379</a> 
-<a class="jxr_linenumber" name="L380" href="#L380">380</a>           <strong class="jxr_keyword">if</strong> (expressionSystem != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L381" href="#L381">381</a>             speciesSet.add(expressionSystem);
-<a class="jxr_linenumber" name="L382" href="#L382">382</a>             sampleSource.addProperty(<span class="jxr_string">"Q_EXPRESSION_SYSTEM"</span>, expressionSystem);
-<a class="jxr_linenumber" name="L383" href="#L383">383</a>           }
-<a class="jxr_linenumber" name="L384" href="#L384">384</a>         }
-<a class="jxr_linenumber" name="L385" href="#L385">385</a>         <em class="jxr_comment">// we don't have tissue ids, so we build unique identifiers by adding sourceID and tissue</em>
-<a class="jxr_linenumber" name="L386" href="#L386">386</a>         <em class="jxr_comment">// name</em>
-<a class="jxr_linenumber" name="L387" href="#L387">387</a>         <em class="jxr_comment">// TODO use sample type instead of tissue</em>
-<a class="jxr_linenumber" name="L388" href="#L388">388</a>         String tissueID = sourceID + <span class="jxr_string">"-"</span> + sampleType + <span class="jxr_string">"-"</span> + replicateID;
-<a class="jxr_linenumber" name="L389" href="#L389">389</a>         TSVSampleBean tissueSample = tissueToSample.get(tissueID);
-<a class="jxr_linenumber" name="L390" href="#L390">390</a>         <strong class="jxr_keyword">if</strong> (tissueSample == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L391" href="#L391">391</a>           sampleID++;
-<a class="jxr_linenumber" name="L392" href="#L392">392</a> 
-<a class="jxr_linenumber" name="L393" href="#L393">393</a>           tissueSample = <strong class="jxr_keyword">new</strong> TSVSampleBean(Integer.toString(sampleID),
-<a class="jxr_linenumber" name="L394" href="#L394">394</a>               SampleType.Q_BIOLOGICAL_SAMPLE, tissueID, fillMetadata(header, row, meta,
-<a class="jxr_linenumber" name="L395" href="#L395">395</a>                   extractFactors, loci, SampleType.Q_BIOLOGICAL_SAMPLE));
-<a class="jxr_linenumber" name="L396" href="#L396">396</a>           tissueSample.addProperty(<span class="jxr_string">"Q_PRIMARY_TISSUE"</span>, <span class="jxr_string">"Whole organism"</span>);
-<a class="jxr_linenumber" name="L397" href="#L397">397</a>           samplesInOrder.get(MetaboSampleHierarchy.Tissue).add(tissueSample);
-<a class="jxr_linenumber" name="L398" href="#L398">398</a>           tissueSample.addParentID(sampleSource.getCode());
-<a class="jxr_linenumber" name="L399" href="#L399">399</a>           tissueSample.addProperty(<span class="jxr_string">"Q_EXTERNALDB_ID"</span>, tissueID);
-<a class="jxr_linenumber" name="L400" href="#L400">400</a>           tissueToSample.put(tissueID, tissueSample);
-<a class="jxr_linenumber" name="L401" href="#L401">401</a> 
-<a class="jxr_linenumber" name="L402" href="#L402">402</a>           <a name="MetabolitePrepProperties" href="../../../../life/qbic/expdesign/m<a name="MetabolitePrepProperties" href="../../../../life/qbic/expdesign/model/MetabolitePrepProperties.html#MetabolitePrepProperties">MetabolitePrepProperties</a>rties.html#MetabolitePrepProperties">MetabolitePrepProperties</a> props = <strong class="jxr_keyword">new</strong> <a name="MetabolitePrepProperties" href="../../../../life/qbic/expdesign/model/MetabolitePrepProperties.html#MetabolitePrepProperties">MetabolitePrepProperties</a>(cultureMedium, cultureType,
-<a class="jxr_linenumber" name="L403" href="#L403">403</a>               harvestingConditions, cellLysis);
-<a class="jxr_linenumber" name="L404" href="#L404">404</a>           String prepExpID = Integer.toString(props.hashCode());
-<a class="jxr_linenumber" name="L405" href="#L405">405</a>           metaboPrepPropertiesToID.put(props, prepExpID);
-<a class="jxr_linenumber" name="L406" href="#L406">406</a>           tissueSample.setExperiment(prepExpID);
-<a class="jxr_linenumber" name="L407" href="#L407">407</a>         }
-<a class="jxr_linenumber" name="L408" href="#L408">408</a> 
-<a class="jxr_linenumber" name="L409" href="#L409">409</a>         <em class="jxr_comment">// if sample secondary name not known =&gt; create metabolite sample</em>
-<a class="jxr_linenumber" name="L410" href="#L410">410</a>         TSVSampleBean metabolite = metaboliteToSample.get(sampleKey);
-<a class="jxr_linenumber" name="L411" href="#L411">411</a>         <strong class="jxr_keyword">if</strong> (metabolite == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L412" href="#L412">412</a>           sampleID++;
-<a class="jxr_linenumber" name="L413" href="#L413">413</a> 
-<a class="jxr_linenumber" name="L414" href="#L414">414</a>           metabolite =
-<a class="jxr_linenumber" name="L415" href="#L415">415</a>               <strong class="jxr_keyword">new</strong> TSVSampleBean(Integer.toString(sampleID), SampleType.Q_TEST_SAMPLE, sampleKey,
-<a class="jxr_linenumber" name="L416" href="#L416">416</a>                   fillMetadata(header, row, meta, factors, loci, SampleType.Q_TEST_SAMPLE));
-<a class="jxr_linenumber" name="L417" href="#L417">417</a>           samplesInOrder.get(MetaboSampleHierarchy.Molecules).add(metabolite);
-<a class="jxr_linenumber" name="L418" href="#L418">418</a>           metabolite.addParentID(tissueSample.getCode());
-<a class="jxr_linenumber" name="L419" href="#L419">419</a>           metabolite.addProperty(<span class="jxr_string">"Q_EXTERNALDB_ID"</span>, sampleKey);
-<a class="jxr_linenumber" name="L420" href="#L420">420</a>           metaboliteToSample.put(sampleKey, metabolite);
-<a class="jxr_linenumber" name="L421" href="#L421">421</a>           metabolite.addProperty(<span class="jxr_string">"Q_SAMPLE_TYPE"</span>, <span class="jxr_string">"SMALLMOLECULES"</span>);
-<a class="jxr_linenumber" name="L422" href="#L422">422</a>           metabolite.addProperty(<span class="jxr_string">"Q_WASHING_SOLVENT"</span>, washingSolvent);
-<a class="jxr_linenumber" name="L423" href="#L423">423</a>           metabolite.addProperty(<span class="jxr_string">"Q_SAMPLE_SOLVENT"</span>, sampleSolvent);
-<a class="jxr_linenumber" name="L424" href="#L424">424</a>         }
-<a class="jxr_linenumber" name="L425" href="#L425">425</a>       }
-<a class="jxr_linenumber" name="L426" href="#L426">426</a>     }
-<a class="jxr_linenumber" name="L427" href="#L427">427</a>     experimentInfos = <strong class="jxr_keyword">new</strong> HashMap&lt;String, List&lt;Map&lt;String, Object&gt;&gt;&gt;();
-<a class="jxr_linenumber" name="L428" href="#L428">428</a> 
-<a class="jxr_linenumber" name="L429" href="#L429">429</a>     <em class="jxr_comment">// Extract preparation experiments</em>
-<a class="jxr_linenumber" name="L430" href="#L430">430</a>     List&lt;Map&lt;String, Object&gt;&gt; extractPreparations = <strong class="jxr_keyword">new</strong> ArrayList&lt;Map&lt;String, Object&gt;&gt;();
-<a class="jxr_linenumber" name="L431" href="#L431">431</a>     <strong class="jxr_keyword">for</strong> (<a name="MetabolitePrepProperties" href="../../../../life/qbic/expdesign/model/MetabolitePrepProperties.html#MetabolitePrepProperties">MetabolitePrepProperties</a> props : metaboPrepPropertiesToID.keySet()) {
-<a class="jxr_linenumber" name="L432" href="#L432">432</a>       Map&lt;String, Object&gt; propMap = props.getPropertyMap();
-<a class="jxr_linenumber" name="L433" href="#L433">433</a>       propMap.put(<span class="jxr_string">"Code"</span>, Integer.toString(props.hashCode()));<em class="jxr_comment">// used to match samples to their</em>
-<a class="jxr_linenumber" name="L434" href="#L434">434</a>       <em class="jxr_comment">// experiments later</em>
-<a class="jxr_linenumber" name="L435" href="#L435">435</a>       extractPreparations.add(propMap);
-<a class="jxr_linenumber" name="L436" href="#L436">436</a>     }
-<a class="jxr_linenumber" name="L437" href="#L437">437</a>     experimentInfos.put(<span class="jxr_string">"Q_SAMPLE_EXTRACTION"</span>, extractPreparations);
-<a class="jxr_linenumber" name="L438" href="#L438">438</a> 
-<a class="jxr_linenumber" name="L439" href="#L439">439</a>     <em class="jxr_comment">// MS experiments</em>
-<a class="jxr_linenumber" name="L440" href="#L440">440</a>     List&lt;Map&lt;String, Object&gt;&gt; msExperiments = <strong class="jxr_keyword">new</strong> ArrayList&lt;Map&lt;String, Object&gt;&gt;();
-<a class="jxr_linenumber" name="L441" href="#L441">441</a>     <strong class="jxr_keyword">for</strong> (<a name="ExtendedMSProperties" href="../../../../life/qbic/expdesign/model/ExtendedMSProperties.html#ExtendedMSProperties">ExtendedMSProperties</a> expProperties : msPropertiesToID.keySet()) {
-<a class="jxr_linenumber" name="L442" href="#L442">442</a>       Map&lt;String, Object&gt; propMap = expProperties.getPropertyMap();
-<a class="jxr_linenumber" name="L443" href="#L443">443</a>       propMap.put(<span class="jxr_string">"Code"</span>, msPropertiesToID.get(expProperties));
-<a class="jxr_linenumber" name="L444" href="#L444">444</a>       msExperiments.add(propMap);
-<a class="jxr_linenumber" name="L445" href="#L445">445</a>     }
-<a class="jxr_linenumber" name="L446" href="#L446">446</a>     experimentInfos.put(<span class="jxr_string">"Q_MS_MEASUREMENT"</span>, msExperiments);
-<a class="jxr_linenumber" name="L447" href="#L447">447</a>     <strong class="jxr_keyword">for</strong> (<a name="MetaboSampleHierarchy" href="../../../../life/qbic/expdesign/model/MetaboSampleHierarchy.html#MetaboSampleHierarchy">MetaboSampleHierarchy</a> level : order) {
-<a class="jxr_linenumber" name="L448" href="#L448">448</a>       beans.addAll(samplesInOrder.get(level));
-<a class="jxr_linenumber" name="L449" href="#L449">449</a> <em class="jxr_comment">//      printSampleLevel(samplesInOrder.get(level));TODO</em>
-<a class="jxr_linenumber" name="L450" href="#L450">450</a>     }
-<a class="jxr_linenumber" name="L451" href="#L451">451</a>     <strong class="jxr_keyword">return</strong> beans;
-<a class="jxr_linenumber" name="L452" href="#L452">452</a>   }
-<a class="jxr_linenumber" name="L453" href="#L453">453</a> 
-<a class="jxr_linenumber" name="L454" href="#L454">454</a>   <strong class="jxr_keyword">private</strong> String tryReplacePredefinedConditionNames(String condition) {
-<a class="jxr_linenumber" name="L455" href="#L455">455</a>     Map&lt;String, String&gt; headNamesToConditions = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
-<a class="jxr_linenumber" name="L456" href="#L456">456</a>     headNamesToConditions.put(<span class="jxr_string">"Growth conditions: Temperature"</span>, <span class="jxr_string">"growth_temperature"</span>);
-<a class="jxr_linenumber" name="L457" href="#L457">457</a>     headNamesToConditions.put(<span class="jxr_string">"Growth conditions: Time"</span>, <span class="jxr_string">"growth_time"</span>);
-<a class="jxr_linenumber" name="L458" href="#L458">458</a>     headNamesToConditions.put(<span class="jxr_string">"Growth conditions: rpm"</span>, <span class="jxr_string">"rpm"</span>);
-<a class="jxr_linenumber" name="L459" href="#L459">459</a>     <strong class="jxr_keyword">if</strong> (headNamesToConditions.containsKey(condition)) {
-<a class="jxr_linenumber" name="L460" href="#L460">460</a>       <strong class="jxr_keyword">return</strong> headNamesToConditions.get(condition);
-<a class="jxr_linenumber" name="L461" href="#L461">461</a>     }
-<a class="jxr_linenumber" name="L462" href="#L462">462</a>     <strong class="jxr_keyword">return</strong> condition;
-<a class="jxr_linenumber" name="L463" href="#L463">463</a>   }
-<a class="jxr_linenumber" name="L464" href="#L464">464</a> 
-<a class="jxr_linenumber" name="L465" href="#L465">465</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> printSampleLevel(List&lt;ISampleBean&gt; level) {
-<a class="jxr_linenumber" name="L466" href="#L466">466</a>     logger.info(<span class="jxr_string">"###"</span>);
-<a class="jxr_linenumber" name="L467" href="#L467">467</a>     logger.info(<span class="jxr_string">"New Level of Samples:"</span>);
-<a class="jxr_linenumber" name="L468" href="#L468">468</a>     <strong class="jxr_keyword">for</strong> (ISampleBean s : level) {
-<a class="jxr_linenumber" name="L469" href="#L469">469</a>       logger.info(<span class="jxr_string">"Sample "</span> + s.getSecondaryName() + <span class="jxr_string">" (id: "</span> + s.getCode() + <span class="jxr_string">")"</span>);
-<a class="jxr_linenumber" name="L470" href="#L470">470</a>       logger.info(<span class="jxr_string">"Parents: "</span> + s.getParentIDs());
-<a class="jxr_linenumber" name="L471" href="#L471">471</a>       logger.info(s.getType());
-<a class="jxr_linenumber" name="L472" href="#L472">472</a>       logger.info(s.getMetadata());
-<a class="jxr_linenumber" name="L473" href="#L473">473</a>       logger.info(<span class="jxr_string">"#"</span>);
-<a class="jxr_linenumber" name="L474" href="#L474">474</a>     }
-<a class="jxr_linenumber" name="L475" href="#L475">475</a>     logger.info(<span class="jxr_string">"End of Sample Level"</span>);
-<a class="jxr_linenumber" name="L476" href="#L476">476</a>   }
-<a class="jxr_linenumber" name="L477" href="#L477">477</a> 
-<a class="jxr_linenumber" name="L478" href="#L478">478</a>   <strong class="jxr_keyword">private</strong> List&lt;String&gt; parsePoolParents(String poolName) {
-<a class="jxr_linenumber" name="L479" href="#L479">479</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;(Arrays.asList(poolName.split(LIST_SEPARATOR)));
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>  
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>      Map&lt;String, List&lt;String&gt;&gt; molMetadata = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>      molMetadata.put(<span class="jxr_string">"Sample solvent"</span>, Collections.singletonList(<span class="jxr_string">"Q_SAMPLE_SOLVENT"</span>));
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>      molMetadata.put(<span class="jxr_string">"Washing solvent"</span>, Collections.singletonList(<span class="jxr_string">"Q_WASHING_SOLVENT"</span>));
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>      <em class="jxr_comment">// peptideMetadata.put("Label", Collections.singletonList("Q_MOLECULAR_LABEL"));</em>
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>      <em class="jxr_comment">// peptideMetadata.put("Secondary Name", Collections.singletonList("Q_SECONDARY_NAME"));</em>
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>      <em class="jxr_comment">// peptideMetadata.put("Sample Secondary Name", "Q_EXTERNALDB_ID");</em>
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>  
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>      Map&lt;String, List&lt;String&gt;&gt; msRunMetadata = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>      <em class="jxr_comment">// msRunMetadata.put("Facility Comment", Collections.singletonList("Q_ADDITIONAL_INFO"));</em>
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>      msRunMetadata.put(<span class="jxr_string">"Injection volume (uL)"</span>, Collections.singletonList(<span class="jxr_string">"Q_INJECTION_VOLUME"</span>));
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>  
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>      headersToTypeCodePerSampletype = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>      headersToTypeCodePerSampletype.put(SampleType.Q_BIOLOGICAL_ENTITY, sourceMetadata);
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>      headersToTypeCodePerSampletype.put(SampleType.Q_BIOLOGICAL_SAMPLE, extractMetadata);
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>      headersToTypeCodePerSampletype.put(SampleType.Q_TEST_SAMPLE, molMetadata);
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>      headersToTypeCodePerSampletype.put(SampleType.Q_MS_RUN, msRunMetadata);
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>    }
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>  
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> fillParsedCategoriesToValuesForRow(Map&lt;String, Integer&gt; headerMapping,
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>       String[] row) {
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>     <em class="jxr_comment">// logger.info("Collecting possible CV entries for row.");</em>
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>     addValueForCategory(headerMapping, row, <span class="jxr_string">"Sample type"</span>);
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>     addValueForCategory(headerMapping, row, <span class="jxr_string">"Species"</span>);
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>     addValueForCategory(headerMapping, row, <span class="jxr_string">"Culture type"</span>);
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>     addValueForCategory(headerMapping, row, <span class="jxr_string">"Medium"</span>);
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>     addValueForCategory(headerMapping, row, <span class="jxr_string">"Harvesting conditions"</span>);
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>     addValueForCategory(headerMapping, row, <span class="jxr_string">"Cell lysis"</span>);
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>     addValueForCategory(headerMapping, row, <span class="jxr_string">"Lysis parameters"</span>);
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>     addValueForCategory(headerMapping, row, <span class="jxr_string">"LC MS Method Name"</span>);
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>     addValueForCategory(headerMapping, row, <span class="jxr_string">"LC device"</span>);
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>     addValueForCategory(headerMapping, row, <span class="jxr_string">"LC detection method"</span>);
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>     addValueForCategory(headerMapping, row, <span class="jxr_string">"LC column name"</span>);
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>     addValueForCategory(headerMapping, row, <span class="jxr_string">"MS device"</span>);
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>     addValueForCategory(headerMapping, row, <span class="jxr_string">"MS ion mode"</span>);
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>   }
+<a class="jxr_linenumber" name="L117" href="#L117">117</a> 
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> addValueForCategory(Map&lt;String, Integer&gt; headerMapping, String[] row, String cat) {
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>     <strong class="jxr_keyword">if</strong> (headerMapping.containsKey(cat)) {
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>       String val = row[headerMapping.get(cat)];
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>       <strong class="jxr_keyword">if</strong> (val != <strong class="jxr_keyword">null</strong> &amp;&amp; !val.isEmpty()) {
+<a class="jxr_linenumber" name="L122" href="#L122">122</a>         <strong class="jxr_keyword">for</strong> (String v : val.split(LIST_SEPARATOR)) {
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>           <strong class="jxr_keyword">if</strong> (parsedCategoriesToValues.containsKey(cat)) {
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>             parsedCategoriesToValues.get(cat).add(v);
+<a class="jxr_linenumber" name="L125" href="#L125">125</a>           } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>             Set&lt;String&gt; set = <strong class="jxr_keyword">new</strong> HashSet&lt;String&gt;();
+<a class="jxr_linenumber" name="L127" href="#L127">127</a>             set.add(v);
+<a class="jxr_linenumber" name="L128" href="#L128">128</a>             parsedCategoriesToValues.put(cat, set);
+<a class="jxr_linenumber" name="L129" href="#L129">129</a>           }
+<a class="jxr_linenumber" name="L130" href="#L130">130</a>         }
+<a class="jxr_linenumber" name="L131" href="#L131">131</a>       }
+<a class="jxr_linenumber" name="L132" href="#L132">132</a>     }
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>   }
+<a class="jxr_linenumber" name="L134" href="#L134">134</a> 
+<a class="jxr_linenumber" name="L135" href="#L135">135</a>   <strong class="jxr_keyword">public</strong> Map&lt;String, List&lt;Map&lt;String, Object&gt;&gt;&gt; getExperimentInfos() {
+<a class="jxr_linenumber" name="L136" href="#L136">136</a>     <strong class="jxr_keyword">return</strong> experimentInfos;
+<a class="jxr_linenumber" name="L137" href="#L137">137</a>   }
+<a class="jxr_linenumber" name="L138" href="#L138">138</a> 
+<a class="jxr_linenumber" name="L139" href="#L139">139</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String removeUTF8BOM(String s) {
+<a class="jxr_linenumber" name="L140" href="#L140">140</a>     <strong class="jxr_keyword">if</strong> (s.startsWith(UTF8_BOM)) {
+<a class="jxr_linenumber" name="L141" href="#L141">141</a>       s = s.substring(1);
+<a class="jxr_linenumber" name="L142" href="#L142">142</a>     }
+<a class="jxr_linenumber" name="L143" href="#L143">143</a>     <strong class="jxr_keyword">return</strong> s;
+<a class="jxr_linenumber" name="L144" href="#L144">144</a>   }
+<a class="jxr_linenumber" name="L145" href="#L145">145</a> 
+<a class="jxr_linenumber" name="L146" href="#L146">146</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L147" href="#L147">147</a> <em class="jxr_javadoccomment">   * Reads in a TSV file containing openBIS samples that should be registered. Returns a List of</em>
+<a class="jxr_linenumber" name="L148" href="#L148">148</a> <em class="jxr_javadoccomment">   * TSVSampleBeans containing all the necessary information to register each sample with its meta</em>
+<a class="jxr_linenumber" name="L149" href="#L149">149</a> <em class="jxr_javadoccomment">   * information to openBIS, given that the types and parents exist.</em>
+<a class="jxr_linenumber" name="L150" href="#L150">150</a> <em class="jxr_javadoccomment">   * </em>
+<a class="jxr_linenumber" name="L151" href="#L151">151</a> <em class="jxr_javadoccomment">   * @param file</em>
+<a class="jxr_linenumber" name="L152" href="#L152">152</a> <em class="jxr_javadoccomment">   * @return ArrayList of TSVSampleBeans</em>
+<a class="jxr_linenumber" name="L153" href="#L153">153</a> <em class="jxr_javadoccomment">   * @throws IOException</em>
+<a class="jxr_linenumber" name="L154" href="#L154">154</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L155" href="#L155">155</a>   <strong class="jxr_keyword">public</strong> List&lt;ISampleBean&gt; readSamples(File file, <strong class="jxr_keyword">boolean</strong> parseGraph) <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L156" href="#L156">156</a>     tsvByRows = <strong class="jxr_keyword">new</strong> ArrayList&lt;String&gt;();
+<a class="jxr_linenumber" name="L157" href="#L157">157</a>     parsedCategoriesToValues = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L158" href="#L158">158</a> 
+<a class="jxr_linenumber" name="L159" href="#L159">159</a>     BufferedReader reader = <strong class="jxr_keyword">new</strong> BufferedReader(<strong class="jxr_keyword">new</strong> FileReader(file));
+<a class="jxr_linenumber" name="L160" href="#L160">160</a>     ArrayList&lt;String[]&gt; data = <strong class="jxr_keyword">new</strong> ArrayList&lt;String[]&gt;();
+<a class="jxr_linenumber" name="L161" href="#L161">161</a>     String next;
+<a class="jxr_linenumber" name="L162" href="#L162">162</a>     <strong class="jxr_keyword">int</strong> i = 0;
+<a class="jxr_linenumber" name="L163" href="#L163">163</a>     <strong class="jxr_keyword">while</strong> ((next = reader.readLine()) != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L164" href="#L164">164</a>       i++;
+<a class="jxr_linenumber" name="L165" href="#L165">165</a>       next = removeUTF8BOM(next);
+<a class="jxr_linenumber" name="L166" href="#L166">166</a>       tsvByRows.add(next);
+<a class="jxr_linenumber" name="L167" href="#L167">167</a>       String[] nextLine = next.split(<span class="jxr_string">"\t"</span>, -1);<em class="jxr_comment">// this is needed for trailing tabs</em>
+<a class="jxr_linenumber" name="L168" href="#L168">168</a>       <strong class="jxr_keyword">if</strong> (data.isEmpty() || nextLine.length == data.get(0).length) {
+<a class="jxr_linenumber" name="L169" href="#L169">169</a>         data.add(nextLine);
+<a class="jxr_linenumber" name="L170" href="#L170">170</a>       } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L171" href="#L171">171</a>         error = <span class="jxr_string">"Wrong number of columns in row "</span> + i;
+<a class="jxr_linenumber" name="L172" href="#L172">172</a>         reader.close();
+<a class="jxr_linenumber" name="L173" href="#L173">173</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L174" href="#L174">174</a>       }
+<a class="jxr_linenumber" name="L175" href="#L175">175</a>     }
+<a class="jxr_linenumber" name="L176" href="#L176">176</a>     reader.close();
+<a class="jxr_linenumber" name="L177" href="#L177">177</a> 
+<a class="jxr_linenumber" name="L178" href="#L178">178</a>     String[] header = data.get(0);
+<a class="jxr_linenumber" name="L179" href="#L179">179</a>     String[] trimmedHeader = <strong class="jxr_keyword">new</strong> String[header.length];
+<a class="jxr_linenumber" name="L180" href="#L180">180</a>     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 0; j &lt; header.length; j++) {
+<a class="jxr_linenumber" name="L181" href="#L181">181</a>       trimmedHeader[j] = header[j].trim();
+<a class="jxr_linenumber" name="L182" href="#L182">182</a>     }
+<a class="jxr_linenumber" name="L183" href="#L183">183</a>     header = trimmedHeader;
+<a class="jxr_linenumber" name="L184" href="#L184">184</a>     data.remove(0);
+<a class="jxr_linenumber" name="L185" href="#L185">185</a>     <em class="jxr_comment">// find out where the mandatory and other metadata data is</em>
+<a class="jxr_linenumber" name="L186" href="#L186">186</a>     Map&lt;String, Integer&gt; headerMapping = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L187" href="#L187">187</a>     List&lt;Integer&gt; meta = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L188" href="#L188">188</a>     Set&lt;Integer&gt; factors = <strong class="jxr_keyword">new</strong> HashSet&lt;&gt;();
+<a class="jxr_linenumber" name="L189" href="#L189">189</a>     List&lt;Integer&gt; properties = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L190" href="#L190">190</a>     List&lt;Integer&gt; loci = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L191" href="#L191">191</a> 
+<a class="jxr_linenumber" name="L192" href="#L192">192</a>     ArrayList&lt;String&gt; found = <strong class="jxr_keyword">new</strong> ArrayList&lt;String&gt;(Arrays.asList(header));
+<a class="jxr_linenumber" name="L193" href="#L193">193</a>     <strong class="jxr_keyword">for</strong> (String col : mandatoryColumns) {
+<a class="jxr_linenumber" name="L194" href="#L194">194</a>       <strong class="jxr_keyword">if</strong> (!found.contains(col)) {
+<a class="jxr_linenumber" name="L195" href="#L195">195</a>         error = <span class="jxr_string">"Mandatory column "</span> + col + <span class="jxr_string">" not found."</span>;
+<a class="jxr_linenumber" name="L196" href="#L196">196</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L197" href="#L197">197</a>       }
+<a class="jxr_linenumber" name="L198" href="#L198">198</a>     }
+<a class="jxr_linenumber" name="L199" href="#L199">199</a>     <strong class="jxr_keyword">for</strong> (i = 0; i &lt; header.length; i++) {
+<a class="jxr_linenumber" name="L200" href="#L200">200</a>       <strong class="jxr_keyword">int</strong> position = mandatoryColumns.indexOf(header[i]);
+<a class="jxr_linenumber" name="L201" href="#L201">201</a>       <strong class="jxr_keyword">if</strong> (position == -1)
+<a class="jxr_linenumber" name="L202" href="#L202">202</a>         position = optionalCols.indexOf(header[i]);
+<a class="jxr_linenumber" name="L203" href="#L203">203</a>       <strong class="jxr_keyword">if</strong> (position &gt; -1) {
+<a class="jxr_linenumber" name="L204" href="#L204">204</a>         headerMapping.put(header[i], i);
+<a class="jxr_linenumber" name="L205" href="#L205">205</a>         meta.add(i);
+<a class="jxr_linenumber" name="L206" href="#L206">206</a>       } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (header[i].contains(<span class="jxr_string">"condition"</span>) &amp;&amp; header[i].contains(<span class="jxr_string">":"</span>)) {
+<a class="jxr_linenumber" name="L207" href="#L207">207</a>         String condition = tryReplacePredefinedConditionNames(header[i]);
+<a class="jxr_linenumber" name="L208" href="#L208">208</a>         <strong class="jxr_keyword">if</strong> (condition.contains(<span class="jxr_string">":"</span>)) {
+<a class="jxr_linenumber" name="L209" href="#L209">209</a>           condition = header[i].split(<span class="jxr_string">":"</span>)[1].trim();
+<a class="jxr_linenumber" name="L210" href="#L210">210</a>         }
+<a class="jxr_linenumber" name="L211" href="#L211">211</a> 
+<a class="jxr_linenumber" name="L212" href="#L212">212</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">char</strong> c : condition.toCharArray()) {
+<a class="jxr_linenumber" name="L213" href="#L213">213</a>           <strong class="jxr_keyword">if</strong> (Character.isUpperCase(c)) {
+<a class="jxr_linenumber" name="L214" href="#L214">214</a>             error = <span class="jxr_string">"Conditions are not allowed to contain upper case characters: "</span> + condition;
+<a class="jxr_linenumber" name="L215" href="#L215">215</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L216" href="#L216">216</a>           }
+<a class="jxr_linenumber" name="L217" href="#L217">217</a>         }
+<a class="jxr_linenumber" name="L218" href="#L218">218</a>         <strong class="jxr_keyword">if</strong> (condition.contains(<span class="jxr_string">" "</span>)) {
+<a class="jxr_linenumber" name="L219" href="#L219">219</a>           error = <span class="jxr_string">"Conditions are not allowed to contain spaces: "</span> + condition;
+<a class="jxr_linenumber" name="L220" href="#L220">220</a>           <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L221" href="#L221">221</a>         }
+<a class="jxr_linenumber" name="L222" href="#L222">222</a>         <strong class="jxr_keyword">char</strong> first = condition.charAt(0);
+<a class="jxr_linenumber" name="L223" href="#L223">223</a>         <strong class="jxr_keyword">if</strong> (first &gt;= '0' &amp;&amp; first &lt;= '9') {
+<a class="jxr_linenumber" name="L224" href="#L224">224</a>           error = <span class="jxr_string">"Conditions are not allowed to start with a number: "</span> + condition;
+<a class="jxr_linenumber" name="L225" href="#L225">225</a>           <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L226" href="#L226">226</a>         }
+<a class="jxr_linenumber" name="L227" href="#L227">227</a>         factors.add(i);
+<a class="jxr_linenumber" name="L228" href="#L228">228</a>       } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (header[i].contains(<span class="jxr_string">"Locus:"</span>)) {
+<a class="jxr_linenumber" name="L229" href="#L229">229</a>         loci.add(i);
+<a class="jxr_linenumber" name="L230" href="#L230">230</a>       } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L231" href="#L231">231</a>         meta.add(i);
+<a class="jxr_linenumber" name="L232" href="#L232">232</a>       }
+<a class="jxr_linenumber" name="L233" href="#L233">233</a>     }
+<a class="jxr_linenumber" name="L234" href="#L234">234</a>     <em class="jxr_comment">// sort attributes</em>
+<a class="jxr_linenumber" name="L235" href="#L235">235</a>     Set&lt;Integer&gt; entityFactors = <strong class="jxr_keyword">new</strong> HashSet&lt;Integer&gt;();
+<a class="jxr_linenumber" name="L236" href="#L236">236</a>     Set&lt;Integer&gt; extractFactors = <strong class="jxr_keyword">new</strong> HashSet&lt;Integer&gt;();
+<a class="jxr_linenumber" name="L237" href="#L237">237</a>     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> col : factors) {
+<a class="jxr_linenumber" name="L238" href="#L238">238</a>       Map&lt;String, String&gt; idToVal = <strong class="jxr_keyword">new</strong> HashMap&lt;String, String&gt;();
+<a class="jxr_linenumber" name="L239" href="#L239">239</a>       <strong class="jxr_keyword">boolean</strong> ent = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L240" href="#L240">240</a>       <strong class="jxr_keyword">boolean</strong> extr = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L241" href="#L241">241</a>       <strong class="jxr_keyword">for</strong> (String[] row : data) {
+<a class="jxr_linenumber" name="L242" href="#L242">242</a>         String val = row[col];
+<a class="jxr_linenumber" name="L243" href="#L243">243</a>         String sourceID = row[headerMapping.get(<span class="jxr_string">"Secondary Name"</span>)]; <em class="jxr_comment">// for now: one row, one new</em>
+<a class="jxr_linenumber" name="L244" href="#L244">244</a>                                                                     <em class="jxr_comment">// source</em>
+<a class="jxr_linenumber" name="L245" href="#L245">245</a>         <em class="jxr_comment">// String replicateID = "";</em>
+<a class="jxr_linenumber" name="L246" href="#L246">246</a>         <em class="jxr_comment">// if (headerMapping.containsKey("Technical Replicates")) {</em>
+<a class="jxr_linenumber" name="L247" href="#L247">247</a>         <em class="jxr_comment">// replicateID = row[headerMapping.get("Technical Replicates")];</em>
+<a class="jxr_linenumber" name="L248" href="#L248">248</a>         <em class="jxr_comment">// }</em>
+<a class="jxr_linenumber" name="L249" href="#L249">249</a>         String extractID = sourceID + row[headerMapping.get(<span class="jxr_string">"Sample type"</span>)];<em class="jxr_comment">// + replicateID; TODO</em>
+<a class="jxr_linenumber" name="L250" href="#L250">250</a>                                                                             <em class="jxr_comment">// might use more cols</em>
+<a class="jxr_linenumber" name="L251" href="#L251">251</a>         <em class="jxr_comment">// if different for same entities: not an entity attribute</em>
+<a class="jxr_linenumber" name="L252" href="#L252">252</a>         <strong class="jxr_keyword">if</strong> (idToVal.containsKey(sourceID)) {
+<a class="jxr_linenumber" name="L253" href="#L253">253</a>           <strong class="jxr_keyword">if</strong> (!idToVal.get(sourceID).equals(val))
+<a class="jxr_linenumber" name="L254" href="#L254">254</a>             ent = false;
+<a class="jxr_linenumber" name="L255" href="#L255">255</a>         }
+<a class="jxr_linenumber" name="L256" href="#L256">256</a>         <strong class="jxr_keyword">if</strong> (idToVal.containsKey(extractID)) {
+<a class="jxr_linenumber" name="L257" href="#L257">257</a>           <strong class="jxr_keyword">if</strong> (!idToVal.get(extractID).equals(val))
+<a class="jxr_linenumber" name="L258" href="#L258">258</a>             extr = false;
+<a class="jxr_linenumber" name="L259" href="#L259">259</a>         }
+<a class="jxr_linenumber" name="L260" href="#L260">260</a>         idToVal.put(sourceID, val);
+<a class="jxr_linenumber" name="L261" href="#L261">261</a>         idToVal.put(extractID, val);
+<a class="jxr_linenumber" name="L262" href="#L262">262</a>       }
+<a class="jxr_linenumber" name="L263" href="#L263">263</a>       <strong class="jxr_keyword">if</strong> (ent)
+<a class="jxr_linenumber" name="L264" href="#L264">264</a>         entityFactors.add(col);
+<a class="jxr_linenumber" name="L265" href="#L265">265</a>       <strong class="jxr_keyword">if</strong> (extr)
+<a class="jxr_linenumber" name="L266" href="#L266">266</a>         extractFactors.add(col);
+<a class="jxr_linenumber" name="L267" href="#L267">267</a>     }
+<a class="jxr_linenumber" name="L268" href="#L268">268</a>     <em class="jxr_comment">// if (parseGraph) {</em>
+<a class="jxr_linenumber" name="L269" href="#L269">269</a>     <em class="jxr_comment">// for (int factorCol : factors) {</em>
+<a class="jxr_linenumber" name="L270" href="#L270">270</a>     <em class="jxr_comment">// String label = parseXMLPartLabel(header[factorCol]);</em>
+<a class="jxr_linenumber" name="L271" href="#L271">271</a>     <em class="jxr_comment">// nodesForFactorPerLabel.put(label, new LinkedHashSet&lt;SampleSummary&gt;());</em>
+<a class="jxr_linenumber" name="L272" href="#L272">272</a>     <em class="jxr_comment">// }</em>
+<a class="jxr_linenumber" name="L273" href="#L273">273</a>     <em class="jxr_comment">// nodesForFactorPerLabel.put("None", new LinkedHashSet&lt;SampleSummary&gt;());</em>
+<a class="jxr_linenumber" name="L274" href="#L274">274</a>     <em class="jxr_comment">// }</em>
+<a class="jxr_linenumber" name="L275" href="#L275">275</a>     <em class="jxr_comment">// create samples</em>
+<a class="jxr_linenumber" name="L276" href="#L276">276</a>     List&lt;ISampleBean&gt; beans = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L277" href="#L277">277</a> 
+<a class="jxr_linenumber" name="L278" href="#L278">278</a>     <em class="jxr_comment">// worst case order of samples (hierarchy):</em>
+<a class="jxr_linenumber" name="L279" href="#L279">279</a>     <em class="jxr_comment">// organism - tissue - protein - peptide - protein pool - peptides of pool - protein</em>
+<a class="jxr_linenumber" name="L280" href="#L280">280</a>     <em class="jxr_comment">// fractions/cycles - peptides of fractions/cycles - pool of fractions - peptides of pool - ms</em>
+<a class="jxr_linenumber" name="L281" href="#L281">281</a>     <em class="jxr_comment">// measurements</em>
+<a class="jxr_linenumber" name="L282" href="#L282">282</a>     List&lt;MetaboSampleHierarchy&gt; order =
+<a class="jxr_linenumber" name="L283" href="#L283">283</a>         <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;(Arrays.asList(MetaboSampleHierarchy.values()));
+<a class="jxr_linenumber" name="L284" href="#L284">284</a>     Map&lt;MetaboSampleHierarchy, List&lt;ISampleBean&gt;&gt; samplesInOrder = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L285" href="#L285">285</a>     <strong class="jxr_keyword">for</strong> (<a name="MetaboSampleHierarchy" href="../../../../life/qbic/expdesign/model/MetaboSampleHierarchy.html#MetaboSampleHierarchy">MetaboSampleHierarchy</a> level : order) {
+<a class="jxr_linenumber" name="L286" href="#L286">286</a>       samplesInOrder.put(level, <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;());
+<a class="jxr_linenumber" name="L287" href="#L287">287</a>     }
+<a class="jxr_linenumber" name="L288" href="#L288">288</a> 
+<a class="jxr_linenumber" name="L289" href="#L289">289</a>     Map&lt;String, TSVSampleBean&gt; sourceIDToSample = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L290" href="#L290">290</a>     Map&lt;String, TSVSampleBean&gt; tissueToSample = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L291" href="#L291">291</a>     Map&lt;String, TSVSampleBean&gt; metaboliteToSample = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L292" href="#L292">292</a>     <em class="jxr_comment">// TODO another level of measurements?</em>
+<a class="jxr_linenumber" name="L293" href="#L293">293</a>     Map&lt;ExtendedMSProperties, String&gt; msPropertiesToID = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L294" href="#L294">294</a>     Map&lt;CultureProperties, String&gt; culturePropertiesToID = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L295" href="#L295">295</a>     Map&lt;MetabolitePrepProperties, String&gt; metaboPrepPropertiesToID = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L296" href="#L296">296</a> 
+<a class="jxr_linenumber" name="L297" href="#L297">297</a>     speciesSet = <strong class="jxr_keyword">new</strong> HashSet&lt;String&gt;();
+<a class="jxr_linenumber" name="L298" href="#L298">298</a>     tissueSet = <strong class="jxr_keyword">new</strong> HashSet&lt;String&gt;();
+<a class="jxr_linenumber" name="L299" href="#L299">299</a>     analyteSet = <strong class="jxr_keyword">new</strong> HashSet&lt;String&gt;();
+<a class="jxr_linenumber" name="L300" href="#L300">300</a>     analyteSet.add(<span class="jxr_string">"SMALLMOLECULES"</span>);
+<a class="jxr_linenumber" name="L301" href="#L301">301</a>     <strong class="jxr_keyword">int</strong> rowID = 0;
+<a class="jxr_linenumber" name="L302" href="#L302">302</a>     <strong class="jxr_keyword">int</strong> sampleID = 0;
+<a class="jxr_linenumber" name="L303" href="#L303">303</a> 
+<a class="jxr_linenumber" name="L304" href="#L304">304</a>     <strong class="jxr_keyword">for</strong> (String[] row : data) {
+<a class="jxr_linenumber" name="L305" href="#L305">305</a>       fillParsedCategoriesToValuesForRow(headerMapping, row);
+<a class="jxr_linenumber" name="L306" href="#L306">306</a>       rowID++;
+<a class="jxr_linenumber" name="L307" href="#L307">307</a>       <strong class="jxr_keyword">boolean</strong> special = false;
+<a class="jxr_linenumber" name="L308" href="#L308">308</a>       <strong class="jxr_keyword">if</strong> (!special) {
+<a class="jxr_linenumber" name="L309" href="#L309">309</a>         <strong class="jxr_keyword">for</strong> (String col : mandatoryFilled) {
+<a class="jxr_linenumber" name="L310" href="#L310">310</a>           <strong class="jxr_keyword">if</strong> (row[headerMapping.get(col)].isEmpty()) {
+<a class="jxr_linenumber" name="L311" href="#L311">311</a>             error = col + <span class="jxr_string">" is a mandatory field, but it is not set for row "</span> + rowID + <span class="jxr_string">"!"</span>;
+<a class="jxr_linenumber" name="L312" href="#L312">312</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L313" href="#L313">313</a>           }
+<a class="jxr_linenumber" name="L314" href="#L314">314</a>         }
+<a class="jxr_linenumber" name="L315" href="#L315">315</a>         String sourceID = row[headerMapping.get(<span class="jxr_string">"Secondary Name"</span>)];
+<a class="jxr_linenumber" name="L316" href="#L316">316</a>         String species = row[headerMapping.get(<span class="jxr_string">"Species"</span>)];
+<a class="jxr_linenumber" name="L317" href="#L317">317</a>         String expressionSystem = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L318" href="#L318">318</a>         <em class="jxr_comment">// if (headerMapping.containsKey("Expression System")) {</em>
+<a class="jxr_linenumber" name="L319" href="#L319">319</a>         <em class="jxr_comment">// expressionSystem = row[headerMapping.get("Expression System")];</em>
+<a class="jxr_linenumber" name="L320" href="#L320">320</a>         <em class="jxr_comment">// }</em>
+<a class="jxr_linenumber" name="L321" href="#L321">321</a>         <em class="jxr_comment">// String tissue = row[headerMapping.get("Tissue")];//TODO whole organism?</em>
+<a class="jxr_linenumber" name="L322" href="#L322">322</a>         String replicateID = <span class="jxr_string">""</span>;
+<a class="jxr_linenumber" name="L323" href="#L323">323</a>         <em class="jxr_comment">// if (headerMapping.containsKey("Technical Replicates")) {</em>
+<a class="jxr_linenumber" name="L324" href="#L324">324</a>         <em class="jxr_comment">// replicateID = row[headerMapping.get("Technical Replicates")];</em>
+<a class="jxr_linenumber" name="L325" href="#L325">325</a>         <em class="jxr_comment">// }</em>
+<a class="jxr_linenumber" name="L326" href="#L326">326</a> 
+<a class="jxr_linenumber" name="L327" href="#L327">327</a>         <em class="jxr_comment">// String fileName = row[headerMapping.get("File Name")];// TODO Sample Number?</em>
+<a class="jxr_linenumber" name="L328" href="#L328">328</a> 
+<a class="jxr_linenumber" name="L329" href="#L329">329</a>         String sampleKey = row[headerMapping.get(SAMPLE_KEYWORD)];
+<a class="jxr_linenumber" name="L330" href="#L330">330</a>         <em class="jxr_comment">// String sampleAltName = row[headerMapping.get(SAMPLE_ALTNAME_KEYWORD)];</em>
+<a class="jxr_linenumber" name="L331" href="#L331">331</a> 
+<a class="jxr_linenumber" name="L332" href="#L332">332</a>         String cultureMedium = row[headerMapping.get(<span class="jxr_string">"Medium"</span>)];
+<a class="jxr_linenumber" name="L333" href="#L333">333</a>         String harvestingConditions = row[headerMapping.get(<span class="jxr_string">"Harvesting conditions"</span>)];
+<a class="jxr_linenumber" name="L334" href="#L334">334</a>         String washingSolvent = row[headerMapping.get(<span class="jxr_string">"Washing solvent"</span>)];
+<a class="jxr_linenumber" name="L335" href="#L335">335</a>         String sampleSolvent = row[headerMapping.get(<span class="jxr_string">"Sample solvent"</span>)];
+<a class="jxr_linenumber" name="L336" href="#L336">336</a>         String cultureType = row[headerMapping.get(<span class="jxr_string">"Culture type"</span>)];
+<a class="jxr_linenumber" name="L337" href="#L337">337</a>         String sampleType = row[headerMapping.get(<span class="jxr_string">"Sample type"</span>)];
+<a class="jxr_linenumber" name="L338" href="#L338">338</a>         String cellLysis = row[headerMapping.get(<span class="jxr_string">"Cell lysis"</span>)];
+<a class="jxr_linenumber" name="L339" href="#L339">339</a>         String strainCollNumber = row[headerMapping.get(<span class="jxr_string">"Strain lab collection number"</span>)];
+<a class="jxr_linenumber" name="L340" href="#L340">340</a> 
+<a class="jxr_linenumber" name="L341" href="#L341">341</a>         speciesSet.add(species);
+<a class="jxr_linenumber" name="L342" href="#L342">342</a>         <em class="jxr_comment">// tissueSet.add(tissue);//TODO set standard name and show user?</em>
+<a class="jxr_linenumber" name="L343" href="#L343">343</a> 
+<a class="jxr_linenumber" name="L344" href="#L344">344</a>         <em class="jxr_comment">// always one new measurement per row</em>
+<a class="jxr_linenumber" name="L345" href="#L345">345</a>         sampleID++;
+<a class="jxr_linenumber" name="L346" href="#L346">346</a>         TSVSampleBean msRun = <strong class="jxr_keyword">new</strong> TSVSampleBean(Integer.toString(sampleID), SampleType.Q_MS_RUN, <span class="jxr_string">""</span>,
+<a class="jxr_linenumber" name="L347" href="#L347">347</a>             fillMetadata(header, row, meta, factors, <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;(), SampleType.Q_MS_RUN));
+<a class="jxr_linenumber" name="L348" href="#L348">348</a>         <em class="jxr_comment">// msRun.addProperty("File", fileName);</em>
+<a class="jxr_linenumber" name="L349" href="#L349">349</a> 
+<a class="jxr_linenumber" name="L350" href="#L350">350</a>         String lcmsMethod = row[headerMapping.get(<span class="jxr_string">"LC MS Method Name"</span>)];
+<a class="jxr_linenumber" name="L351" href="#L351">351</a>         String msDevice = row[headerMapping.get(<span class="jxr_string">"MS device"</span>)];
+<a class="jxr_linenumber" name="L352" href="#L352">352</a>         String lcDevice = row[headerMapping.get(<span class="jxr_string">"LC device"</span>)];
+<a class="jxr_linenumber" name="L353" href="#L353">353</a>         String column = row[headerMapping.get(<span class="jxr_string">"LC column name"</span>)];
+<a class="jxr_linenumber" name="L354" href="#L354">354</a>         String ionMode = row[headerMapping.get(<span class="jxr_string">"MS ion mode"</span>)];
+<a class="jxr_linenumber" name="L355" href="#L355">355</a>         String lcDetectionMethod = row[headerMapping.get(<span class="jxr_string">"LC detection method"</span>)];<em class="jxr_comment">// TODO do not put</em>
+<a class="jxr_linenumber" name="L356" href="#L356">356</a>                                                                                  <em class="jxr_comment">// this into ms</em>
+<a class="jxr_linenumber" name="L357" href="#L357">357</a>                                                                                  <em class="jxr_comment">// props</em>
+<a class="jxr_linenumber" name="L358" href="#L358">358</a>         <a name="ExtendedMSProperties" href="../../../../life/qbic/expdesign/model/Ex<a name="ExtendedMSProperties" href="../../../../life/qbic/expdesign/model/ExtendedMSProperties.html#ExtendedMSProperties">ExtendedMSProperties</a>tml#ExtendedMSProperties">ExtendedMSProperties</a> msProperties = <strong class="jxr_keyword">new</strong> <a name="ExtendedMSProperties" href="../../../../life/qbic/expdesign/model/ExtendedMSProperties.html#ExtendedMSProperties">ExtendedMSProperties</a>(lcmsMethod, msDevice);
+<a class="jxr_linenumber" name="L359" href="#L359">359</a>         msProperties.setLCDetectionMethod(lcDetectionMethod);
+<a class="jxr_linenumber" name="L360" href="#L360">360</a>         msProperties.setLCDevice(lcDevice);
+<a class="jxr_linenumber" name="L361" href="#L361">361</a>         msProperties.setIonizationMode(ionMode);
+<a class="jxr_linenumber" name="L362" href="#L362">362</a>         msProperties.setColumnName(column);
+<a class="jxr_linenumber" name="L363" href="#L363">363</a>         String expID = Integer.toString(msProperties.hashCode());
+<a class="jxr_linenumber" name="L364" href="#L364">364</a>         msPropertiesToID.put(msProperties, expID);
+<a class="jxr_linenumber" name="L365" href="#L365">365</a>         msRun.setExperiment(expID);
+<a class="jxr_linenumber" name="L366" href="#L366">366</a> 
+<a class="jxr_linenumber" name="L367" href="#L367">367</a>         samplesInOrder.get(MetaboSampleHierarchy.MassSpecRun).add(msRun);
+<a class="jxr_linenumber" name="L368" href="#L368">368</a> 
+<a class="jxr_linenumber" name="L369" href="#L369">369</a>         <em class="jxr_comment">// if organism id not known =&gt; create organism entity. put in map.</em>
+<a class="jxr_linenumber" name="L370" href="#L370">370</a>         <em class="jxr_comment">// else get organism entity. same for tissue. this is done for pool rows, as well</em>
+<a class="jxr_linenumber" name="L371" href="#L371">371</a>         TSVSampleBean sampleSource = sourceIDToSample.get(sourceID);
+<a class="jxr_linenumber" name="L372" href="#L372">372</a>         <strong class="jxr_keyword">if</strong> (sampleSource == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L373" href="#L373">373</a>           sampleID++;
+<a class="jxr_linenumber" name="L374" href="#L374">374</a> 
+<a class="jxr_linenumber" name="L375" href="#L375">375</a>           sampleSource = <strong class="jxr_keyword">new</strong> TSVSampleBean(Integer.toString(sampleID),
+<a class="jxr_linenumber" name="L376" href="#L376">376</a>               SampleType.Q_BIOLOGICAL_ENTITY, sourceID,
+<a class="jxr_linenumber" name="L377" href="#L377">377</a>               fillMetadata(header, row, meta, entityFactors, loci, SampleType.Q_BIOLOGICAL_ENTITY));
+<a class="jxr_linenumber" name="L378" href="#L378">378</a>           sampleSource.addProperty(<span class="jxr_string">"Q_STRAIN_LAB_COLLECTION_NUMBER"</span>, strainCollNumber);
+<a class="jxr_linenumber" name="L379" href="#L379">379</a>           <em class="jxr_comment">// sampleSource.addProperty("Q_EXTERNALDB_ID", sourceID);</em>
+<a class="jxr_linenumber" name="L380" href="#L380">380</a>           samplesInOrder.get(MetaboSampleHierarchy.Organism).add(sampleSource);
+<a class="jxr_linenumber" name="L381" href="#L381">381</a>           sourceIDToSample.put(sourceID, sampleSource);
+<a class="jxr_linenumber" name="L382" href="#L382">382</a> 
+<a class="jxr_linenumber" name="L383" href="#L383">383</a>           <a name="CultureProperties" href="../../../../life/qbic/expdesign/m<a name="CultureProperties" href="../../../../life/qbic/expdesign/model/CultureProperties.html#CultureProperties">CultureProperties</a>rties.html#CultureProperties">CultureProperties</a> props = <strong class="jxr_keyword">new</strong> <a name="CultureProperties" href="../../../../life/qbic/expdesign/model/CultureProperties.html#CultureProperties">CultureProperties</a>(cultureMedium, cultureType);
+<a class="jxr_linenumber" name="L384" href="#L384">384</a>           String cultExpID = Integer.toString(props.hashCode());
+<a class="jxr_linenumber" name="L385" href="#L385">385</a>           culturePropertiesToID.put(props, cultExpID);
+<a class="jxr_linenumber" name="L386" href="#L386">386</a>           sampleSource.setExperiment(cultExpID);
+<a class="jxr_linenumber" name="L387" href="#L387">387</a> 
+<a class="jxr_linenumber" name="L388" href="#L388">388</a>           <strong class="jxr_keyword">if</strong> (expressionSystem != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L389" href="#L389">389</a>             speciesSet.add(expressionSystem);
+<a class="jxr_linenumber" name="L390" href="#L390">390</a>             sampleSource.addProperty(<span class="jxr_string">"Q_EXPRESSION_SYSTEM"</span>, expressionSystem);
+<a class="jxr_linenumber" name="L391" href="#L391">391</a>           }
+<a class="jxr_linenumber" name="L392" href="#L392">392</a>         }
+<a class="jxr_linenumber" name="L393" href="#L393">393</a>         <em class="jxr_comment">// we don't have tissue ids, so we build unique identifiers by adding sourceID and tissue</em>
+<a class="jxr_linenumber" name="L394" href="#L394">394</a>         <em class="jxr_comment">// name</em>
+<a class="jxr_linenumber" name="L395" href="#L395">395</a>         <em class="jxr_comment">// TODO use sample type instead of tissue</em>
+<a class="jxr_linenumber" name="L396" href="#L396">396</a>         String tissueID = sourceID + <span class="jxr_string">"-"</span> + sampleType + <span class="jxr_string">"-"</span> + replicateID;
+<a class="jxr_linenumber" name="L397" href="#L397">397</a>         TSVSampleBean tissueSample = tissueToSample.get(tissueID);
+<a class="jxr_linenumber" name="L398" href="#L398">398</a>         <strong class="jxr_keyword">if</strong> (tissueSample == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L399" href="#L399">399</a>           sampleID++;
+<a class="jxr_linenumber" name="L400" href="#L400">400</a> 
+<a class="jxr_linenumber" name="L401" href="#L401">401</a>           tissueSample = <strong class="jxr_keyword">new</strong> TSVSampleBean(Integer.toString(sampleID),
+<a class="jxr_linenumber" name="L402" href="#L402">402</a>               SampleType.Q_BIOLOGICAL_SAMPLE, tissueID, fillMetadata(header, row, meta,
+<a class="jxr_linenumber" name="L403" href="#L403">403</a>                   extractFactors, loci, SampleType.Q_BIOLOGICAL_SAMPLE));
+<a class="jxr_linenumber" name="L404" href="#L404">404</a>           tissueSample.addProperty(<span class="jxr_string">"Q_PRIMARY_TISSUE"</span>, <span class="jxr_string">"Whole organism"</span>);
+<a class="jxr_linenumber" name="L405" href="#L405">405</a>           samplesInOrder.get(MetaboSampleHierarchy.Tissue).add(tissueSample);
+<a class="jxr_linenumber" name="L406" href="#L406">406</a>           tissueSample.addParentID(sampleSource.getCode());
+<a class="jxr_linenumber" name="L407" href="#L407">407</a>           tissueSample.addProperty(<span class="jxr_string">"Q_EXTERNALDB_ID"</span>, tissueID);
+<a class="jxr_linenumber" name="L408" href="#L408">408</a>           tissueToSample.put(tissueID, tissueSample);
+<a class="jxr_linenumber" name="L409" href="#L409">409</a> 
+<a class="jxr_linenumber" name="L410" href="#L410">410</a>           <a name="MetabolitePrepProperties" href="../../../../life/qbic/expdesign/model/MetabolitePrepProperties.html#MetabolitePrepProperties">MetabolitePrepProperties</a> props =
+<a class="jxr_linenumber" name="L411" href="#L411">411</a>               <strong class="jxr_keyword">new</strong> <a name="MetabolitePrepProperties" href="../../../../life/qbic/expdesign/model/MetabolitePrepProperties.html#MetabolitePrepProperties">MetabolitePrepProperties</a>(harvestingConditions, cellLysis);
+<a class="jxr_linenumber" name="L412" href="#L412">412</a>           String prepExpID = Integer.toString(props.hashCode());
+<a class="jxr_linenumber" name="L413" href="#L413">413</a>           metaboPrepPropertiesToID.put(props, prepExpID);
+<a class="jxr_linenumber" name="L414" href="#L414">414</a>           tissueSample.setExperiment(prepExpID);
+<a class="jxr_linenumber" name="L415" href="#L415">415</a>         }
+<a class="jxr_linenumber" name="L416" href="#L416">416</a> 
+<a class="jxr_linenumber" name="L417" href="#L417">417</a>         <em class="jxr_comment">// if sample secondary name not known =&gt; create metabolite sample</em>
+<a class="jxr_linenumber" name="L418" href="#L418">418</a>         TSVSampleBean metabolite = metaboliteToSample.get(sampleKey);
+<a class="jxr_linenumber" name="L419" href="#L419">419</a>         <strong class="jxr_keyword">if</strong> (metabolite == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L420" href="#L420">420</a>           sampleID++;
+<a class="jxr_linenumber" name="L421" href="#L421">421</a> 
+<a class="jxr_linenumber" name="L422" href="#L422">422</a>           metabolite = <strong class="jxr_keyword">new</strong> TSVSampleBean(Integer.toString(sampleID), SampleType.Q_TEST_SAMPLE,
+<a class="jxr_linenumber" name="L423" href="#L423">423</a>               sampleKey, fillMetadata(header, row, meta, factors, loci, SampleType.Q_TEST_SAMPLE));
+<a class="jxr_linenumber" name="L424" href="#L424">424</a>           samplesInOrder.get(MetaboSampleHierarchy.Molecules).add(metabolite);
+<a class="jxr_linenumber" name="L425" href="#L425">425</a>           metabolite.addParentID(tissueSample.getCode());
+<a class="jxr_linenumber" name="L426" href="#L426">426</a>           metabolite.addProperty(<span class="jxr_string">"Q_EXTERNALDB_ID"</span>, sampleKey);
+<a class="jxr_linenumber" name="L427" href="#L427">427</a>           metaboliteToSample.put(sampleKey, metabolite);
+<a class="jxr_linenumber" name="L428" href="#L428">428</a>           metabolite.addProperty(<span class="jxr_string">"Q_SAMPLE_TYPE"</span>, <span class="jxr_string">"SMALLMOLECULES"</span>);
+<a class="jxr_linenumber" name="L429" href="#L429">429</a>           metabolite.addProperty(<span class="jxr_string">"Q_WASHING_SOLVENT"</span>, washingSolvent);
+<a class="jxr_linenumber" name="L430" href="#L430">430</a>           metabolite.addProperty(<span class="jxr_string">"Q_SAMPLE_SOLVENT"</span>, sampleSolvent);
+<a class="jxr_linenumber" name="L431" href="#L431">431</a>         }
+<a class="jxr_linenumber" name="L432" href="#L432">432</a>       }
+<a class="jxr_linenumber" name="L433" href="#L433">433</a>     }
+<a class="jxr_linenumber" name="L434" href="#L434">434</a>     experimentInfos = <strong class="jxr_keyword">new</strong> HashMap&lt;String, List&lt;Map&lt;String, Object&gt;&gt;&gt;();
+<a class="jxr_linenumber" name="L435" href="#L435">435</a> 
+<a class="jxr_linenumber" name="L436" href="#L436">436</a>     <em class="jxr_comment">// Cell cultures</em>
+<a class="jxr_linenumber" name="L437" href="#L437">437</a>     List&lt;Map&lt;String, Object&gt;&gt; cultures = <strong class="jxr_keyword">new</strong> ArrayList&lt;Map&lt;String, Object&gt;&gt;();
+<a class="jxr_linenumber" name="L438" href="#L438">438</a>     <strong class="jxr_keyword">for</strong> (<a name="CultureProperties" href="../../../../life/qbic/expdesign/model/CultureProperties.html#CultureProperties">CultureProperties</a> props : culturePropertiesToID.keySet()) {
+<a class="jxr_linenumber" name="L439" href="#L439">439</a>       Map&lt;String, Object&gt; propMap = props.getPropertyMap();
+<a class="jxr_linenumber" name="L440" href="#L440">440</a>       propMap.put(<span class="jxr_string">"Code"</span>, Integer.toString(props.hashCode()));<em class="jxr_comment">// used to match samples to their</em>
+<a class="jxr_linenumber" name="L441" href="#L441">441</a>       <em class="jxr_comment">// experiments later</em>
+<a class="jxr_linenumber" name="L442" href="#L442">442</a>       cultures.add(propMap);
+<a class="jxr_linenumber" name="L443" href="#L443">443</a>     }
+<a class="jxr_linenumber" name="L444" href="#L444">444</a>     experimentInfos.put(<span class="jxr_string">"Q_EXPERIMENTAL_DESIGN"</span>, cultures);
+<a class="jxr_linenumber" name="L445" href="#L445">445</a> 
+<a class="jxr_linenumber" name="L446" href="#L446">446</a>     <em class="jxr_comment">// Extract preparation experiments</em>
+<a class="jxr_linenumber" name="L447" href="#L447">447</a>     List&lt;Map&lt;String, Object&gt;&gt; extractPreparations = <strong class="jxr_keyword">new</strong> ArrayList&lt;Map&lt;String, Object&gt;&gt;();
+<a class="jxr_linenumber" name="L448" href="#L448">448</a>     <strong class="jxr_keyword">for</strong> (<a name="MetabolitePrepProperties" href="../../../../life/qbic/expdesign/model/MetabolitePrepProperties.html#MetabolitePrepProperties">MetabolitePrepProperties</a> props : metaboPrepPropertiesToID.keySet()) {
+<a class="jxr_linenumber" name="L449" href="#L449">449</a>       Map&lt;String, Object&gt; propMap = props.getPropertyMap();
+<a class="jxr_linenumber" name="L450" href="#L450">450</a>       propMap.put(<span class="jxr_string">"Code"</span>, Integer.toString(props.hashCode()));<em class="jxr_comment">// used to match samples to their</em>
+<a class="jxr_linenumber" name="L451" href="#L451">451</a>       <em class="jxr_comment">// experiments later</em>
+<a class="jxr_linenumber" name="L452" href="#L452">452</a>       extractPreparations.add(propMap);
+<a class="jxr_linenumber" name="L453" href="#L453">453</a>     }
+<a class="jxr_linenumber" name="L454" href="#L454">454</a>     experimentInfos.put(<span class="jxr_string">"Q_SAMPLE_EXTRACTION"</span>, extractPreparations);
+<a class="jxr_linenumber" name="L455" href="#L455">455</a> 
+<a class="jxr_linenumber" name="L456" href="#L456">456</a>     <em class="jxr_comment">// MS experiments</em>
+<a class="jxr_linenumber" name="L457" href="#L457">457</a>     List&lt;Map&lt;String, Object&gt;&gt; msExperiments = <strong class="jxr_keyword">new</strong> ArrayList&lt;Map&lt;String, Object&gt;&gt;();
+<a class="jxr_linenumber" name="L458" href="#L458">458</a>     <strong class="jxr_keyword">for</strong> (<a name="ExtendedMSProperties" href="../../../../life/qbic/expdesign/model/ExtendedMSProperties.html#ExtendedMSProperties">ExtendedMSProperties</a> expProperties : msPropertiesToID.keySet()) {
+<a class="jxr_linenumber" name="L459" href="#L459">459</a>       Map&lt;String, Object&gt; propMap = expProperties.getPropertyMap();
+<a class="jxr_linenumber" name="L460" href="#L460">460</a>       propMap.put(<span class="jxr_string">"Code"</span>, msPropertiesToID.get(expProperties));
+<a class="jxr_linenumber" name="L461" href="#L461">461</a>       msExperiments.add(propMap);
+<a class="jxr_linenumber" name="L462" href="#L462">462</a>     }
+<a class="jxr_linenumber" name="L463" href="#L463">463</a>     experimentInfos.put(<span class="jxr_string">"Q_MS_MEASUREMENT"</span>, msExperiments);
+<a class="jxr_linenumber" name="L464" href="#L464">464</a>     <strong class="jxr_keyword">for</strong> (<a name="MetaboSampleHierarchy" href="../../../../life/qbic/expdesign/model/MetaboSampleHierarchy.html#MetaboSampleHierarchy">MetaboSampleHierarchy</a> level : order) {
+<a class="jxr_linenumber" name="L465" href="#L465">465</a>       beans.addAll(samplesInOrder.get(level));
+<a class="jxr_linenumber" name="L466" href="#L466">466</a>       <em class="jxr_comment">// printSampleLevel(samplesInOrder.get(level));TODO</em>
+<a class="jxr_linenumber" name="L467" href="#L467">467</a>     }
+<a class="jxr_linenumber" name="L468" href="#L468">468</a>     <strong class="jxr_keyword">return</strong> beans;
+<a class="jxr_linenumber" name="L469" href="#L469">469</a>   }
+<a class="jxr_linenumber" name="L470" href="#L470">470</a> 
+<a class="jxr_linenumber" name="L471" href="#L471">471</a>   <strong class="jxr_keyword">private</strong> String tryReplacePredefinedConditionNames(String condition) {
+<a class="jxr_linenumber" name="L472" href="#L472">472</a>     Map&lt;String, String&gt; headNamesToConditions = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L473" href="#L473">473</a>     headNamesToConditions.put(<span class="jxr_string">"Growth conditions: Temperature"</span>, <span class="jxr_string">"growth_temperature"</span>);
+<a class="jxr_linenumber" name="L474" href="#L474">474</a>     headNamesToConditions.put(<span class="jxr_string">"Growth conditions: Time"</span>, <span class="jxr_string">"growth_time"</span>);
+<a class="jxr_linenumber" name="L475" href="#L475">475</a>     headNamesToConditions.put(<span class="jxr_string">"Growth conditions: rpm"</span>, <span class="jxr_string">"rpm"</span>);
+<a class="jxr_linenumber" name="L476" href="#L476">476</a>     <strong class="jxr_keyword">if</strong> (headNamesToConditions.containsKey(condition)) {
+<a class="jxr_linenumber" name="L477" href="#L477">477</a>       <strong class="jxr_keyword">return</strong> headNamesToConditions.get(condition);
+<a class="jxr_linenumber" name="L478" href="#L478">478</a>     }
+<a class="jxr_linenumber" name="L479" href="#L479">479</a>     <strong class="jxr_keyword">return</strong> condition;
 <a class="jxr_linenumber" name="L480" href="#L480">480</a>   }
 <a class="jxr_linenumber" name="L481" href="#L481">481</a> 
-<a class="jxr_linenumber" name="L482" href="#L482">482</a>   <em class="jxr_comment">// private Map&lt;String, Object&gt; parseMSExperimentData(String[] row,</em>
-<a class="jxr_linenumber" name="L483" href="#L483">483</a>   <em class="jxr_comment">// Map&lt;String, Integer&gt; headerMapping, HashMap&lt;String, Object&gt; metadata) {</em>
-<a class="jxr_linenumber" name="L484" href="#L484">484</a>   <em class="jxr_comment">// Map&lt;String, String&gt; designMap = new HashMap&lt;String, String&gt;();</em>
-<a class="jxr_linenumber" name="L485" href="#L485">485</a>   <em class="jxr_comment">// designMap.put("MS Device", "Q_MS_DEVICE");</em>
-<a class="jxr_linenumber" name="L486" href="#L486">486</a>   <em class="jxr_comment">// designMap.put("LC Column", "Q_CHROMATOGRAPHY_TYPE");</em>
-<a class="jxr_linenumber" name="L487" href="#L487">487</a>   <em class="jxr_comment">// designMap.put("LCMS Method", "Q_MS_LCMS_METHOD");</em>
-<a class="jxr_linenumber" name="L488" href="#L488">488</a>   <em class="jxr_comment">// for (String col : designMap.keySet()) {</em>
-<a class="jxr_linenumber" name="L489" href="#L489">489</a>   <em class="jxr_comment">// Object val = "";</em>
-<a class="jxr_linenumber" name="L490" href="#L490">490</a>   <em class="jxr_comment">// String openbisType = designMap.get(col);</em>
-<a class="jxr_linenumber" name="L491" href="#L491">491</a>   <em class="jxr_comment">// if (headerMapping.containsKey(col)) {</em>
-<a class="jxr_linenumber" name="L492" href="#L492">492</a>   <em class="jxr_comment">// val = row[headerMapping.get(col)];</em>
-<a class="jxr_linenumber" name="L493" href="#L493">493</a>   <em class="jxr_comment">// if (parsers.containsKey(openbisType)) {</em>
-<a class="jxr_linenumber" name="L494" href="#L494">494</a>   <em class="jxr_comment">// val = parsers.get(openbisType).parse((String) val);</em>
-<a class="jxr_linenumber" name="L495" href="#L495">495</a>   <em class="jxr_comment">// }</em>
-<a class="jxr_linenumber" name="L496" href="#L496">496</a>   <em class="jxr_comment">// }</em>
-<a class="jxr_linenumber" name="L497" href="#L497">497</a>   <em class="jxr_comment">// metadata.put(openbisType, val);</em>
-<a class="jxr_linenumber" name="L498" href="#L498">498</a>   <em class="jxr_comment">// }</em>
-<a class="jxr_linenumber" name="L499" href="#L499">499</a>   <em class="jxr_comment">// return metadata;</em>
-<a class="jxr_linenumber" name="L500" href="#L500">500</a>   <em class="jxr_comment">// }</em>
-<a class="jxr_linenumber" name="L501" href="#L501">501</a> 
-<a class="jxr_linenumber" name="L502" href="#L502">502</a>   <strong class="jxr_keyword">public</strong> Set&lt;String&gt; getSpeciesSet() {
-<a class="jxr_linenumber" name="L503" href="#L503">503</a>     <strong class="jxr_keyword">return</strong> speciesSet;
-<a class="jxr_linenumber" name="L504" href="#L504">504</a>   }
-<a class="jxr_linenumber" name="L505" href="#L505">505</a> 
-<a class="jxr_linenumber" name="L506" href="#L506">506</a>   <strong class="jxr_keyword">public</strong> Set&lt;String&gt; getTissueSet() {
-<a class="jxr_linenumber" name="L507" href="#L507">507</a>     <strong class="jxr_keyword">return</strong> tissueSet;
-<a class="jxr_linenumber" name="L508" href="#L508">508</a>   }
-<a class="jxr_linenumber" name="L509" href="#L509">509</a> 
-<a class="jxr_linenumber" name="L510" href="#L510">510</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> checkUniqueIDsBetweenSets(Set&lt;String&gt; speciesSet, Set&lt;String&gt; tissueSet) {
-<a class="jxr_linenumber" name="L511" href="#L511">511</a>     Set&lt;String&gt; intersection1 = <strong class="jxr_keyword">new</strong> HashSet&lt;String&gt;(speciesSet);
-<a class="jxr_linenumber" name="L512" href="#L512">512</a>     intersection1.retainAll(tissueSet);
-<a class="jxr_linenumber" name="L513" href="#L513">513</a>     <strong class="jxr_keyword">if</strong> (!intersection1.isEmpty()) {
-<a class="jxr_linenumber" name="L514" href="#L514">514</a>       error = <span class="jxr_string">"Entry "</span> + intersection1.iterator().next()
-<a class="jxr_linenumber" name="L515" href="#L515">515</a>           + <span class="jxr_string">" was found as organism and tissue. It can't be both!"</span>;
-<a class="jxr_linenumber" name="L516" href="#L516">516</a>       <strong class="jxr_keyword">return</strong> false;
-<a class="jxr_linenumber" name="L517" href="#L517">517</a>     }
-<a class="jxr_linenumber" name="L518" href="#L518">518</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L519" href="#L519">519</a>   }
-<a class="jxr_linenumber" name="L520" href="#L520">520</a> 
-<a class="jxr_linenumber" name="L521" href="#L521">521</a>   <strong class="jxr_keyword">private</strong> String trySplitMetadata(String line, String keyword) {
-<a class="jxr_linenumber" name="L522" href="#L522">522</a>     <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L523" href="#L523">523</a>       <strong class="jxr_keyword">return</strong> line.split(keyword)[1].trim();
-<a class="jxr_linenumber" name="L524" href="#L524">524</a>     } <strong class="jxr_keyword">catch</strong> (ArrayIndexOutOfBoundsException e) {
-<a class="jxr_linenumber" name="L525" href="#L525">525</a>       <strong class="jxr_keyword">return</strong> <span class="jxr_string">""</span>;
-<a class="jxr_linenumber" name="L526" href="#L526">526</a>     }
-<a class="jxr_linenumber" name="L527" href="#L527">527</a>   }
-<a class="jxr_linenumber" name="L528" href="#L528">528</a> 
-<a class="jxr_linenumber" name="L529" href="#L529">529</a>   <strong class="jxr_keyword">private</strong> String replaceSpecials(String s) {
-<a class="jxr_linenumber" name="L530" href="#L530">530</a>     <strong class="jxr_keyword">return</strong> s.replace(<span class="jxr_string">"%%%"</span>, <span class="jxr_string">"#"</span>).replace(<span class="jxr_string">"&gt;&gt;&gt;"</span>, <span class="jxr_string">"="</span>);
-<a class="jxr_linenumber" name="L531" href="#L531">531</a>   }
-<a class="jxr_linenumber" name="L532" href="#L532">532</a> 
-<a class="jxr_linenumber" name="L533" href="#L533">533</a>   <strong class="jxr_keyword">private</strong> HashMap&lt;String, Object&gt; fillMetadata(String[] header, String[] data, List&lt;Integer&gt; meta,
-<a class="jxr_linenumber" name="L534" href="#L534">534</a>       Set&lt;Integer&gt; factors, List&lt;Integer&gt; loci, SampleType type) {
-<a class="jxr_linenumber" name="L535" href="#L535">535</a>     Map&lt;String, List&lt;String&gt;&gt; headersToOpenbisCode = headersToTypeCodePerSampletype.get(type);
-<a class="jxr_linenumber" name="L536" href="#L536">536</a>     HashMap&lt;String, Object&gt; res = <strong class="jxr_keyword">new</strong> HashMap&lt;String, Object&gt;();
-<a class="jxr_linenumber" name="L537" href="#L537">537</a>     <strong class="jxr_keyword">if</strong> (headersToOpenbisCode != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L538" href="#L538">538</a>       <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i : meta) {
-<a class="jxr_linenumber" name="L539" href="#L539">539</a>         String label = header[i];
-<a class="jxr_linenumber" name="L540" href="#L540">540</a>         <strong class="jxr_keyword">if</strong> (!data[i].isEmpty() &amp;&amp; headersToOpenbisCode.containsKey(label)) {
-<a class="jxr_linenumber" name="L541" href="#L541">541</a>           <strong class="jxr_keyword">for</strong> (String propertyCode : headersToOpenbisCode.get(label)) {
-<a class="jxr_linenumber" name="L542" href="#L542">542</a>             Object val = data[i];
-<a class="jxr_linenumber" name="L543" href="#L543">543</a>             <em class="jxr_comment">// if (parsers.containsKey(propertyCode))</em>
-<a class="jxr_linenumber" name="L544" href="#L544">544</a>             <em class="jxr_comment">// val = parsers.get(propertyCode).parse(data[i]);</em>
-<a class="jxr_linenumber" name="L545" href="#L545">545</a>             res.put(propertyCode, val);
-<a class="jxr_linenumber" name="L546" href="#L546">546</a>           }
-<a class="jxr_linenumber" name="L547" href="#L547">547</a>         }
-<a class="jxr_linenumber" name="L548" href="#L548">548</a>       }
-<a class="jxr_linenumber" name="L549" href="#L549">549</a>     }
-<a class="jxr_linenumber" name="L550" href="#L550">550</a>     <strong class="jxr_keyword">if</strong> (factors.size() &gt; 0)
-<a class="jxr_linenumber" name="L551" href="#L551">551</a> 
-<a class="jxr_linenumber" name="L552" href="#L552">552</a>     {
-<a class="jxr_linenumber" name="L553" href="#L553">553</a>       String fRes = <span class="jxr_string">""</span>;
-<a class="jxr_linenumber" name="L554" href="#L554">554</a>       <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i : factors) {
-<a class="jxr_linenumber" name="L555" href="#L555">555</a>         <strong class="jxr_keyword">if</strong> (!data[i].isEmpty()) {
-<a class="jxr_linenumber" name="L556" href="#L556">556</a>           String values = unitCheck(data[i]);
-<a class="jxr_linenumber" name="L557" href="#L557">557</a>           fRes += parseXMLPartLabel(header[i]) + <span class="jxr_string">": "</span> + values + <span class="jxr_string">";"</span>;
-<a class="jxr_linenumber" name="L558" href="#L558">558</a>         }
-<a class="jxr_linenumber" name="L559" href="#L559">559</a>       }
-<a class="jxr_linenumber" name="L560" href="#L560">560</a>       <em class="jxr_comment">// remove trailing ";"</em>
-<a class="jxr_linenumber" name="L561" href="#L561">561</a>       fRes = fRes.substring(0, Math.max(1, fRes.length()) - 1);
-<a class="jxr_linenumber" name="L562" href="#L562">562</a>       res.put(<span class="jxr_string">"XML_FACTORS"</span>, fRes);
-<a class="jxr_linenumber" name="L563" href="#L563">563</a>     }
-<a class="jxr_linenumber" name="L564" href="#L564">564</a>     <strong class="jxr_keyword">if</strong> (loci.size() &gt; 0) {
-<a class="jxr_linenumber" name="L565" href="#L565">565</a>       String lRes = <span class="jxr_string">""</span>;
-<a class="jxr_linenumber" name="L566" href="#L566">566</a>       <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i : loci) {
-<a class="jxr_linenumber" name="L567" href="#L567">567</a>         <strong class="jxr_keyword">if</strong> (!data[i].isEmpty()) {
-<a class="jxr_linenumber" name="L568" href="#L568">568</a>           lRes += parseXMLPartLabel(header[i]) + <span class="jxr_string">": "</span> + data[i] + <span class="jxr_string">";"</span>;
-<a class="jxr_linenumber" name="L569" href="#L569">569</a>         }
-<a class="jxr_linenumber" name="L570" href="#L570">570</a>       }
-<a class="jxr_linenumber" name="L571" href="#L571">571</a>       <em class="jxr_comment">// remove trailing ";"</em>
-<a class="jxr_linenumber" name="L572" href="#L572">572</a>       lRes = lRes.substring(0, Math.max(1, lRes.length()) - 1);
-<a class="jxr_linenumber" name="L573" href="#L573">573</a>       res.put(<span class="jxr_string">"XML_LOCI"</span>, lRes);
-<a class="jxr_linenumber" name="L574" href="#L574">574</a>     }
-<a class="jxr_linenumber" name="L575" href="#L575">575</a>     <strong class="jxr_keyword">return</strong> res;
-<a class="jxr_linenumber" name="L576" href="#L576">576</a>   }
-<a class="jxr_linenumber" name="L577" href="#L577">577</a> 
-<a class="jxr_linenumber" name="L578" href="#L578">578</a>   <strong class="jxr_keyword">private</strong> String unitCheck(String string) {
-<a class="jxr_linenumber" name="L579" href="#L579">579</a>     String[] split = string.split(<span class="jxr_string">":"</span>);
-<a class="jxr_linenumber" name="L580" href="#L580">580</a>     <strong class="jxr_keyword">if</strong> (split.length &gt; 2)
-<a class="jxr_linenumber" name="L581" href="#L581">581</a>       <strong class="jxr_keyword">return</strong> string.replace(<span class="jxr_string">":"</span>, <span class="jxr_string">" -"</span>);
-<a class="jxr_linenumber" name="L582" href="#L582">582</a>     <strong class="jxr_keyword">if</strong> (split.length == 2) {
-<a class="jxr_linenumber" name="L583" href="#L583">583</a>       String unit = split[1].trim();
-<a class="jxr_linenumber" name="L584" href="#L584">584</a>       <strong class="jxr_keyword">for</strong> (Unit u : Unit.values()) {
-<a class="jxr_linenumber" name="L585" href="#L585">585</a>         <strong class="jxr_keyword">if</strong> (u.getValue().equals(unit))
-<a class="jxr_linenumber" name="L586" href="#L586">586</a>           <strong class="jxr_keyword">return</strong> string;
+<a class="jxr_linenumber" name="L482" href="#L482">482</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> printSampleLevel(List&lt;ISampleBean&gt; level) {
+<a class="jxr_linenumber" name="L483" href="#L483">483</a>     logger.info(<span class="jxr_string">"###"</span>);
+<a class="jxr_linenumber" name="L484" href="#L484">484</a>     logger.info(<span class="jxr_string">"New Level of Samples:"</span>);
+<a class="jxr_linenumber" name="L485" href="#L485">485</a>     <strong class="jxr_keyword">for</strong> (ISampleBean s : level) {
+<a class="jxr_linenumber" name="L486" href="#L486">486</a>       logger.info(<span class="jxr_string">"Sample "</span> + s.getSecondaryName() + <span class="jxr_string">" (id: "</span> + s.getCode() + <span class="jxr_string">")"</span>);
+<a class="jxr_linenumber" name="L487" href="#L487">487</a>       logger.info(<span class="jxr_string">"Parents: "</span> + s.getParentIDs());
+<a class="jxr_linenumber" name="L488" href="#L488">488</a>       logger.info(s.getType());
+<a class="jxr_linenumber" name="L489" href="#L489">489</a>       logger.info(s.getMetadata());
+<a class="jxr_linenumber" name="L490" href="#L490">490</a>       logger.info(<span class="jxr_string">"#"</span>);
+<a class="jxr_linenumber" name="L491" href="#L491">491</a>     }
+<a class="jxr_linenumber" name="L492" href="#L492">492</a>     logger.info(<span class="jxr_string">"End of Sample Level"</span>);
+<a class="jxr_linenumber" name="L493" href="#L493">493</a>   }
+<a class="jxr_linenumber" name="L494" href="#L494">494</a> 
+<a class="jxr_linenumber" name="L495" href="#L495">495</a>   <strong class="jxr_keyword">private</strong> List&lt;String&gt; parsePoolParents(String poolName) {
+<a class="jxr_linenumber" name="L496" href="#L496">496</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;(Arrays.asList(poolName.split(LIST_SEPARATOR)));
+<a class="jxr_linenumber" name="L497" href="#L497">497</a>   }
+<a class="jxr_linenumber" name="L498" href="#L498">498</a> 
+<a class="jxr_linenumber" name="L499" href="#L499">499</a>   <em class="jxr_comment">// private Map&lt;String, Object&gt; parseMSExperimentData(String[] row,</em>
+<a class="jxr_linenumber" name="L500" href="#L500">500</a>   <em class="jxr_comment">// Map&lt;String, Integer&gt; headerMapping, HashMap&lt;String, Object&gt; metadata) {</em>
+<a class="jxr_linenumber" name="L501" href="#L501">501</a>   <em class="jxr_comment">// Map&lt;String, String&gt; designMap = new HashMap&lt;String, String&gt;();</em>
+<a class="jxr_linenumber" name="L502" href="#L502">502</a>   <em class="jxr_comment">// designMap.put("MS Device", "Q_MS_DEVICE");</em>
+<a class="jxr_linenumber" name="L503" href="#L503">503</a>   <em class="jxr_comment">// designMap.put("LC Column", "Q_CHROMATOGRAPHY_TYPE");</em>
+<a class="jxr_linenumber" name="L504" href="#L504">504</a>   <em class="jxr_comment">// designMap.put("LCMS Method", "Q_MS_LCMS_METHOD");</em>
+<a class="jxr_linenumber" name="L505" href="#L505">505</a>   <em class="jxr_comment">// for (String col : designMap.keySet()) {</em>
+<a class="jxr_linenumber" name="L506" href="#L506">506</a>   <em class="jxr_comment">// Object val = "";</em>
+<a class="jxr_linenumber" name="L507" href="#L507">507</a>   <em class="jxr_comment">// String openbisType = designMap.get(col);</em>
+<a class="jxr_linenumber" name="L508" href="#L508">508</a>   <em class="jxr_comment">// if (headerMapping.containsKey(col)) {</em>
+<a class="jxr_linenumber" name="L509" href="#L509">509</a>   <em class="jxr_comment">// val = row[headerMapping.get(col)];</em>
+<a class="jxr_linenumber" name="L510" href="#L510">510</a>   <em class="jxr_comment">// if (parsers.containsKey(openbisType)) {</em>
+<a class="jxr_linenumber" name="L511" href="#L511">511</a>   <em class="jxr_comment">// val = parsers.get(openbisType).parse((String) val);</em>
+<a class="jxr_linenumber" name="L512" href="#L512">512</a>   <em class="jxr_comment">// }</em>
+<a class="jxr_linenumber" name="L513" href="#L513">513</a>   <em class="jxr_comment">// }</em>
+<a class="jxr_linenumber" name="L514" href="#L514">514</a>   <em class="jxr_comment">// metadata.put(openbisType, val);</em>
+<a class="jxr_linenumber" name="L515" href="#L515">515</a>   <em class="jxr_comment">// }</em>
+<a class="jxr_linenumber" name="L516" href="#L516">516</a>   <em class="jxr_comment">// return metadata;</em>
+<a class="jxr_linenumber" name="L517" href="#L517">517</a>   <em class="jxr_comment">// }</em>
+<a class="jxr_linenumber" name="L518" href="#L518">518</a> 
+<a class="jxr_linenumber" name="L519" href="#L519">519</a>   <strong class="jxr_keyword">public</strong> Set&lt;String&gt; getSpeciesSet() {
+<a class="jxr_linenumber" name="L520" href="#L520">520</a>     <strong class="jxr_keyword">return</strong> speciesSet;
+<a class="jxr_linenumber" name="L521" href="#L521">521</a>   }
+<a class="jxr_linenumber" name="L522" href="#L522">522</a> 
+<a class="jxr_linenumber" name="L523" href="#L523">523</a>   <strong class="jxr_keyword">public</strong> Set&lt;String&gt; getTissueSet() {
+<a class="jxr_linenumber" name="L524" href="#L524">524</a>     <strong class="jxr_keyword">return</strong> tissueSet;
+<a class="jxr_linenumber" name="L525" href="#L525">525</a>   }
+<a class="jxr_linenumber" name="L526" href="#L526">526</a> 
+<a class="jxr_linenumber" name="L527" href="#L527">527</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> checkUniqueIDsBetweenSets(Set&lt;String&gt; speciesSet, Set&lt;String&gt; tissueSet) {
+<a class="jxr_linenumber" name="L528" href="#L528">528</a>     Set&lt;String&gt; intersection1 = <strong class="jxr_keyword">new</strong> HashSet&lt;String&gt;(speciesSet);
+<a class="jxr_linenumber" name="L529" href="#L529">529</a>     intersection1.retainAll(tissueSet);
+<a class="jxr_linenumber" name="L530" href="#L530">530</a>     <strong class="jxr_keyword">if</strong> (!intersection1.isEmpty()) {
+<a class="jxr_linenumber" name="L531" href="#L531">531</a>       error = <span class="jxr_string">"Entry "</span> + intersection1.iterator().next()
+<a class="jxr_linenumber" name="L532" href="#L532">532</a>           + <span class="jxr_string">" was found as organism and tissue. It can't be both!"</span>;
+<a class="jxr_linenumber" name="L533" href="#L533">533</a>       <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L534" href="#L534">534</a>     }
+<a class="jxr_linenumber" name="L535" href="#L535">535</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L536" href="#L536">536</a>   }
+<a class="jxr_linenumber" name="L537" href="#L537">537</a> 
+<a class="jxr_linenumber" name="L538" href="#L538">538</a>   <strong class="jxr_keyword">private</strong> String trySplitMetadata(String line, String keyword) {
+<a class="jxr_linenumber" name="L539" href="#L539">539</a>     <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L540" href="#L540">540</a>       <strong class="jxr_keyword">return</strong> line.split(keyword)[1].trim();
+<a class="jxr_linenumber" name="L541" href="#L541">541</a>     } <strong class="jxr_keyword">catch</strong> (ArrayIndexOutOfBoundsException e) {
+<a class="jxr_linenumber" name="L542" href="#L542">542</a>       <strong class="jxr_keyword">return</strong> <span class="jxr_string">""</span>;
+<a class="jxr_linenumber" name="L543" href="#L543">543</a>     }
+<a class="jxr_linenumber" name="L544" href="#L544">544</a>   }
+<a class="jxr_linenumber" name="L545" href="#L545">545</a> 
+<a class="jxr_linenumber" name="L546" href="#L546">546</a>   <strong class="jxr_keyword">private</strong> String replaceSpecials(String s) {
+<a class="jxr_linenumber" name="L547" href="#L547">547</a>     <strong class="jxr_keyword">return</strong> s.replace(<span class="jxr_string">"%%%"</span>, <span class="jxr_string">"#"</span>).replace(<span class="jxr_string">"&gt;&gt;&gt;"</span>, <span class="jxr_string">"="</span>);
+<a class="jxr_linenumber" name="L548" href="#L548">548</a>   }
+<a class="jxr_linenumber" name="L549" href="#L549">549</a> 
+<a class="jxr_linenumber" name="L550" href="#L550">550</a>   <strong class="jxr_keyword">private</strong> HashMap&lt;String, Object&gt; fillMetadata(String[] header, String[] data, List&lt;Integer&gt; meta,
+<a class="jxr_linenumber" name="L551" href="#L551">551</a>       Set&lt;Integer&gt; factors, List&lt;Integer&gt; loci, SampleType type) {
+<a class="jxr_linenumber" name="L552" href="#L552">552</a>     Map&lt;String, List&lt;String&gt;&gt; headersToOpenbisCode = headersToTypeCodePerSampletype.get(type);
+<a class="jxr_linenumber" name="L553" href="#L553">553</a>     HashMap&lt;String, Object&gt; res = <strong class="jxr_keyword">new</strong> HashMap&lt;String, Object&gt;();
+<a class="jxr_linenumber" name="L554" href="#L554">554</a>     <strong class="jxr_keyword">if</strong> (headersToOpenbisCode != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L555" href="#L555">555</a>       <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i : meta) {
+<a class="jxr_linenumber" name="L556" href="#L556">556</a>         String label = header[i];
+<a class="jxr_linenumber" name="L557" href="#L557">557</a>         <strong class="jxr_keyword">if</strong> (!data[i].isEmpty() &amp;&amp; headersToOpenbisCode.containsKey(label)) {
+<a class="jxr_linenumber" name="L558" href="#L558">558</a>           <strong class="jxr_keyword">for</strong> (String propertyCode : headersToOpenbisCode.get(label)) {
+<a class="jxr_linenumber" name="L559" href="#L559">559</a>             Object val = data[i];
+<a class="jxr_linenumber" name="L560" href="#L560">560</a>             <em class="jxr_comment">// if (parsers.containsKey(propertyCode))</em>
+<a class="jxr_linenumber" name="L561" href="#L561">561</a>             <em class="jxr_comment">// val = parsers.get(propertyCode).parse(data[i]);</em>
+<a class="jxr_linenumber" name="L562" href="#L562">562</a>             res.put(propertyCode, val);
+<a class="jxr_linenumber" name="L563" href="#L563">563</a>           }
+<a class="jxr_linenumber" name="L564" href="#L564">564</a>         }
+<a class="jxr_linenumber" name="L565" href="#L565">565</a>       }
+<a class="jxr_linenumber" name="L566" href="#L566">566</a>     }
+<a class="jxr_linenumber" name="L567" href="#L567">567</a>     <strong class="jxr_keyword">if</strong> (factors.size() &gt; 0)
+<a class="jxr_linenumber" name="L568" href="#L568">568</a> 
+<a class="jxr_linenumber" name="L569" href="#L569">569</a>     {
+<a class="jxr_linenumber" name="L570" href="#L570">570</a>       String fRes = <span class="jxr_string">""</span>;
+<a class="jxr_linenumber" name="L571" href="#L571">571</a>       <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i : factors) {
+<a class="jxr_linenumber" name="L572" href="#L572">572</a>         <strong class="jxr_keyword">if</strong> (!data[i].isEmpty()) {
+<a class="jxr_linenumber" name="L573" href="#L573">573</a>           String values = unitCheck(data[i]);
+<a class="jxr_linenumber" name="L574" href="#L574">574</a>           fRes += parseXMLPartLabel(header[i]) + <span class="jxr_string">": "</span> + values + <span class="jxr_string">";"</span>;
+<a class="jxr_linenumber" name="L575" href="#L575">575</a>         }
+<a class="jxr_linenumber" name="L576" href="#L576">576</a>       }
+<a class="jxr_linenumber" name="L577" href="#L577">577</a>       <em class="jxr_comment">// remove trailing ";"</em>
+<a class="jxr_linenumber" name="L578" href="#L578">578</a>       fRes = fRes.substring(0, Math.max(1, fRes.length()) - 1);
+<a class="jxr_linenumber" name="L579" href="#L579">579</a>       res.put(<span class="jxr_string">"XML_FACTORS"</span>, fRes);
+<a class="jxr_linenumber" name="L580" href="#L580">580</a>     }
+<a class="jxr_linenumber" name="L581" href="#L581">581</a>     <strong class="jxr_keyword">if</strong> (loci.size() &gt; 0) {
+<a class="jxr_linenumber" name="L582" href="#L582">582</a>       String lRes = <span class="jxr_string">""</span>;
+<a class="jxr_linenumber" name="L583" href="#L583">583</a>       <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i : loci) {
+<a class="jxr_linenumber" name="L584" href="#L584">584</a>         <strong class="jxr_keyword">if</strong> (!data[i].isEmpty()) {
+<a class="jxr_linenumber" name="L585" href="#L585">585</a>           lRes += parseXMLPartLabel(header[i]) + <span class="jxr_string">": "</span> + data[i] + <span class="jxr_string">";"</span>;
+<a class="jxr_linenumber" name="L586" href="#L586">586</a>         }
 <a class="jxr_linenumber" name="L587" href="#L587">587</a>       }
-<a class="jxr_linenumber" name="L588" href="#L588">588</a>       <strong class="jxr_keyword">return</strong> string.replace(<span class="jxr_string">":"</span>, <span class="jxr_string">" -"</span>);
-<a class="jxr_linenumber" name="L589" href="#L589">589</a>     }
-<a class="jxr_linenumber" name="L590" href="#L590">590</a>     <strong class="jxr_keyword">return</strong> string;
-<a class="jxr_linenumber" name="L591" href="#L591">591</a>   }
-<a class="jxr_linenumber" name="L592" href="#L592">592</a> 
-<a class="jxr_linenumber" name="L593" href="#L593">593</a>   <strong class="jxr_keyword">private</strong> String parseXMLPartLabel(String colName) {
-<a class="jxr_linenumber" name="L594" href="#L594">594</a>     <strong class="jxr_keyword">return</strong> colName.split(<span class="jxr_string">": "</span>)[1];
-<a class="jxr_linenumber" name="L595" href="#L595">595</a>   }
-<a class="jxr_linenumber" name="L596" href="#L596">596</a> 
-<a class="jxr_linenumber" name="L597" href="#L597">597</a>   <strong class="jxr_keyword">public</strong> String getError() {
-<a class="jxr_linenumber" name="L598" href="#L598">598</a>     <strong class="jxr_keyword">if</strong> (error != <strong class="jxr_keyword">null</strong>)
-<a class="jxr_linenumber" name="L599" href="#L599">599</a>       logger.error(error);
-<a class="jxr_linenumber" name="L600" href="#L600">600</a>     <strong class="jxr_keyword">else</strong>
-<a class="jxr_linenumber" name="L601" href="#L601">601</a>       logger.info(<span class="jxr_string">"Parsing of experimental design successful."</span>);
-<a class="jxr_linenumber" name="L602" href="#L602">602</a>     <strong class="jxr_keyword">return</strong> error;
-<a class="jxr_linenumber" name="L603" href="#L603">603</a>   }
-<a class="jxr_linenumber" name="L604" href="#L604">604</a> 
-<a class="jxr_linenumber" name="L605" href="#L605">605</a>   @Override
-<a class="jxr_linenumber" name="L606" href="#L606">606</a>   <strong class="jxr_keyword">public</strong> Set&lt;String&gt; getAnalyteSet() {
-<a class="jxr_linenumber" name="L607" href="#L607">607</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> HashSet&lt;String&gt;(Arrays.asList(<span class="jxr_string">"PROTEINS"</span>, <span class="jxr_string">"PEPTIDES"</span>));
+<a class="jxr_linenumber" name="L588" href="#L588">588</a>       <em class="jxr_comment">// remove trailing ";"</em>
+<a class="jxr_linenumber" name="L589" href="#L589">589</a>       lRes = lRes.substring(0, Math.max(1, lRes.length()) - 1);
+<a class="jxr_linenumber" name="L590" href="#L590">590</a>       res.put(<span class="jxr_string">"XML_LOCI"</span>, lRes);
+<a class="jxr_linenumber" name="L591" href="#L591">591</a>     }
+<a class="jxr_linenumber" name="L592" href="#L592">592</a>     <strong class="jxr_keyword">return</strong> res;
+<a class="jxr_linenumber" name="L593" href="#L593">593</a>   }
+<a class="jxr_linenumber" name="L594" href="#L594">594</a> 
+<a class="jxr_linenumber" name="L595" href="#L595">595</a>   <strong class="jxr_keyword">private</strong> String unitCheck(String string) {
+<a class="jxr_linenumber" name="L596" href="#L596">596</a>     String[] split = string.split(<span class="jxr_string">":"</span>);
+<a class="jxr_linenumber" name="L597" href="#L597">597</a>     <strong class="jxr_keyword">if</strong> (split.length &gt; 2)
+<a class="jxr_linenumber" name="L598" href="#L598">598</a>       <strong class="jxr_keyword">return</strong> string.replace(<span class="jxr_string">":"</span>, <span class="jxr_string">" -"</span>);
+<a class="jxr_linenumber" name="L599" href="#L599">599</a>     <strong class="jxr_keyword">if</strong> (split.length == 2) {
+<a class="jxr_linenumber" name="L600" href="#L600">600</a>       String unit = split[1].trim();
+<a class="jxr_linenumber" name="L601" href="#L601">601</a>       <strong class="jxr_keyword">for</strong> (Unit u : Unit.values()) {
+<a class="jxr_linenumber" name="L602" href="#L602">602</a>         <strong class="jxr_keyword">if</strong> (u.getValue().equals(unit))
+<a class="jxr_linenumber" name="L603" href="#L603">603</a>           <strong class="jxr_keyword">return</strong> string;
+<a class="jxr_linenumber" name="L604" href="#L604">604</a>       }
+<a class="jxr_linenumber" name="L605" href="#L605">605</a>       <strong class="jxr_keyword">return</strong> string.replace(<span class="jxr_string">":"</span>, <span class="jxr_string">" -"</span>);
+<a class="jxr_linenumber" name="L606" href="#L606">606</a>     }
+<a class="jxr_linenumber" name="L607" href="#L607">607</a>     <strong class="jxr_keyword">return</strong> string;
 <a class="jxr_linenumber" name="L608" href="#L608">608</a>   }
 <a class="jxr_linenumber" name="L609" href="#L609">609</a> 
-<a class="jxr_linenumber" name="L610" href="#L610">610</a>   @Override
-<a class="jxr_linenumber" name="L611" href="#L611">611</a>   <strong class="jxr_keyword">public</strong> List&lt;String&gt; getTSVByRows() {
-<a class="jxr_linenumber" name="L612" href="#L612">612</a>     <strong class="jxr_keyword">return</strong> tsvByRows;
-<a class="jxr_linenumber" name="L613" href="#L613">613</a>   }
-<a class="jxr_linenumber" name="L614" href="#L614">614</a> 
-<a class="jxr_linenumber" name="L615" href="#L615">615</a>   @Override
-<a class="jxr_linenumber" name="L616" href="#L616">616</a>   <strong class="jxr_keyword">public</strong> <a name="StructuredExperiment" href="../../../../life/qbic/expdesign/model/StructuredExperiment.html#StructuredExperiment">StructuredExperiment</a> getGraphStructure() {
-<a class="jxr_linenumber" name="L617" href="#L617">617</a>     <em class="jxr_comment">// TODO Auto-generated method stub</em>
-<a class="jxr_linenumber" name="L618" href="#L618">618</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L619" href="#L619">619</a>   }
-<a class="jxr_linenumber" name="L620" href="#L620">620</a> 
-<a class="jxr_linenumber" name="L621" href="#L621">621</a>   @Override
-<a class="jxr_linenumber" name="L622" href="#L622">622</a>   <em class="jxr_comment">// TODO</em>
-<a class="jxr_linenumber" name="L623" href="#L623">623</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> countEntities(File file) <strong class="jxr_keyword">throws</strong> IOException {
-<a class="jxr_linenumber" name="L624" href="#L624">624</a>     <strong class="jxr_keyword">return</strong> -1;
+<a class="jxr_linenumber" name="L610" href="#L610">610</a>   <strong class="jxr_keyword">private</strong> String parseXMLPartLabel(String colName) {
+<a class="jxr_linenumber" name="L611" href="#L611">611</a>     <strong class="jxr_keyword">return</strong> colName.split(<span class="jxr_string">": "</span>)[1];
+<a class="jxr_linenumber" name="L612" href="#L612">612</a>   }
+<a class="jxr_linenumber" name="L613" href="#L613">613</a> 
+<a class="jxr_linenumber" name="L614" href="#L614">614</a>   <strong class="jxr_keyword">public</strong> String getError() {
+<a class="jxr_linenumber" name="L615" href="#L615">615</a>     <strong class="jxr_keyword">if</strong> (error != <strong class="jxr_keyword">null</strong>)
+<a class="jxr_linenumber" name="L616" href="#L616">616</a>       logger.error(error);
+<a class="jxr_linenumber" name="L617" href="#L617">617</a>     <strong class="jxr_keyword">else</strong>
+<a class="jxr_linenumber" name="L618" href="#L618">618</a>       logger.info(<span class="jxr_string">"Parsing of experimental design successful."</span>);
+<a class="jxr_linenumber" name="L619" href="#L619">619</a>     <strong class="jxr_keyword">return</strong> error;
+<a class="jxr_linenumber" name="L620" href="#L620">620</a>   }
+<a class="jxr_linenumber" name="L621" href="#L621">621</a> 
+<a class="jxr_linenumber" name="L622" href="#L622">622</a>   @Override
+<a class="jxr_linenumber" name="L623" href="#L623">623</a>   <strong class="jxr_keyword">public</strong> Set&lt;String&gt; getAnalyteSet() {
+<a class="jxr_linenumber" name="L624" href="#L624">624</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> HashSet&lt;String&gt;(Arrays.asList(<span class="jxr_string">"PROTEINS"</span>, <span class="jxr_string">"PEPTIDES"</span>));
 <a class="jxr_linenumber" name="L625" href="#L625">625</a>   }
 <a class="jxr_linenumber" name="L626" href="#L626">626</a> 
 <a class="jxr_linenumber" name="L627" href="#L627">627</a>   @Override
-<a class="jxr_linenumber" name="L628" href="#L628">628</a>   <strong class="jxr_keyword">public</strong> List&lt;TechnologyType&gt; getTechnologyTypes() {
-<a class="jxr_linenumber" name="L629" href="#L629">629</a>     ArrayList&lt;TechnologyType&gt; res = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
-<a class="jxr_linenumber" name="L630" href="#L630">630</a>     res.add(<strong class="jxr_keyword">new</strong> TechnologyType(<span class="jxr_string">"Proteomics"</span>));
-<a class="jxr_linenumber" name="L631" href="#L631">631</a>     <strong class="jxr_keyword">if</strong> (analyteSet.contains(<span class="jxr_string">"PEPTIDES"</span>)) {
-<a class="jxr_linenumber" name="L632" href="#L632">632</a>       res.add(<strong class="jxr_keyword">new</strong> TechnologyType(<span class="jxr_string">"Peptidomics"</span>));
-<a class="jxr_linenumber" name="L633" href="#L633">633</a>     }
-<a class="jxr_linenumber" name="L634" href="#L634">634</a>     <strong class="jxr_keyword">return</strong> res;
-<a class="jxr_linenumber" name="L635" href="#L635">635</a>   }
-<a class="jxr_linenumber" name="L636" href="#L636">636</a> 
-<a class="jxr_linenumber" name="L637" href="#L637">637</a>   @Override
-<a class="jxr_linenumber" name="L638" href="#L638">638</a>   <strong class="jxr_keyword">public</strong> Map&lt;String, List&lt;String&gt;&gt; getParsedCategoriesToValues(List&lt;String&gt; header) {
-<a class="jxr_linenumber" name="L639" href="#L639">639</a>     Map&lt;String, List&lt;String&gt;&gt; res = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
-<a class="jxr_linenumber" name="L640" href="#L640">640</a>     <strong class="jxr_keyword">for</strong> (String cat : header) {
-<a class="jxr_linenumber" name="L641" href="#L641">641</a>       <strong class="jxr_keyword">if</strong> (parsedCategoriesToValues.containsKey(cat)) {
-<a class="jxr_linenumber" name="L642" href="#L642">642</a>         res.put(cat, <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;(parsedCategoriesToValues.get(cat)));
-<a class="jxr_linenumber" name="L643" href="#L643">643</a>       } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L644" href="#L644">644</a>         logger.warn(cat + <span class="jxr_string">" not found"</span>);
-<a class="jxr_linenumber" name="L645" href="#L645">645</a>       }
-<a class="jxr_linenumber" name="L646" href="#L646">646</a>     }
-<a class="jxr_linenumber" name="L647" href="#L647">647</a>     <strong class="jxr_keyword">return</strong> res;
-<a class="jxr_linenumber" name="L648" href="#L648">648</a>   }
-<a class="jxr_linenumber" name="L649" href="#L649">649</a> 
-<a class="jxr_linenumber" name="L650" href="#L650">650</a> }
+<a class="jxr_linenumber" name="L628" href="#L628">628</a>   <strong class="jxr_keyword">public</strong> List&lt;String&gt; getTSVByRows() {
+<a class="jxr_linenumber" name="L629" href="#L629">629</a>     <strong class="jxr_keyword">return</strong> tsvByRows;
+<a class="jxr_linenumber" name="L630" href="#L630">630</a>   }
+<a class="jxr_linenumber" name="L631" href="#L631">631</a> 
+<a class="jxr_linenumber" name="L632" href="#L632">632</a>   @Override
+<a class="jxr_linenumber" name="L633" href="#L633">633</a>   <strong class="jxr_keyword">public</strong> <a name="StructuredExperiment" href="../../../../life/qbic/expdesign/model/StructuredExperiment.html#StructuredExperiment">StructuredExperiment</a> getGraphStructure() {
+<a class="jxr_linenumber" name="L634" href="#L634">634</a>     <em class="jxr_comment">// TODO Auto-generated method stub</em>
+<a class="jxr_linenumber" name="L635" href="#L635">635</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L636" href="#L636">636</a>   }
+<a class="jxr_linenumber" name="L637" href="#L637">637</a> 
+<a class="jxr_linenumber" name="L638" href="#L638">638</a>   @Override
+<a class="jxr_linenumber" name="L639" href="#L639">639</a>   <em class="jxr_comment">// TODO</em>
+<a class="jxr_linenumber" name="L640" href="#L640">640</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> countEntities(File file) <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L641" href="#L641">641</a>     <strong class="jxr_keyword">return</strong> -1;
+<a class="jxr_linenumber" name="L642" href="#L642">642</a>   }
+<a class="jxr_linenumber" name="L643" href="#L643">643</a> 
+<a class="jxr_linenumber" name="L644" href="#L644">644</a>   @Override
+<a class="jxr_linenumber" name="L645" href="#L645">645</a>   <strong class="jxr_keyword">public</strong> List&lt;TechnologyType&gt; getTechnologyTypes() {
+<a class="jxr_linenumber" name="L646" href="#L646">646</a>     ArrayList&lt;TechnologyType&gt; res = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L647" href="#L647">647</a>     res.add(<strong class="jxr_keyword">new</strong> TechnologyType(<span class="jxr_string">"Proteomics"</span>));
+<a class="jxr_linenumber" name="L648" href="#L648">648</a>     <strong class="jxr_keyword">if</strong> (analyteSet.contains(<span class="jxr_string">"PEPTIDES"</span>)) {
+<a class="jxr_linenumber" name="L649" href="#L649">649</a>       res.add(<strong class="jxr_keyword">new</strong> TechnologyType(<span class="jxr_string">"Peptidomics"</span>));
+<a class="jxr_linenumber" name="L650" href="#L650">650</a>     }
+<a class="jxr_linenumber" name="L651" href="#L651">651</a>     <strong class="jxr_keyword">return</strong> res;
+<a class="jxr_linenumber" name="L652" href="#L652">652</a>   }
+<a class="jxr_linenumber" name="L653" href="#L653">653</a> 
+<a class="jxr_linenumber" name="L654" href="#L654">654</a>   @Override
+<a class="jxr_linenumber" name="L655" href="#L655">655</a>   <strong class="jxr_keyword">public</strong> Map&lt;String, List&lt;String&gt;&gt; getParsedCategoriesToValues(List&lt;String&gt; header) {
+<a class="jxr_linenumber" name="L656" href="#L656">656</a>     Map&lt;String, List&lt;String&gt;&gt; res = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L657" href="#L657">657</a>     <strong class="jxr_keyword">for</strong> (String cat : header) {
+<a class="jxr_linenumber" name="L658" href="#L658">658</a>       <strong class="jxr_keyword">if</strong> (parsedCategoriesToValues.containsKey(cat)) {
+<a class="jxr_linenumber" name="L659" href="#L659">659</a>         res.put(cat, <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;(parsedCategoriesToValues.get(cat)));
+<a class="jxr_linenumber" name="L660" href="#L660">660</a>       } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L661" href="#L661">661</a>         logger.warn(cat + <span class="jxr_string">" not found"</span>);
+<a class="jxr_linenumber" name="L662" href="#L662">662</a>       }
+<a class="jxr_linenumber" name="L663" href="#L663">663</a>     }
+<a class="jxr_linenumber" name="L664" href="#L664">664</a>     <strong class="jxr_keyword">return</strong> res;
+<a class="jxr_linenumber" name="L665" href="#L665">665</a>   }
+<a class="jxr_linenumber" name="L666" href="#L666">666</a> 
+<a class="jxr_linenumber" name="L667" href="#L667">667</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2021. All rights reserved.</div>
