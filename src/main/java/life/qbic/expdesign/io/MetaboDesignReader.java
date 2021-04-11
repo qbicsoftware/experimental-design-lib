@@ -429,6 +429,7 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
           metaboliteToSample.put(sampleKey, metabolite);
           metabolite.addProperty("Q_SAMPLE_TYPE", "SMALLMOLECULES");
         }
+        msRun.addParentID(metabolite.getCode());
       }
     }
     experimentInfos = new HashMap<String, List<Map<String, Object>>>();
