@@ -353,7 +353,7 @@
 <a class="jxr_linenumber" name="L345" href="#L345">345</a>         sampleID++;
 <a class="jxr_linenumber" name="L346" href="#L346">346</a>         TSVSampleBean msRun = <strong class="jxr_keyword">new</strong> TSVSampleBean(Integer.toString(sampleID), SampleType.Q_MS_RUN, <span class="jxr_string">""</span>,
 <a class="jxr_linenumber" name="L347" href="#L347">347</a>             fillMetadata(header, row, meta, factors, <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;(), SampleType.Q_MS_RUN));
-<a class="jxr_linenumber" name="L348" href="#L348">348</a>         <em class="jxr_comment">// msRun.addProperty("File", fileName);//TODO?</em>
+<a class="jxr_linenumber" name="L348" href="#L348">348</a>          msRun.addProperty(<span class="jxr_string">"File"</span>, sampleKey);<em class="jxr_comment">//TODO? file name</em>
 <a class="jxr_linenumber" name="L349" href="#L349">349</a>         msRun.addProperty(<span class="jxr_string">"Q_SAMPLE_SOLVENT"</span>, sampleSolvent);
 <a class="jxr_linenumber" name="L350" href="#L350">350</a> 
 <a class="jxr_linenumber" name="L351" href="#L351">351</a>         String lcmsMethod = row[headerMapping.get(<span class="jxr_string">"LC MS Method Name"</span>)];
