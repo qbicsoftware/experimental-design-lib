@@ -13,6 +13,7 @@ public class ExtendedMSProperties {
   private String lcDevice;
   private String lcDetectionMethod;
   private String ionizationMode;
+  private String washingSolvent;
 
   public ExtendedMSProperties(String lcmsMethod, String msDevice) {
     super();
@@ -80,10 +81,16 @@ public class ExtendedMSProperties {
     return ionizationMode;
   }
 
-
-
   public void setIonizationMode(String ionizationMode) {
     this.ionizationMode = ionizationMode;
+  }
+
+  public String getWashingSolvent() {
+    return washingSolvent;
+  }
+
+  public void setWashingSolvent(String washingSolvent) {
+    this.washingSolvent = washingSolvent;
   }
 
   @Override
@@ -98,6 +105,7 @@ public class ExtendedMSProperties {
     result = prime * result + ((lcDetectionMethod == null) ? 0 : lcDetectionMethod.hashCode());
     result = prime * result + ((lcmsDescription == null) ? 0 : lcmsDescription.hashCode());
     result = prime * result + ((lcmsMethod == null) ? 0 : lcmsMethod.hashCode());
+    result = prime * result + ((washingSolvent == null) ? 0 : washingSolvent.hashCode());
     return result;
   }
 
@@ -150,6 +158,11 @@ public class ExtendedMSProperties {
         return false;
     } else if (!lcmsMethod.equals(other.lcmsMethod))
       return false;
+    if (washingSolvent == null) {
+      if (other.washingSolvent != null)
+        return false;
+    } else if (!washingSolvent.equals(other.washingSolvent))
+      return false;
     return true;
   }
 
@@ -171,6 +184,8 @@ public class ExtendedMSProperties {
       res.put("Q_LC_DETECTION_METHOD", lcDetectionMethod);
     if (!columnName.isEmpty())
       res.put("Q_CHROMATOGRAPHY_COLUMN_NAME", columnName);
+    if (!washingSolvent.isEmpty())
+      res.put("Q_WASHING_SOLVENT", washingSolvent);
     return res;
   }
 

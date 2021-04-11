@@ -80,8 +80,6 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
 
 
     Map<String, List<String>> molMetadata = new HashMap<>();
-    molMetadata.put("Sample solvent", Collections.singletonList("Q_SAMPLE_SOLVENT"));
-    molMetadata.put("Washing solvent", Collections.singletonList("Q_WASHING_SOLVENT"));
     // peptideMetadata.put("Label", Collections.singletonList("Q_MOLECULAR_LABEL"));
     // peptideMetadata.put("Secondary Name", Collections.singletonList("Q_SECONDARY_NAME"));
     // peptideMetadata.put("Sample Secondary Name", "Q_EXTERNALDB_ID");
@@ -89,6 +87,7 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
     Map<String, List<String>> msRunMetadata = new HashMap<>();
     // msRunMetadata.put("Facility Comment", Collections.singletonList("Q_ADDITIONAL_INFO"));
     msRunMetadata.put("Injection volume (uL)", Collections.singletonList("Q_INJECTION_VOLUME"));
+    msRunMetadata.put("Sample solvent", Collections.singletonList("Q_SAMPLE_SOLVENT"));
 
     headersToTypeCodePerSampletype = new HashMap<>();
     headersToTypeCodePerSampletype.put(SampleType.Q_BIOLOGICAL_ENTITY, sourceMetadata);
@@ -336,6 +335,7 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
         String cultureType = row[headerMapping.get("Culture type")];
         String sampleType = row[headerMapping.get("Sample type")];
         String cellLysis = row[headerMapping.get("Cell lysis")];
+        String lysisParams = row[headerMapping.get("Lysis parameters")];
         String strainCollNumber = row[headerMapping.get("Strain lab collection number")];
 
         speciesSet.add(species);
@@ -345,7 +345,8 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
         sampleID++;
         TSVSampleBean msRun = new TSVSampleBean(Integer.toString(sampleID), SampleType.Q_MS_RUN, "",
             fillMetadata(header, row, meta, factors, new ArrayList<>(), SampleType.Q_MS_RUN));
-        // msRun.addProperty("File", fileName);
+        // msRun.addProperty("File", fileName);//TODO?
+        msRun.addProperty("Q_SAMPLE_SOLVENT", sampleSolvent);
 
         String lcmsMethod = row[headerMapping.get("LC MS Method Name")];
         String msDevice = row[headerMapping.get("MS device")];
@@ -360,6 +361,7 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
         msProperties.setLCDevice(lcDevice);
         msProperties.setIonizationMode(ionMode);
         msProperties.setColumnName(column);
+        msProperties.setWashingSolvent(washingSolvent);
         String expID = Integer.toString(msProperties.hashCode());
         msPropertiesToID.put(msProperties, expID);
         msRun.setExperiment(expID);
@@ -408,7 +410,7 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
           tissueToSample.put(tissueID, tissueSample);
 
           MetabolitePrepProperties props =
-              new MetabolitePrepProperties(harvestingConditions, cellLysis);
+              new MetabolitePrepProperties(harvestingConditions, cellLysis, lysisParams);
           String prepExpID = Integer.toString(props.hashCode());
           metaboPrepPropertiesToID.put(props, prepExpID);
           tissueSample.setExperiment(prepExpID);
@@ -426,8 +428,6 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
           metabolite.addProperty("Q_EXTERNALDB_ID", sampleKey);
           metaboliteToSample.put(sampleKey, metabolite);
           metabolite.addProperty("Q_SAMPLE_TYPE", "SMALLMOLECULES");
-          metabolite.addProperty("Q_WASHING_SOLVENT", washingSolvent);
-          metabolite.addProperty("Q_SAMPLE_SOLVENT", sampleSolvent);
         }
       }
     }

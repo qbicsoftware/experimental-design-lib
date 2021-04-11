@@ -47,6 +47,7 @@ public class MetaboDesignReaderTest {
     Map<String, Object> tissuePrepProps = new HashMap<>();
     tissuePrepProps.put("Q_HARVESTING_CONDITIONS", "centrifugation");
     tissuePrepProps.put("Q_CELL_LYSIS", "boiling");
+    tissuePrepProps.put("Q_CELL_LYSIS_PARAMETERS", "lysis stuff");
 
     Map<String, Object> msProps = new HashMap<>();
     msProps.put("Q_MS_LCMS_METHOD", "1_D_M_ZIC_pHILIC_neg_85-905");
@@ -56,6 +57,7 @@ public class MetaboDesignReaderTest {
     msProps.put("Q_CHROMATOGRAPHY_COLUMN_NAME", "SeQuant ZIC-pHILIC");
     // msProps.put("Q_MS_LCMS_METHOD_INFO", "UV");
     msProps.put("Q_LC_DETECTION_METHOD", "UV");
+    msProps.put("Q_WASHING_SOLVENT", "alcohol");
 
     ExperimentType msType = ExperimentType.Q_MS_MEASUREMENT;
     ExperimentType orgType = ExperimentType.Q_EXPERIMENTAL_DESIGN;
@@ -125,11 +127,10 @@ public class MetaboDesignReaderTest {
 
     Map<String, String> molMetadata = new HashMap<>();
     molMetadata.put("Q_SAMPLE_TYPE", "SMALLMOLECULES");
-    molMetadata.put("Q_SAMPLE_SOLVENT", "beer");
-    molMetadata.put("Q_WASHING_SOLVENT", "alcohol");
 
     Map<String, String> msRunMetadata = new HashMap<>();
     msRunMetadata.put("Q_INJECTION_VOLUME", "10");
+    msRunMetadata.put("Q_SAMPLE_SOLVENT", "beer");
 
     for (Entry<String, String> entry : entityMetadata.entrySet()) {
       assert (searchSamplesForProperty(processed, SampleType.Q_BIOLOGICAL_ENTITY, entry));
