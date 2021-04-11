@@ -27,7 +27,8 @@ public class MetaboDesignReaderTest {
 
   private File fullExample1 =
       new File(getClass().getResource("mtx/metabo_full_example1.tsv").getFile());
-  private File standardtest = new File(getClass().getResource("mtx/metabo_small_test.tsv").getFile());
+  private File standardtest =
+      new File(getClass().getResource("mtx/metabo_small_test.tsv").getFile());
 
 
   @Before
@@ -39,10 +40,11 @@ public class MetaboDesignReaderTest {
     p.processTSV(fullExample1, new MetaboDesignReader(), false);
     System.out.println("ERROR? " + p.getError());
 
+    Map<String, Object> speciesPrepProps = new HashMap<>();
+    speciesPrepProps.put("Q_CULTURE_MEDIUM", "MH");
+    speciesPrepProps.put("Q_CULTURE_TYPE", "solid");
 
     Map<String, Object> tissuePrepProps = new HashMap<>();
-    tissuePrepProps.put("Q_CULTURE_MEDIUM", "MH");
-    tissuePrepProps.put("Q_CULTURE_TYPE", "solid");
     tissuePrepProps.put("Q_HARVESTING_CONDITIONS", "centrifugation");
     tissuePrepProps.put("Q_CELL_LYSIS", "boiling");
 
@@ -52,24 +54,24 @@ public class MetaboDesignReaderTest {
     msProps.put("Q_LC_DEVICE", "Dionex");
     msProps.put("Q_IONIZATION_MODE", "negative");
     msProps.put("Q_CHROMATOGRAPHY_COLUMN_NAME", "SeQuant ZIC-pHILIC");
-//    msProps.put("Q_MS_LCMS_METHOD_INFO", "UV");
+    // msProps.put("Q_MS_LCMS_METHOD_INFO", "UV");
     msProps.put("Q_LC_DETECTION_METHOD", "UV");
 
     ExperimentType msType = ExperimentType.Q_MS_MEASUREMENT;
-    // ExperimentType prepType = ExperimentType.Q_SAMPLE_PREPARATION;
+    ExperimentType orgType = ExperimentType.Q_EXPERIMENTAL_DESIGN;
     ExperimentType extrType = ExperimentType.Q_SAMPLE_EXTRACTION;
     Map<String, Map<String, Object>> extrExps =
         p.transformAndReturnSpecialExperimentsOfTypeOrNull(extrType.toString());
-    // Map<String, Map<String, Object>> prepExps =
-    // p.transformAndReturnSpecialExperimentsOfTypeOrNull(prepType.toString());
+    Map<String, Map<String, Object>> organismExps =
+        p.transformAndReturnSpecialExperimentsOfTypeOrNull(orgType.toString());
     Map<String, Map<String, Object>> msExps =
         p.transformAndReturnSpecialExperimentsOfTypeOrNull(msType.toString());
     for (Entry<String, Object> entry : tissuePrepProps.entrySet()) {
       assert (searchExperimentsForProperty(extrExps, extrType, entry));
     }
-    // for (Entry<String, Object> entry : samplePrepProps.entrySet()) {
-    // assert (searchExperimentsForProperty(prepExps, prepType, entry));
-    // }
+    for (Entry<String, Object> entry : speciesPrepProps.entrySet()) {
+      assert (searchExperimentsForProperty(organismExps, orgType, entry));
+    }
     for (Entry<String, Object> entry : msProps.entrySet()) {
       assert (searchExperimentsForProperty(msExps, msType, entry));
     }

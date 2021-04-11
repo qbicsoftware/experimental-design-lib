@@ -1,31 +1,17 @@
 package life.qbic.expdesign.model;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class MetabolitePrepProperties {
 
-  private String cultureMedium;
-  private String cultureType;
   private String harvestingConditions;
   private String cellLysis;
 
-  public MetabolitePrepProperties(String cultureMedium, String cultureType,
-      String harvestingConditions, String cellLysis) {
+  public MetabolitePrepProperties(String harvestingConditions, String cellLysis) {
     super();
-    this.cultureMedium = cultureMedium;
-    this.cultureType = cultureType;
     this.harvestingConditions = harvestingConditions;
     this.cellLysis = cellLysis;
-  }
-
-  public String getCultureMedium() {
-    return cultureMedium;
-  }
-
-  public String getCultureType() {
-    return cultureType;
   }
 
   public String getHarvestingConditions() {
@@ -41,8 +27,6 @@ public class MetabolitePrepProperties {
     final int prime = 31;
     int result = 1;
     result = prime * result + ((cellLysis == null) ? 0 : cellLysis.hashCode());
-    result = prime * result + ((cultureMedium == null) ? 0 : cultureMedium.hashCode());
-    result = prime * result + ((cultureType == null) ? 0 : cultureType.hashCode());
     result =
         prime * result + ((harvestingConditions == null) ? 0 : harvestingConditions.hashCode());
     return result;
@@ -62,16 +46,6 @@ public class MetabolitePrepProperties {
         return false;
     } else if (!cellLysis.equals(other.cellLysis))
       return false;
-    if (cultureMedium == null) {
-      if (other.cultureMedium != null)
-        return false;
-    } else if (!cultureMedium.equals(other.cultureMedium))
-      return false;
-    if (cultureType == null) {
-      if (other.cultureType != null)
-        return false;
-    } else if (!cultureType.equals(other.cultureType))
-      return false;
     if (harvestingConditions == null) {
       if (other.harvestingConditions != null)
         return false;
@@ -82,13 +56,7 @@ public class MetabolitePrepProperties {
 
   public Map<String, Object> getPropertyMap() {
     Map<String, Object> res = new HashMap<String, Object>();
-    
-    if (cultureMedium != null && !cultureMedium.isEmpty()) {
-      res.put("Q_CULTURE_MEDIUM", cultureMedium);
-    }
-    if (cultureType != null && !cultureType.isEmpty()) {
-      res.put("Q_CULTURE_TYPE", cultureType);
-    }
+
     if (harvestingConditions != null && !harvestingConditions.isEmpty()) {
       res.put("Q_HARVESTING_CONDITIONS", harvestingConditions);
     }

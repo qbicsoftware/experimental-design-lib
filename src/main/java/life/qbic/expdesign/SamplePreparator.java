@@ -11,6 +11,9 @@ import life.qbic.expdesign.model.StructuredExperiment;
 import life.qbic.xml.study.TechnologyType;
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -36,7 +39,7 @@ public class SamplePreparator {
     processed = new ArrayList<List<ISampleBean>>();
     summary = new ArrayList<SampleSummaryBean>();
   }
-  
+
   public List<String> getOriginalTSV() {
     return reader.getTSVByRows();
   }
@@ -88,6 +91,30 @@ public class SamplePreparator {
     return true;
   }
 
+  private String convert(String value, Charset fromEncoding, Charset toEncoding)
+      throws UnsupportedEncodingException {
+    return new String(value.getBytes(fromEncoding), toEncoding);
+  }
+
+  private boolean probe(String value, Charset charset) throws UnsupportedEncodingException {
+    Charset probe = StandardCharsets.UTF_8;
+    return value.equals(convert(convert(value, charset, probe), probe, charset));
+  }
+
+  public String convert(String value, Charset charsetWanted, List<Charset> charsetsOther)
+      throws UnsupportedEncodingException {
+    if (probe(value, charsetWanted)) {
+      return value;
+    }
+    for (Charset other : charsetsOther) {
+      if (probe(value, other)) {
+        return convert(value, other, charsetWanted);
+      }
+    }
+    System.err.println("WARNING: Could not convert string: " + value);
+    return value;
+  }
+
   private void processTSV(List<ISampleBean> samples,
       Map<String, List<ISampleBean>> sampleToChildrenMap) {
     this.samples = samples;
@@ -127,10 +154,12 @@ public class SamplePreparator {
 
   /**
    * should only be called once after each parsing
+   * 
    * @param experimentType
    * @return
    */
-  public Map<String, Map<String, Object>> transformAndReturnSpecialExperimentsOfTypeOrNull(String experimentType) {
+  public Map<String, Map<String, Object>> transformAndReturnSpecialExperimentsOfTypeOrNull(
+      String experimentType) {
     if (reader.getExperimentInfos() == null)
       return null;
     List<Map<String, Object>> exps = reader.getExperimentInfos().get(experimentType);

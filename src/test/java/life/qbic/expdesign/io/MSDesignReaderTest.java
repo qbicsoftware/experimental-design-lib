@@ -2,8 +2,13 @@ package life.qbic.expdesign.io;
 
 
 import static org.junit.Assert.assertEquals;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -34,6 +39,7 @@ public class MSDesignReaderTest {
   private File trimmableHeader = new File(getClass().getResource("trimHeader.txt").getFile());
   private File noparents = new File(getClass().getResource("noparents.txt").getFile());
   private File noPeptides = new File(getClass().getResource("noPeptides.txt").getFile());
+  private File nullPeptides = new File(getClass().getResource("null_peptides.tsv").getFile());
 
   @Before
   public void setUp() {}
@@ -42,7 +48,7 @@ public class MSDesignReaderTest {
   public void testExperimentMetadata() throws IOException, JAXBException {
     SamplePreparator p = new SamplePreparator();
     p.processTSV(checkMetadata, new MSDesignReader(), false);
-    System.out.println("ERROR? "+p.getError());
+    System.out.println("ERROR? " + p.getError());
 
     Map<String, Object> samplePrepProps = new HashMap<>();
     samplePrepProps.put("Q_DIGESTION_ENZYMES", Arrays.asList("Trypsin", "Enzyme2"));
@@ -70,20 +76,20 @@ public class MSDesignReaderTest {
       assert (searchExperimentsForProperty(msExps, msType, entry));
     }
   }
-  //
-  // @Test
-  // public void testParentsx() throws IOException, JAXBException {
-  // SamplePreparator p = new SamplePreparator();
-  // p.processTSV(noparents, new MSDesignReader(), false);
-  //// System.err.println(p.getProcessed());
-  // }
-  //
-  // @Test
-  // public void testPeptides() throws IOException, JAXBException {
-  // SamplePreparator p = new SamplePreparator();
-  // p.processTSV(noPeptides, new MSDesignReader(), false);
-  // System.err.println(p.getProcessed());
-  // }
+
+  @Test
+  public void testParentsx() throws IOException, JAXBException {
+    SamplePreparator p = new SamplePreparator();
+    p.processTSV(noparents, new MSDesignReader(), false);
+    // System.err.println(p.getProcessed());
+  }
+
+  @Test
+  public void testPeptides() throws IOException, JAXBException {
+    SamplePreparator p = new SamplePreparator();
+    p.processTSV(noPeptides, new MSDesignReader(), false);
+    System.err.println(p.getProcessed());
+  }
 
   private boolean searchExperimentsForProperty(
       Map<String, Map<String, Object>> specialExperimentsOfTypeOrNull, ExperimentType msType,
@@ -114,131 +120,199 @@ public class MSDesignReaderTest {
     }
   }
 
-
-  @Test
-  public void testSampleMetadata() throws IOException, JAXBException {
-    SamplePreparator p = new SamplePreparator();
-    p.processTSV(checkMetadata, new MSDesignReader(), false);
-    List<List<ISampleBean>> processed = p.getProcessed();
-    Map<String, String> entityMetadata = new HashMap<>();
-    entityMetadata.put("Q_NCBI_ORGANISM", "Homo sapiens");
-    entityMetadata.put("Q_EXPRESSION_SYSTEM", "E. coli");
-
-    Map<String, String> tissueMetadata = new HashMap<>();
-    tissueMetadata.put("Q_PRIMARY_TISSUE", "Liver");
-    tissueMetadata.put("Q_ADDITIONAL_INFO", "customer");
-
-    Map<String, String> proteinMetadata = new HashMap<>();
-    proteinMetadata.put("Q_SAMPLE_TYPE", "PROTEINS");
-    proteinMetadata.put("Q_MOLECULAR_LABEL", "medium");
-
-    Map<String, String> peptideMetadata = new HashMap<>();
-    proteinMetadata.put("Q_SAMPLE_TYPE", "PEPTIDES");
-    proteinMetadata.put("Q_MOLECULAR_LABEL", "medium");
-
-    Map<String, String> msRunMetadata = new HashMap<>();
-    msRunMetadata.put("Q_ADDITIONAL_INFO", "facility");
-    msRunMetadata.put("Q_INJECTION_VOLUME", "10");
-
-    for (Entry<String, String> entry : entityMetadata.entrySet()) {
-      assert (searchSamplesForProperty(processed, SampleType.Q_BIOLOGICAL_ENTITY, entry));
-    }
-    for (Entry<String, String> entry : tissueMetadata.entrySet()) {
-      assert (searchSamplesForProperty(processed, SampleType.Q_BIOLOGICAL_SAMPLE, entry));
-    }
-    for (Entry<String, String> entry : proteinMetadata.entrySet()) {
-      assert (searchSamplesForProperty(processed, SampleType.Q_TEST_SAMPLE, entry));
-    }
-    for (Entry<String, String> entry : peptideMetadata.entrySet()) {
-      assert (searchSamplesForProperty(processed, SampleType.Q_TEST_SAMPLE, entry));
-    }
-    System.err.println(msRunMetadata);
-    for (Entry<String, String> entry : msRunMetadata.entrySet()) {
-      assert (searchSamplesForProperty(processed, SampleType.Q_MS_RUN, entry));
-    }
+  public String convert(String value, String fromEncoding, String toEncoding)
+      throws UnsupportedEncodingException {
+    return new String(value.getBytes(fromEncoding), toEncoding);
   }
 
-  private boolean searchSamplesForProperty(List<List<ISampleBean>> hierarchy, SampleType type,
-      Entry<String, String> entry) {
-    for (List<ISampleBean> level : hierarchy) {
-      if (level.get(0).getType().equals(type)) {
-        for (ISampleBean s : level) {
-          if (s.getMetadata().containsKey(entry.getKey())) {
-            if (s.getMetadata().get(entry.getKey()).equals(entry.getValue())) {
-              return true;
-            }
-          }
+  public String charset(String value, String charsets[]) throws UnsupportedEncodingException {
+    String probe = StandardCharsets.UTF_8.name();
+    for (String c : charsets) {
+      Charset charset = Charset.forName(c);
+      if (charset != null) {
+        if (value.equals(convert(convert(value, charset.name(), probe), probe, charset.name()))) {
+          return c;
         }
       }
     }
-    System.err.println("not found " + entry + " in " + hierarchy);
-    return false;
+    return StandardCharsets.UTF_8.name();
   }
-
+  
   @Test
-  public void testCountEntities() throws IOException {
-    MSDesignReader r = new MSDesignReader();
-    assertEquals(r.countEntities(tsv), -1);// not implemented
-  }
-
-  @Test
-  public void testTrimHeader() throws IOException {
-    MSDesignReader r = new MSDesignReader();
-    r.readSamples(trimmableHeader, false);
-    assert (r.getError() == null);
-    r.readSamples(falseHeader, false);
-    assert (!r.getError().isEmpty());
-    assert (r.getError().contains("Organism ID"));
-  }
-
-  // @Test
-  // public void testFactors() throws IOException, JAXBException {
-  // System.err.println("XXXXX");
-  // System.err.println("XXXXX");
-  // System.err.println("XXXXX");
-  // SamplePreparator p = new SamplePreparator();
-  // p.processTSV(bug, new MSDesignReader(), false);
-  // for(List<ISampleBean> lvl : p.getProcessed()) {
-  // System.err.println("______");
-  // for(ISampleBean b : lvl) {
-  // System.out.println(b.getCode());
-  // System.out.println(b.getSecondaryName());
-  // }
-  // }
-  // System.err.println("XXXXX");
-  // System.err.println("XXXXX");
-  // System.err.println("XXXXX");
-  // }
-
-  @Test
-  public void testGetVocabularyValues() throws IOException, JAXBException {
-    MSDesignReader r = new MSDesignReader();
+  public void testNullProblem() throws IOException, JAXBException {
     SamplePreparator p = new SamplePreparator();
-    p.processTSV(tsv, new MSDesignReader(), false);
-    System.out.println("vocabs");
-    System.out
-        .println(p.getParsedCategoriesToValues(new ArrayList<String>(Arrays.asList("LC Column",
-            "MS Device", "Fractionation Type", "Enrichment Type", "Labeling Type", "LCMS Method",
-            "Digestion Method", "Digestion Enzyme", "Sample Preparation", "Species", "Tissue"))));
 
-    if (r.getError() != null)
-      System.out.println(r.getError());
+    p.processTSV(nullPeptides, new MSDesignReader(), false);
+    System.out.println(p.getError());
+    List<List<ISampleBean>> processed = p.getProcessed();
+    for (List<ISampleBean> level : processed) {
+      if (level.get(0).getType().equals(SampleType.Q_TEST_SAMPLE)) {
+        for (ISampleBean s : level) {
+          System.err.println(s);
+        }
+      }
+    }
   }
+  
 
   @Test
-  public void testParents() throws IOException, JAXBException {
-    MSDesignReader r = new MSDesignReader();
-    List<ISampleBean> samples1 = r.readSamples(small, false);
+  public void testColProblem() throws IOException, JAXBException {
+    SamplePreparator p = new SamplePreparator();
+    File cols = new File(getClass().getResource("col_problems.txt").getFile());
+    BufferedReader reader = new BufferedReader(new FileReader(cols));
+    ArrayList<String[]> data = new ArrayList<String[]>();
+    String next;
+    int i = 0;
+    // isPilot = false;
 
-    // System.out.println("error: ");
-    // System.out.println(r.getError());
-    //
-    // for (ISampleBean s : samples1) {
-    // System.out.println("code " + s.getCode());
-    // System.out.println("parents " + s.getParentIDs());
-    // System.out.println(s);
-    // }
+    String charsets[] =
+        new String[] {StandardCharsets.UTF_16.name(), StandardCharsets.UTF_16BE.name(),
+            StandardCharsets.UTF_16LE.name(), StandardCharsets.UTF_8.name()};
+
+    while ((next = reader.readLine()) != null) {
+      System.out.println(next);
+      System.out.println(charset(next, charsets));
+//      System.out.println(convert(next, StandardCharsets.UTF_16BE.name(), StandardCharsets.UTF_8.name()));
+    }
+    System.err.println("START");
+    System.err.println("START");
+
+    p.processTSV(cols, new MSDesignReader(), false);
+    System.out.println(p.getError());
+    List<List<ISampleBean>> processed = p.getProcessed();
+    for (List<ISampleBean> level : processed) {
+      if (level.get(0).getType().equals(SampleType.Q_TEST_SAMPLE)) {
+        for (ISampleBean s : level) {
+          System.err.println(s);
+        }
+      }
+    }
   }
+
+   @Test
+   public void testSampleMetadata() throws IOException, JAXBException {
+   SamplePreparator p = new SamplePreparator();
+   p.processTSV(checkMetadata, new MSDesignReader(), false);
+   List<List<ISampleBean>> processed = p.getProcessed();
+   Map<String, String> entityMetadata = new HashMap<>();
+   entityMetadata.put("Q_NCBI_ORGANISM", "Homo sapiens");
+   entityMetadata.put("Q_EXPRESSION_SYSTEM", "E. coli");
+  
+   Map<String, String> tissueMetadata = new HashMap<>();
+   tissueMetadata.put("Q_PRIMARY_TISSUE", "Liver");
+   tissueMetadata.put("Q_ADDITIONAL_INFO", "customer");
+  
+   Map<String, String> proteinMetadata = new HashMap<>();
+   proteinMetadata.put("Q_SAMPLE_TYPE", "PROTEINS");
+   proteinMetadata.put("Q_MOLECULAR_LABEL", "medium");
+  
+   Map<String, String> peptideMetadata = new HashMap<>();
+   proteinMetadata.put("Q_SAMPLE_TYPE", "PEPTIDES");
+   proteinMetadata.put("Q_MOLECULAR_LABEL", "medium");
+  
+   Map<String, String> msRunMetadata = new HashMap<>();
+   msRunMetadata.put("Q_ADDITIONAL_INFO", "facility");
+   msRunMetadata.put("Q_INJECTION_VOLUME", "10");
+  
+   for (Entry<String, String> entry : entityMetadata.entrySet()) {
+   assert (searchSamplesForProperty(processed, SampleType.Q_BIOLOGICAL_ENTITY, entry));
+   }
+   for (Entry<String, String> entry : tissueMetadata.entrySet()) {
+   assert (searchSamplesForProperty(processed, SampleType.Q_BIOLOGICAL_SAMPLE, entry));
+   }
+   for (Entry<String, String> entry : proteinMetadata.entrySet()) {
+   assert (searchSamplesForProperty(processed, SampleType.Q_TEST_SAMPLE, entry));
+   }
+   for (Entry<String, String> entry : peptideMetadata.entrySet()) {
+   assert (searchSamplesForProperty(processed, SampleType.Q_TEST_SAMPLE, entry));
+   }
+   System.err.println(msRunMetadata);
+   for (Entry<String, String> entry : msRunMetadata.entrySet()) {
+   assert (searchSamplesForProperty(processed, SampleType.Q_MS_RUN, entry));
+   }
+   }
+  
+   private boolean searchSamplesForProperty(List<List<ISampleBean>> hierarchy, SampleType type,
+   Entry<String, String> entry) {
+   for (List<ISampleBean> level : hierarchy) {
+   if (level.get(0).getType().equals(type)) {
+   for (ISampleBean s : level) {
+   if (s.getMetadata().containsKey(entry.getKey())) {
+   if (s.getMetadata().get(entry.getKey()).equals(entry.getValue())) {
+   return true;
+   }
+   }
+   }
+   }
+   }
+   System.err.println("not found " + entry + " in " + hierarchy);
+   return false;
+   }
+
+   @Test
+   public void testCountEntities() throws IOException {
+   MSDesignReader r = new MSDesignReader();
+   assertEquals(r.countEntities(tsv), -1);// not implemented
+   }
+  
+   @Test
+   public void testTrimHeader() throws IOException {
+   MSDesignReader r = new MSDesignReader();
+   r.readSamples(trimmableHeader, false);
+   assert (r.getError() == null);
+   r.readSamples(falseHeader, false);
+   assert (!r.getError().isEmpty());
+   assert (r.getError().contains("Organism ID"));
+   }
+
+   @Test
+   public void testFactors() throws IOException, JAXBException {
+   System.err.println("XXXXX");
+   System.err.println("XXXXX");
+   System.err.println("XXXXX");
+   SamplePreparator p = new SamplePreparator();
+   p.processTSV(bug, new MSDesignReader(), false);
+   for(List<ISampleBean> lvl : p.getProcessed()) {
+   System.err.println("______");
+   for(ISampleBean b : lvl) {
+   System.out.println(b.getCode());
+   System.out.println(b.getSecondaryName());
+   }
+   }
+   System.err.println("XXXXX");
+   System.err.println("XXXXX");
+   System.err.println("XXXXX");
+   }
+
+   @Test
+   public void testGetVocabularyValues() throws IOException, JAXBException {
+   MSDesignReader r = new MSDesignReader();
+   SamplePreparator p = new SamplePreparator();
+   p.processTSV(tsv, new MSDesignReader(), false);
+   System.out.println("vocabs");
+   System.out
+   .println(p.getParsedCategoriesToValues(new ArrayList<String>(Arrays.asList("LC Column",
+   "MS Device", "Fractionation Type", "Enrichment Type", "Labeling Type", "LCMS Method",
+   "Digestion Method", "Digestion Enzyme", "Sample Preparation", "Species", "Tissue"))));
+  
+   if (r.getError() != null)
+   System.out.println(r.getError());
+   }
+  
+   @Test
+   public void testParents() throws IOException, JAXBException {
+   MSDesignReader r = new MSDesignReader();
+   List<ISampleBean> samples1 = r.readSamples(small, false);
+  
+    System.out.println("error: ");
+    System.out.println(r.getError());
+   
+    for (ISampleBean s : samples1) {
+    System.out.println("code " + s.getCode());
+    System.out.println("parents " + s.getParentIDs());
+    System.out.println(s);
+    }
+   }
 
   @Test
   public void testReadSamples() throws IOException, JAXBException {

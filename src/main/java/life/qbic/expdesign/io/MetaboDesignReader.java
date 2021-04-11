@@ -17,6 +17,7 @@ import org.apache.logging.log4j.Logger;
 import life.qbic.datamodel.samples.ISampleBean;
 import life.qbic.datamodel.samples.SampleType;
 import life.qbic.datamodel.samples.TSVSampleBean;
+import life.qbic.expdesign.model.CultureProperties;
 import life.qbic.expdesign.model.ExtendedMSProperties;
 import life.qbic.expdesign.model.MetaboSampleHierarchy;
 import life.qbic.expdesign.model.MetabolitePrepProperties;
@@ -46,7 +47,7 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
   public static final Set<String> LABELING_TYPES_WITHOUT_LABELS =
       new HashSet<>(Arrays.asList("LFQ", "None"));
   public static final String SAMPLE_KEYWORD = "Secondary Name";
-//  public static final String SAMPLE_ALTNAME_KEYWORD = "Sample Name";
+  // public static final String SAMPLE_ALTNAME_KEYWORD = "Sample Name";
 
 
 
@@ -290,7 +291,7 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
     Map<String, TSVSampleBean> metaboliteToSample = new HashMap<>();
     // TODO another level of measurements?
     Map<ExtendedMSProperties, String> msPropertiesToID = new HashMap<>();
-    // TODO something similar needed?
+    Map<CultureProperties, String> culturePropertiesToID = new HashMap<>();
     Map<MetabolitePrepProperties, String> metaboPrepPropertiesToID = new HashMap<>();
 
     speciesSet = new HashSet<String>();
@@ -326,7 +327,7 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
         // String fileName = row[headerMapping.get("File Name")];// TODO Sample Number?
 
         String sampleKey = row[headerMapping.get(SAMPLE_KEYWORD)];
-//        String sampleAltName = row[headerMapping.get(SAMPLE_ALTNAME_KEYWORD)];
+        // String sampleAltName = row[headerMapping.get(SAMPLE_ALTNAME_KEYWORD)];
 
         String cultureMedium = row[headerMapping.get("Medium")];
         String harvestingConditions = row[headerMapping.get("Harvesting conditions")];
@@ -351,7 +352,9 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
         String lcDevice = row[headerMapping.get("LC device")];
         String column = row[headerMapping.get("LC column name")];
         String ionMode = row[headerMapping.get("MS ion mode")];
-        String lcDetectionMethod = row[headerMapping.get("LC detection method")];//TODO do not put this into ms props
+        String lcDetectionMethod = row[headerMapping.get("LC detection method")];// TODO do not put
+                                                                                 // this into ms
+                                                                                 // props
         ExtendedMSProperties msProperties = new ExtendedMSProperties(lcmsMethod, msDevice);
         msProperties.setLCDetectionMethod(lcDetectionMethod);
         msProperties.setLCDevice(lcDevice);
@@ -377,6 +380,11 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
           samplesInOrder.get(MetaboSampleHierarchy.Organism).add(sampleSource);
           sourceIDToSample.put(sourceID, sampleSource);
 
+          CultureProperties props = new CultureProperties(cultureMedium, cultureType);
+          String cultExpID = Integer.toString(props.hashCode());
+          culturePropertiesToID.put(props, cultExpID);
+          sampleSource.setExperiment(cultExpID);
+
           if (expressionSystem != null) {
             speciesSet.add(expressionSystem);
             sampleSource.addProperty("Q_EXPRESSION_SYSTEM", expressionSystem);
@@ -399,8 +407,8 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
           tissueSample.addProperty("Q_EXTERNALDB_ID", tissueID);
           tissueToSample.put(tissueID, tissueSample);
 
-          MetabolitePrepProperties props = new MetabolitePrepProperties(cultureMedium, cultureType,
-              harvestingConditions, cellLysis);
+          MetabolitePrepProperties props =
+              new MetabolitePrepProperties(harvestingConditions, cellLysis);
           String prepExpID = Integer.toString(props.hashCode());
           metaboPrepPropertiesToID.put(props, prepExpID);
           tissueSample.setExperiment(prepExpID);
@@ -411,9 +419,8 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
         if (metabolite == null) {
           sampleID++;
 
-          metabolite =
-              new TSVSampleBean(Integer.toString(sampleID), SampleType.Q_TEST_SAMPLE, sampleKey,
-                  fillMetadata(header, row, meta, factors, loci, SampleType.Q_TEST_SAMPLE));
+          metabolite = new TSVSampleBean(Integer.toString(sampleID), SampleType.Q_TEST_SAMPLE,
+              sampleKey, fillMetadata(header, row, meta, factors, loci, SampleType.Q_TEST_SAMPLE));
           samplesInOrder.get(MetaboSampleHierarchy.Molecules).add(metabolite);
           metabolite.addParentID(tissueSample.getCode());
           metabolite.addProperty("Q_EXTERNALDB_ID", sampleKey);
@@ -425,6 +432,16 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
       }
     }
     experimentInfos = new HashMap<String, List<Map<String, Object>>>();
+
+    // Cell cultures
+    List<Map<String, Object>> cultures = new ArrayList<Map<String, Object>>();
+    for (CultureProperties props : culturePropertiesToID.keySet()) {
+      Map<String, Object> propMap = props.getPropertyMap();
+      propMap.put("Code", Integer.toString(props.hashCode()));// used to match samples to their
+      // experiments later
+      cultures.add(propMap);
+    }
+    experimentInfos.put("Q_EXPERIMENTAL_DESIGN", cultures);
 
     // Extract preparation experiments
     List<Map<String, Object>> extractPreparations = new ArrayList<Map<String, Object>>();
@@ -446,7 +463,7 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
     experimentInfos.put("Q_MS_MEASUREMENT", msExperiments);
     for (MetaboSampleHierarchy level : order) {
       beans.addAll(samplesInOrder.get(level));
-//      printSampleLevel(samplesInOrder.get(level));TODO
+      // printSampleLevel(samplesInOrder.get(level));TODO
     }
     return beans;
   }
