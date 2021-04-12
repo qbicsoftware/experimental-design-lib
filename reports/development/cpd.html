@@ -69,7 +69,7 @@ Experimental Design Library
 <td><a href="./xref/life/qbic/expdesign/io/MSDesignReader.html#L784">784</a></td></tr>
 <tr class="a">
 <td>life/qbic/expdesign/io/MetaboDesignReader.java</td>
-<td><a href="./xref/life/qbic/expdesign/io/MetaboDesignReader.html#L482">482</a></td></tr>
+<td><a href="./xref/life/qbic/expdesign/io/MetaboDesignReader.html#L487">487</a></td></tr>
 <tr class="b"><td colspan='2'>
 <div>
 <pre>  }
@@ -202,64 +202,7 @@ Experimental Design Library
     return string;
   }
 
-  private String parseXMLPartLabel(String colName) {
-    return colName.split(&quot;: &quot;)[1];
-  }
-
-  public String getError() {
-    if (error != null)
-      logger.error(error);
-    else
-      logger.info(&quot;Parsing of experimental design successful.&quot;);
-    return error;
-  }
-
-  @Override
-  public Set&lt;String&gt; getAnalyteSet() {
-    return new HashSet&lt;String&gt;(Arrays.asList(&quot;PROTEINS&quot;, &quot;PEPTIDES&quot;));
-  }
-
-  @Override
-  public List&lt;String&gt; getTSVByRows() {
-    return tsvByRows;
-  }
-
-  @Override
-  public StructuredExperiment getGraphStructure() {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  // TODO
-  public int countEntities(File file) throws IOException {
-    return -1;
-  }
-
-  @Override
-  public List&lt;TechnologyType&gt; getTechnologyTypes() {
-    ArrayList&lt;TechnologyType&gt; res = new ArrayList&lt;&gt;();
-    res.add(new TechnologyType(&quot;Proteomics&quot;));
-    if (analyteSet.contains(&quot;PEPTIDES&quot;)) {
-      res.add(new TechnologyType(&quot;Peptidomics&quot;));
-    }
-    return res;
-  }
-
-  @Override
-  public Map&lt;String, List&lt;String&gt;&gt; getParsedCategoriesToValues(List&lt;String&gt; header) {
-    Map&lt;String, List&lt;String&gt;&gt; res = new HashMap&lt;&gt;();
-    for (String cat : header) {
-      if (parsedCategoriesToValues.containsKey(cat)) {
-        res.put(cat, new ArrayList&lt;&gt;(parsedCategoriesToValues.get(cat)));
-      } else {
-        logger.warn(cat + &quot; not found&quot;);
-      }
-    }
-    return res;
-  }
-
-}</pre></div></td></tr></table>
+  private String parseXMLPartLabel(String colName) {</pre></div></td></tr></table>
 <table border="0" class="bodyTable">
 <tr class="a">
 <th>File</th>
@@ -376,10 +319,7 @@ Experimental Design Library
 <tr class="a">
 <td>life/qbic/expdesign/io/MSDesignReader.java</td>
 <td><a href="./xref/life/qbic/expdesign/io/MSDesignReader.html#L868">868</a></td></tr>
-<tr class="b">
-<td>life/qbic/expdesign/io/MetaboDesignReader.java</td>
-<td><a href="./xref/life/qbic/expdesign/io/MetaboDesignReader.html#L566">566</a></td></tr>
-<tr class="a"><td colspan='2'>
+<tr class="b"><td colspan='2'>
 <div>
 <pre>        }
       }
@@ -441,16 +381,16 @@ Experimental Design Library
   public Set&lt;String&gt; getAnalyteSet() {
     return new HashSet&lt;String&gt;(Arrays.asList(&quot;CELL_LYSATE&quot;, &quot;DNA&quot;));</pre></div></td></tr></table>
 <table border="0" class="bodyTable">
-<tr class="b">
+<tr class="a">
 <th>File</th>
 <th>Line</th></tr>
-<tr class="a">
+<tr class="b">
 <td>life/qbic/expdesign/io/EasyDesignReader.java</td>
 <td><a href="./xref/life/qbic/expdesign/io/EasyDesignReader.html#L645">645</a></td></tr>
-<tr class="b">
+<tr class="a">
 <td>life/qbic/expdesign/io/QBiCDesignReader.java</td>
 <td><a href="./xref/life/qbic/expdesign/io/QBiCDesignReader.html#L424">424</a></td></tr>
-<tr class="a"><td colspan='2'>
+<tr class="b"><td colspan='2'>
 <div>
 <pre>        res.put(headersToOpenbisCode.get(label), data[i]);
     }
@@ -507,21 +447,18 @@ Experimental Design Library
     return error;
   }</pre></div></td></tr></table>
 <table border="0" class="bodyTable">
-<tr class="b">
+<tr class="a">
 <th>File</th>
 <th>Line</th></tr>
-<tr class="a">
+<tr class="b">
 <td>life/qbic/expdesign/io/EasyDesignReader.java</td>
 <td><a href="./xref/life/qbic/expdesign/io/EasyDesignReader.html#L646">646</a></td></tr>
-<tr class="b">
+<tr class="a">
 <td>life/qbic/expdesign/io/MHCLigandDesignReader.java</td>
 <td><a href="./xref/life/qbic/expdesign/io/MHCLigandDesignReader.html#L646">646</a></td></tr>
-<tr class="a">
+<tr class="b">
 <td>life/qbic/expdesign/io/MSDesignReader.java</td>
 <td><a href="./xref/life/qbic/expdesign/io/MSDesignReader.html#L870">870</a></td></tr>
-<tr class="b">
-<td>life/qbic/expdesign/io/MetaboDesignReader.java</td>
-<td><a href="./xref/life/qbic/expdesign/io/MetaboDesignReader.html#L568">568</a></td></tr>
 <tr class="a"><td colspan='2'>
 <div>
 <pre>    }
@@ -591,12 +528,9 @@ Experimental Design Library
 <td>life/qbic/expdesign/io/MSDesignReader.java</td>
 <td><a href="./xref/life/qbic/expdesign/io/MSDesignReader.html#L870">870</a></td></tr>
 <tr class="a">
-<td>life/qbic/expdesign/io/MetaboDesignReader.java</td>
-<td><a href="./xref/life/qbic/expdesign/io/MetaboDesignReader.html#L568">568</a></td></tr>
-<tr class="b">
 <td>life/qbic/expdesign/io/QBiCDesignReader.java</td>
 <td><a href="./xref/life/qbic/expdesign/io/QBiCDesignReader.html#L425">425</a></td></tr>
-<tr class="a"><td colspan='2'>
+<tr class="b"><td colspan='2'>
 <div>
 <pre>    }
     if (factors.size() &gt; 0) {
@@ -652,16 +586,16 @@ Experimental Design Library
     return error;
   }</pre></div></td></tr></table>
 <table border="0" class="bodyTable">
-<tr class="b">
+<tr class="a">
 <th>File</th>
 <th>Line</th></tr>
-<tr class="a">
-<td>life/qbic/isatab/ISAReader.java</td>
-<td><a href="./xref/life/qbic/isatab/ISAReader.html#L228">228</a></td></tr>
 <tr class="b">
 <td>life/qbic/isatab/ISAReader.java</td>
+<td><a href="./xref/life/qbic/isatab/ISAReader.html#L228">228</a></td></tr>
+<tr class="a">
+<td>life/qbic/isatab/ISAReader.java</td>
 <td><a href="./xref/life/qbic/isatab/ISAReader.html#L624">624</a></td></tr>
-<tr class="a"><td colspan='2'>
+<tr class="b"><td colspan='2'>
 <div>
 <pre>                unit = Unit.Arbitrary_Unit;
               } finally {
@@ -714,6 +648,121 @@ Experimental Design Library
         int assayExtractIDCol = findAssayColumnID(assay, &quot;Extract Name&quot;);
         // Analyte
         String endpoint = assay.getMeasurementEndpoint();</pre></div></td></tr></table>
+<table border="0" class="bodyTable">
+<tr class="a">
+<th>File</th>
+<th>Line</th></tr>
+<tr class="b">
+<td>life/qbic/expdesign/io/MHCLigandDesignReader.java</td>
+<td><a href="./xref/life/qbic/expdesign/io/MHCLigandDesignReader.html#L644">644</a></td></tr>
+<tr class="a">
+<td>life/qbic/expdesign/io/MetaboDesignReader.java</td>
+<td><a href="./xref/life/qbic/expdesign/io/MetaboDesignReader.html#L571">571</a></td></tr>
+<tr class="b"><td colspan='2'>
+<div>
+<pre>        }
+      }
+    }
+    if (factors.size() &gt; 0) {
+      String fRes = &quot;&quot;;
+      for (int i : factors) {
+        if (!data[i].isEmpty()) {
+          String values = unitCheck(data[i]);
+          fRes += parseXMLPartLabel(header[i]) + &quot;: &quot; + values + &quot;;&quot;;
+        }
+      }
+      // remove trailing &quot;;&quot;
+      fRes = fRes.substring(0, Math.max(1, fRes.length()) - 1);
+      res.put(&quot;XML_FACTORS&quot;, fRes);
+    }
+    if (loci.size() &gt; 0) {
+      String lRes = &quot;&quot;;
+      for (int i : loci) {
+        if (!data[i].isEmpty()) {
+          lRes += parseXMLPartLabel(header[i]) + &quot;: &quot; + data[i] + &quot;;&quot;;
+        }
+      }
+      // remove trailing &quot;;&quot;
+      lRes = lRes.substring(0, Math.max(1, lRes.length()) - 1);
+      res.put(&quot;XML_LOCI&quot;, lRes);
+    }
+    return res;
+  }
+
+  private String unitCheck(String string) {
+    String[] split = string.split(&quot;:&quot;);
+    if (split.length &gt; 2)
+      return string.replace(&quot;:&quot;, &quot; -&quot;);
+    if (split.length == 2) {
+      String unit = split[1].trim();
+      for (Unit u : Unit.values()) {
+        if (u.getValue().equals(unit))
+          return string;
+      }
+      return string.replace(&quot;:&quot;, &quot; -&quot;);
+    }
+    return string;
+  }
+
+  private String parseXMLPartLabel(String colName) {</pre></div></td></tr></table>
+<table border="0" class="bodyTable">
+<tr class="a">
+<th>File</th>
+<th>Line</th></tr>
+<tr class="b">
+<td>life/qbic/expdesign/io/EasyDesignReader.java</td>
+<td><a href="./xref/life/qbic/expdesign/io/EasyDesignReader.html#L646">646</a></td></tr>
+<tr class="a">
+<td>life/qbic/expdesign/io/MetaboDesignReader.java</td>
+<td><a href="./xref/life/qbic/expdesign/io/MetaboDesignReader.html#L573">573</a></td></tr>
+<tr class="b">
+<td>life/qbic/expdesign/io/QBiCDesignReader.java</td>
+<td><a href="./xref/life/qbic/expdesign/io/QBiCDesignReader.html#L425">425</a></td></tr>
+<tr class="a"><td colspan='2'>
+<div>
+<pre>    }
+    if (factors.size() &gt; 0) {
+      String fRes = &quot;&quot;;
+      for (int i : factors) {
+        if (!data[i].isEmpty()) {
+          String values = unitCheck(data[i]);
+          fRes += parseXMLPartLabel(header[i]) + &quot;: &quot; + values + &quot;;&quot;;
+        }
+      }
+      // remove trailing &quot;;&quot;
+      fRes = fRes.substring(0, Math.max(1, fRes.length()) - 1);
+      res.put(&quot;XML_FACTORS&quot;, fRes);
+    }
+    if (loci.size() &gt; 0) {
+      String lRes = &quot;&quot;;
+      for (int i : loci) {
+        if (!data[i].isEmpty()) {
+          lRes += parseXMLPartLabel(header[i]) + &quot;: &quot; + data[i] + &quot;;&quot;;
+        }
+      }
+      // remove trailing &quot;;&quot;
+      lRes = lRes.substring(0, Math.max(1, lRes.length()) - 1);
+      res.put(&quot;XML_LOCI&quot;, lRes);
+    }
+    return res;
+  }
+
+  private String unitCheck(String string) {
+    String[] split = string.split(&quot;:&quot;);
+    if (split.length &gt; 2)
+      return string.replace(&quot;:&quot;, &quot; -&quot;);
+    if (split.length == 2) {
+      String unit = split[1].trim();
+      for (Unit u : Unit.values()) {
+        if (u.getValue().equals(unit))
+          return string;
+      }
+      return string.replace(&quot;:&quot;, &quot; -&quot;);
+    }
+    return string;
+  }
+
+  private String parseXMLPartLabel(String colName) {</pre></div></td></tr></table>
 <table border="0" class="bodyTable">
 <tr class="b">
 <th>File</th>
@@ -816,7 +865,7 @@ Experimental Design Library
 <td><a href="./xref/life/qbic/expdesign/io/MSDesignReader.html#L216">216</a></td></tr>
 <tr class="b">
 <td>life/qbic/expdesign/io/MetaboDesignReader.java</td>
-<td><a href="./xref/life/qbic/expdesign/io/MetaboDesignReader.html#L211">211</a></td></tr>
+<td><a href="./xref/life/qbic/expdesign/io/MetaboDesignReader.html#L213">213</a></td></tr>
 <tr class="a"><td colspan='2'>
 <div>
 <pre>        for (char c : condition.toCharArray()) {
@@ -1164,7 +1213,7 @@ Experimental Design Library
 <td><a href="./xref/life/qbic/expdesign/io/MHCLigandDesignReader.html#L230">230</a></td></tr>
 <tr class="a">
 <td>life/qbic/expdesign/io/MetaboDesignReader.java</td>
-<td><a href="./xref/life/qbic/expdesign/io/MetaboDesignReader.html#L211">211</a></td></tr>
+<td><a href="./xref/life/qbic/expdesign/io/MetaboDesignReader.html#L213">213</a></td></tr>
 <tr class="b">
 <td>life/qbic/expdesign/io/QBiCDesignReader.java</td>
 <td><a href="./xref/life/qbic/expdesign/io/QBiCDesignReader.html#L195">195</a></td></tr>
@@ -1201,7 +1250,7 @@ Experimental Design Library
 <td><a href="./xref/life/qbic/expdesign/io/MSDesignReader.html#L254">254</a></td></tr>
 <tr class="b">
 <td>life/qbic/expdesign/io/MetaboDesignReader.java</td>
-<td><a href="./xref/life/qbic/expdesign/io/MetaboDesignReader.html#L251">251</a></td></tr>
+<td><a href="./xref/life/qbic/expdesign/io/MetaboDesignReader.html#L253">253</a></td></tr>
 <tr class="a"><td colspan='2'>
 <div>
 <pre>        if (idToVal.containsKey(sourceID)) {
