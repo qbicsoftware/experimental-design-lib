@@ -52,11 +52,11 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
 
 
   public MetaboDesignReader() {
-    this.mandatoryColumns = new ArrayList<>(Arrays.asList("Secondary Name", "Sample type",
-        "Species", "Injection volume (uL)", "LC MS Method Name", "LC device", "LC detection method",
+    this.mandatoryColumns = new ArrayList<>(Arrays.asList("Secondary name", "Sample type",
+        "Species", "Injection volume (uL)", "LCMS method name", "LC device", "LC detection method",
         "LC column name", "MS device", "MS ion mode"));
     this.mandatoryFilled = new ArrayList<>(
-        Arrays.asList("Secondary Name", "Sample type", "Species", "LC MS Method Name", "LC device",
+        Arrays.asList("Secondary name", "Sample type", "Species", "LCMS method name", "LC device",
             "LC detection method", "LC column name", "MS device", "MS ion mode"));
     this.optionalCols = new ArrayList<>(Arrays.asList("Strain lab collection number",
         "Culture type", "Growth conditions: Temperature (°C)", "Growth conditions: Time ",
