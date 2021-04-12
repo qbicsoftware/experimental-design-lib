@@ -46,7 +46,7 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
   public static final String LIST_SEPARATOR = "\\+";
   public static final Set<String> LABELING_TYPES_WITHOUT_LABELS =
       new HashSet<>(Arrays.asList("LFQ", "None"));
-  public static final String SAMPLE_KEYWORD = "Secondary Name";
+  public static final String SAMPLE_KEYWORD = "Secondary name";
   // public static final String SAMPLE_ALTNAME_KEYWORD = "Sample Name";
 
 
