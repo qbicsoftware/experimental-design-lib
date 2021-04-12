@@ -106,7 +106,7 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
     addValueForCategory(headerMapping, row, "Harvesting conditions");
     addValueForCategory(headerMapping, row, "Cell lysis");
     addValueForCategory(headerMapping, row, "Lysis parameters");
-    addValueForCategory(headerMapping, row, "LC MS Method Name");
+    addValueForCategory(headerMapping, row, "LCMS method name");
     addValueForCategory(headerMapping, row, "LC device");
     addValueForCategory(headerMapping, row, "LC detection method");
     addValueForCategory(headerMapping, row, "LC column name");
@@ -239,7 +239,7 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
       boolean extr = true;
       for (String[] row : data) {
         String val = row[col];
-        String sourceID = row[headerMapping.get("Secondary Name")]; // for now: one row, one new
+        String sourceID = row[headerMapping.get("Secondary name")]; // for now: one row, one new
                                                                     // source
         // String replicateID = "";
         // if (headerMapping.containsKey("Technical Replicates")) {
@@ -311,7 +311,7 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
             return null;
           }
         }
-        String sourceID = row[headerMapping.get("Secondary Name")];
+        String sourceID = row[headerMapping.get("Secondary name")];
         String species = row[headerMapping.get("Species")];
         String expressionSystem = null;
         // if (headerMapping.containsKey("Expression System")) {
@@ -348,7 +348,7 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
          msRun.addProperty("File", sampleKey);//TODO? file name
         msRun.addProperty("Q_SAMPLE_SOLVENT", sampleSolvent);
 
-        String lcmsMethod = row[headerMapping.get("LC MS Method Name")];
+        String lcmsMethod = row[headerMapping.get("LCMS method name")];
         String msDevice = row[headerMapping.get("MS device")];
         String lcDevice = row[headerMapping.get("LC device")];
         String column = row[headerMapping.get("LC column name")];
@@ -471,6 +471,7 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
 
   private String tryReplacePredefinedConditionNames(String condition) {
     Map<String, String> headNamesToConditions = new HashMap<>();
+    headNamesToConditions.put("Growth conditions: Temperature (°C)", "growth_temperature");
     headNamesToConditions.put("Growth conditions: Temperature", "growth_temperature");
     headNamesToConditions.put("Growth conditions: Time", "growth_time");
     headNamesToConditions.put("Growth conditions: rpm", "rpm");
