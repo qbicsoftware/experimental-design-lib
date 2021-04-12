@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import javax.xml.bind.JAXBException;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Before;
 import org.junit.Test;
 import life.qbic.datamodel.experiments.ExperimentType;
@@ -179,6 +180,21 @@ public class MetaboDesignReaderTest {
   // assert (!r.getError().isEmpty());
   // assert (r.getError().contains("Organism ID"));
   // }
+
+
+  @Test
+  public void testXMLDesign() throws IOException, JAXBException {
+    SamplePreparator p = new SamplePreparator();
+    MetaboDesignReader r = new MetaboDesignReader();
+    p.processTSV(fullExample1, r, false);
+    Map<String, Map<Pair<String, String>, List<String>>> design = p.getExperimentalDesignProperties().getExperimentalDesign();
+    assert(design.containsKey("growth_temperature"));
+    assert(design.containsKey("growth_time"));
+
+    if (r.getError() != null)
+      System.out.println(r.getError());
+    assertNull(r.getError());
+  }
 
   @Test
   public void testGetVocabularyValues() throws IOException, JAXBException {

@@ -205,6 +205,8 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
       } else if (header[i].contains("condition") && header[i].contains(":")) {
         String condition = tryReplacePredefinedConditionNames(header[i]);
         if (condition.contains(":")) {
+          System.err.println("condition contains ':'");
+          System.err.println(condition);
           condition = header[i].split(":")[1].trim();
         }
 
@@ -345,7 +347,7 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
         sampleID++;
         TSVSampleBean msRun = new TSVSampleBean(Integer.toString(sampleID), SampleType.Q_MS_RUN, "",
             fillMetadata(header, row, meta, factors, new ArrayList<>(), SampleType.Q_MS_RUN));
-         msRun.addProperty("File", sampleKey);//TODO? file name
+        msRun.addProperty("File", sampleKey);// TODO? file name
         msRun.addProperty("Q_SAMPLE_SOLVENT", sampleSolvent);
 
         String lcmsMethod = row[headerMapping.get("LCMS method name")];
@@ -471,11 +473,14 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
 
   private String tryReplacePredefinedConditionNames(String condition) {
     Map<String, String> headNamesToConditions = new HashMap<>();
+    System.err.println("CONDITION PARSING");
+    System.err.println(condition);
     headNamesToConditions.put("Growth conditions: Temperature (°C)", "growth_temperature");
     headNamesToConditions.put("Growth conditions: Temperature", "growth_temperature");
     headNamesToConditions.put("Growth conditions: Time", "growth_time");
     headNamesToConditions.put("Growth conditions: rpm", "rpm");
     if (headNamesToConditions.containsKey(condition)) {
+      System.err.println(headNamesToConditions.get(condition));
       return headNamesToConditions.get(condition);
     }
     return condition;
@@ -610,7 +615,11 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
   }
 
   private String parseXMLPartLabel(String colName) {
-    return colName.split(": ")[1];
+    String label = tryReplacePredefinedConditionNames(colName);
+    if (label.contains(": ")) {
+      label = label.split(": ")[1];
+    }
+    return label;
   }
 
   public String getError() {
@@ -623,7 +632,7 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
 
   @Override
   public Set<String> getAnalyteSet() {
-    return new HashSet<String>(Arrays.asList("PROTEINS", "PEPTIDES"));
+    return new HashSet<String>(Arrays.asList("SMALLMOLECULES"));
   }
 
   @Override
@@ -646,10 +655,7 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
   @Override
   public List<TechnologyType> getTechnologyTypes() {
     ArrayList<TechnologyType> res = new ArrayList<>();
-    res.add(new TechnologyType("Proteomics"));
-    if (analyteSet.contains("PEPTIDES")) {
-      res.add(new TechnologyType("Peptidomics"));
-    }
+    res.add(new TechnologyType("Metabolomics"));
     return res;
   }
 
