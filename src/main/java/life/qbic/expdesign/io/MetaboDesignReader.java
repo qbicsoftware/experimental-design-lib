@@ -337,7 +337,7 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
         String strainCollNumber = row[headerMapping.get("Strain lab collection number")];
 
         speciesSet.add(species);
-        // tissueSet.add(tissue);//TODO set standard name and show user?
+        tissueSet.add(biospecimen);
 
         // always one new measurement per row
         sampleID++;
