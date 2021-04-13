@@ -123,8 +123,8 @@ public class MetaboDesignReaderTest {
     entityMetadata.put("Q_STRAIN_LAB_COLLECTION_NUMBER", "12345");
 
     Map<String, String> tissueMetadata = new HashMap<>();
-    tissueMetadata.put("Q_PRIMARY_TISSUE", "Whole organism");
-    tissueMetadata.put("Q_TISSUE_DETAILED", "cell wall");
+    tissueMetadata.put("Q_PRIMARY_TISSUE", "cell wall");
+    // tissueMetadata.put("Q_TISSUE_DETAILED", "cell wall");
 
     Map<String, String> molMetadata = new HashMap<>();
     molMetadata.put("Q_SAMPLE_TYPE", "SMALLMOLECULES");
@@ -142,7 +142,6 @@ public class MetaboDesignReaderTest {
     for (Entry<String, String> entry : molMetadata.entrySet()) {
       assert (searchSamplesForProperty(processed, SampleType.Q_TEST_SAMPLE, entry));
     }
-    System.err.println(msRunMetadata);
     for (Entry<String, String> entry : msRunMetadata.entrySet()) {
       assert (searchSamplesForProperty(processed, SampleType.Q_MS_RUN, entry));
     }
@@ -187,9 +186,12 @@ public class MetaboDesignReaderTest {
     SamplePreparator p = new SamplePreparator();
     MetaboDesignReader r = new MetaboDesignReader();
     p.processTSV(fullExample1, r, false);
-    Map<String, Map<Pair<String, String>, List<String>>> design = p.getExperimentalDesignProperties().getExperimentalDesign();
-    assert(design.containsKey("growth_temperature"));
-    assert(design.containsKey("growth_time"));
+    Map<String, Map<Pair<String, String>, List<String>>> design =
+        p.getExperimentalDesignProperties().getExperimentalDesign();
+    assert (design.containsKey("growth_temperature"));
+    assert (design.containsKey("growth_time"));
+    assert (design.containsKey("treatment"));
+    assertEquals(design.get("treatment").keySet().size(), 4);
 
     if (r.getError() != null)
       System.out.println(r.getError());
@@ -203,8 +205,8 @@ public class MetaboDesignReaderTest {
     p.processTSV(fullExample1, r, false);
     System.out.println("vocabs");
     System.out.println(p.getParsedCategoriesToValues(new ArrayList<String>(
-        Arrays.asList("Sample type", "Medium", "Harvesting conditions", "LCMS method name",
-            "LC device", "LC detection method", "MS device", "MS ion mode", "Species", "Tissue"))));
+        Arrays.asList("Medium", "Harvesting conditions", "LCMS method name", "LC device",
+            "LC detection method", "MS device", "MS ion mode", "Species", "Biospecimen"))));
 
     if (r.getError() != null)
       System.out.println(r.getError());

@@ -52,16 +52,20 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
 
 
   public MetaboDesignReader() {
-    this.mandatoryColumns = new ArrayList<>(Arrays.asList("Secondary name", "Sample type",
+    this.mandatoryColumns = new ArrayList<>(Arrays.asList("Secondary name", "Biospecimen",
         "Species", "Injection volume (uL)", "LCMS method name", "LC device", "LC detection method",
         "LC column name", "MS device", "MS ion mode"));
     this.mandatoryFilled = new ArrayList<>(
-        Arrays.asList("Secondary name", "Sample type", "Species", "LCMS method name", "LC device",
+        Arrays.asList("Secondary name", "Biospecimen", "Species", "LCMS method name", "LC device",
             "LC detection method", "LC column name", "MS device", "MS ion mode"));
+    // this.optionalCols = new ArrayList<>(Arrays.asList("Condition: treatment","Strain lab
+    // collection number",
+    // "Culture type", "Growth conditions: Temperature (°C)", "Growth conditions: Time ",
+    // "Growth conditions: rpm", "Medium", "Condition: Stimulus", "Stimulation OD",
+    // "Stimulation Time", "Harvesting conditions", "Washing solvent", "Cell lysis",
+    // "Lysis parameters", "Sample solvent", "SOP reference code for technical information"));
     this.optionalCols = new ArrayList<>(Arrays.asList("Strain lab collection number",
-        "Culture type", "Growth conditions: Temperature (°C)", "Growth conditions: Time ",
-        "Growth conditions: rpm", "Medium", "Condition: Stimulus", "Stimulation OD",
-        "Stimulation  Time", "Harvesting conditions", "Washing solvent", "Cell lysis",
+        "Culture type", "Medium", "Harvesting conditions", "Washing solvent", "Cell lysis",
         "Lysis parameters", "Sample solvent", "SOP reference code for technical information"));
 
     Map<String, List<String>> sourceMetadata = new HashMap<>();
@@ -70,14 +74,8 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
     sourceMetadata.put("Strain lab collection number",
         Arrays.asList("Q_STRAIN_LAB_COLLECTION_NUMBER"));
 
-    sourceMetadata.put("Medium", Arrays.asList());// TODO
-    sourceMetadata.put("Culture type", Arrays.asList());// TODO
-
     Map<String, List<String>> extractMetadata = new HashMap<>();
-    extractMetadata.put("Tissue", Collections.singletonList("Q_PRIMARY_TISSUE"));
-    // extractMetadata.put("Customer Comment", Collections.singletonList("Q_ADDITIONAL_INFO"));
-    extractMetadata.put("Sample type", Collections.singletonList("Q_TISSUE_DETAILED"));
-
+    extractMetadata.put("Biospecimen", Collections.singletonList("Q_PRIMARY_TISSUE"));
 
     Map<String, List<String>> molMetadata = new HashMap<>();
     // peptideMetadata.put("Label", Collections.singletonList("Q_MOLECULAR_LABEL"));
@@ -99,7 +97,7 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
   private void fillParsedCategoriesToValuesForRow(Map<String, Integer> headerMapping,
       String[] row) {
     // logger.info("Collecting possible CV entries for row.");
-    addValueForCategory(headerMapping, row, "Sample type");
+    addValueForCategory(headerMapping, row, "Biospecimen");
     addValueForCategory(headerMapping, row, "Species");
     addValueForCategory(headerMapping, row, "Culture type");
     addValueForCategory(headerMapping, row, "Medium");
@@ -202,11 +200,9 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
       if (position > -1) {
         headerMapping.put(header[i], i);
         meta.add(i);
-      } else if (header[i].contains("condition") && header[i].contains(":")) {
+      } else if (header[i].toLowerCase().contains("condition") && header[i].contains(":")) {
         String condition = tryReplacePredefinedConditionNames(header[i]);
         if (condition.contains(":")) {
-          System.err.println("condition contains ':'");
-          System.err.println(condition);
           condition = header[i].split(":")[1].trim();
         }
 
@@ -247,7 +243,7 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
         // if (headerMapping.containsKey("Technical Replicates")) {
         // replicateID = row[headerMapping.get("Technical Replicates")];
         // }
-        String extractID = sourceID + row[headerMapping.get("Sample type")];// + replicateID; TODO
+        String extractID = sourceID + row[headerMapping.get("Biospecimen")];// + replicateID; TODO
                                                                             // might use more cols
         // if different for same entities: not an entity attribute
         if (idToVal.containsKey(sourceID)) {
@@ -335,7 +331,7 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
         String washingSolvent = row[headerMapping.get("Washing solvent")];
         String sampleSolvent = row[headerMapping.get("Sample solvent")];
         String cultureType = row[headerMapping.get("Culture type")];
-        String sampleType = row[headerMapping.get("Sample type")];
+        String biospecimen = row[headerMapping.get("Biospecimen")];
         String cellLysis = row[headerMapping.get("Cell lysis")];
         String lysisParams = row[headerMapping.get("Lysis parameters")];
         String strainCollNumber = row[headerMapping.get("Strain lab collection number")];
@@ -395,9 +391,8 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
           }
         }
         // we don't have tissue ids, so we build unique identifiers by adding sourceID and tissue
-        // name
-        // TODO use sample type instead of tissue
-        String tissueID = sourceID + "-" + sampleType + "-" + replicateID;
+        // name - biospecimen is used here
+        String tissueID = sourceID + "-" + biospecimen + "-" + replicateID;
         TSVSampleBean tissueSample = tissueToSample.get(tissueID);
         if (tissueSample == null) {
           sampleID++;
@@ -405,7 +400,7 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
           tissueSample = new TSVSampleBean(Integer.toString(sampleID),
               SampleType.Q_BIOLOGICAL_SAMPLE, tissueID, fillMetadata(header, row, meta,
                   extractFactors, loci, SampleType.Q_BIOLOGICAL_SAMPLE));
-          tissueSample.addProperty("Q_PRIMARY_TISSUE", "Whole organism");
+          // tissueSample.addProperty("Q_PRIMARY_TISSUE", "Whole organism");
           samplesInOrder.get(MetaboSampleHierarchy.Tissue).add(tissueSample);
           tissueSample.addParentID(sampleSource.getCode());
           tissueSample.addProperty("Q_EXTERNALDB_ID", tissueID);
@@ -473,14 +468,12 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
 
   private String tryReplacePredefinedConditionNames(String condition) {
     Map<String, String> headNamesToConditions = new HashMap<>();
-    System.err.println("CONDITION PARSING");
-    System.err.println(condition);
     headNamesToConditions.put("Growth conditions: Temperature (°C)", "growth_temperature");
     headNamesToConditions.put("Growth conditions: Temperature", "growth_temperature");
     headNamesToConditions.put("Growth conditions: Time", "growth_time");
     headNamesToConditions.put("Growth conditions: rpm", "rpm");
+    headNamesToConditions.put("Condition: Stimulus", "stimulus");
     if (headNamesToConditions.containsKey(condition)) {
-      System.err.println(headNamesToConditions.get(condition));
       return headNamesToConditions.get(condition);
     }
     return condition;

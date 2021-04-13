@@ -1,14 +1,14 @@
-QBiC Barcode	Secondary name	Sample type	Species	Strain lab collection number	Culture type	Growth conditions: Temperature	Growth conditions: Time 	Growth conditions: rpm	Medium	Condition: Stimulus	Stimulation OD	Stimulation  Time	Harvesting conditions	Washing solvent	Cell lysis	Lysis parameters	Sample solvent	Injection volume (uL)	LCMS method name	LC device	LC detection method	LC column name	MS device	MS ion mode	SOP reference code for technical information
-	S1	cell wall	E. coli	12345	solid	5	4	3	MH	inhibitor	2	1	centrifugation	alcohol	boiling	lysis stuff	beer	10	1_D_M_ZIC_pHILIC_neg_85-900	Dionex	UV	SeQuant ZIC-pHILIC	HFX	negative	
-	S2	cell wall	E. coli	12346	solid	5	4	3	MH	inhibitor	2	1	centrifugation	alcohol	boiling	lysis stuff	beer	11	1_D_M_ZIC_pHILIC_neg_85-901	Dionex	UV	SeQuant ZIC-pHILIC	HFX	negative	
-	S3	cell wall	E. coli	12347	solid	5	4	3	MH	inhibitor	2	1	centrifugation	alcohol	boiling	lysis stuff	beer	12	1_D_M_ZIC_pHILIC_neg_85-902	Dionex	UV	SeQuant ZIC-pHILIC	HFX	negative	
-	S4	cell wall	E. coli	12348	solid	5	4	3	MH	inhibitor	2	1	centrifugation	alcohol	boiling	lysis stuff	beer	13	1_D_M_ZIC_pHILIC_neg_85-903	Dionex	UV	SeQuant ZIC-pHILIC	HFX	negative	
-	S5	cell wall	E. coli	12349	solid	5	4	3	MH	inhibitor	2	1	centrifugation	alcohol	boiling	lysis stuff	beer	14	1_D_M_ZIC_pHILIC_neg_85-904	Dionex	UV	SeQuant ZIC-pHILIC	HFX	negative	
-	S6	cell wall	E. coli	12350	solid	5	4	3	MH	inhibitor	2	1	centrifugation	alcohol	boiling	lysis stuff	beer	15	1_D_M_ZIC_pHILIC_neg_85-905	Dionex	UV	SeQuant ZIC-pHILIC	HFX	negative	
-	S7	cell wall	E. coli	12351	solid	5	4	3	MH	inhibitor	2	1	centrifugation	alcohol	boiling	lysis stuff	beer	16	1_D_M_ZIC_pHILIC_neg_85-906	Dionex	UV	SeQuant ZIC-pHILIC	HFX	negative	
-	S8	cell wall	E. coli	12352	solid	5	4	3	MH	inhibitor	2	1	centrifugation	alcohol	boiling	lysis stuff	beer	17	1_D_M_ZIC_pHILIC_neg_85-907	Dionex	UV	SeQuant ZIC-pHILIC	HFX	negative	
-	S9	cell wall	E. coli	12353	solid	5	4	3	MH	inhibitor	2	1	centrifugation	alcohol	boiling	lysis stuff	beer	18	1_D_M_ZIC_pHILIC_neg_85-908	Dionex	UV	SeQuant ZIC-pHILIC	HFX	negative	
-	S10	cell wall	E. coli	12354	solid	5	4	3	MH	inhibitor	2	1	centrifugation	alcohol	boiling	lysis stuff	beer	19	1_D_M_ZIC_pHILIC_neg_85-909	Dionex	UV	SeQuant ZIC-pHILIC	HFX	negative	
-	S11	cell wall	E. coli	12355	solid	5	4	3	MH	inhibitor	2	1	centrifugation	alcohol	boiling	lysis stuff	beer	20	1_D_M_ZIC_pHILIC_neg_85-910	Dionex	UV	SeQuant ZIC-pHILIC	HFX	negative	
-	S12	cell wall	E. coli	12356	solid	5	4	3	MH	inhibitor	2	1	centrifugation	alcohol	boiling	lysis stuff	beer	21	1_D_M_ZIC_pHILIC_neg_85-911	Dionex	UV	SeQuant ZIC-pHILIC	HFX	negative	
-	S13	cell wall	E. coli	12357	solid	5	4	3	MH	inhibitor	2	1	centrifugation	alcohol	boiling	lysis stuff	beer	22	1_D_M_ZIC_pHILIC_neg_85-912	Dionex	UV	SeQuant ZIC-pHILIC	HFX	negative	
+QBiC Barcode	Secondary name	Biospecimen	Condition: treatment	Species	Strain lab collection number	Culture type	Growth conditions: Temperature	Growth conditions: Time 	Growth conditions: rpm	Medium	Condition: Stimulus	Stimulation OD	Stimulation  Time	Harvesting conditions	Washing solvent	Cell lysis	Lysis parameters	Sample solvent	Injection volume (uL)	LCMS method name	LC device	LC detection method	LC column name	MS device	MS ion mode	SOP reference code for technical information
+	S1	cell wall	control	E. coli	12345	solid	5	4	3	MH	inhibitor	2	1	centrifugation	alcohol	boiling	lysis stuff	beer	10	1_D_M_ZIC_pHILIC_neg_85-900	Dionex	UV	SeQuant ZIC-pHILIC	HFX	negative	
+	S2	cell wall	control	E. coli	12346	solid	5	4	3	MH	inhibitor	2	1	centrifugation	alcohol	boiling	lysis stuff	beer	11	1_D_M_ZIC_pHILIC_neg_85-901	Dionex	UV	SeQuant ZIC-pHILIC	HFX	negative	
+	S3	cell wall	control	E. coli	12347	solid	5	4	3	MH	inhibitor	2	1	centrifugation	alcohol	boiling	lysis stuff	beer	12	1_D_M_ZIC_pHILIC_neg_85-902	Dionex	UV	SeQuant ZIC-pHILIC	HFX	negative	
+	S4	cell wall	treat1	E. coli	12348	solid	5	4	3	MH	inhibitor	2	1	centrifugation	alcohol	boiling	lysis stuff	beer	13	1_D_M_ZIC_pHILIC_neg_85-903	Dionex	UV	SeQuant ZIC-pHILIC	HFX	negative	
+	S5	cell wall	treat1	E. coli	12349	solid	5	4	3	MH	inhibitor	2	1	centrifugation	alcohol	boiling	lysis stuff	beer	14	1_D_M_ZIC_pHILIC_neg_85-904	Dionex	UV	SeQuant ZIC-pHILIC	HFX	negative	
+	S6	cell wall	treat2	E. coli	12350	solid	5	4	3	MH	inhibitor	2	1	centrifugation	alcohol	boiling	lysis stuff	beer	15	1_D_M_ZIC_pHILIC_neg_85-905	Dionex	UV	SeQuant ZIC-pHILIC	HFX	negative	
+	S7	cell wall	treat3	E. coli	12351	solid	5	4	3	MH	inhibitor	2	1	centrifugation	alcohol	boiling	lysis stuff	beer	16	1_D_M_ZIC_pHILIC_neg_85-906	Dionex	UV	SeQuant ZIC-pHILIC	HFX	negative	
+	S8	cell wall	treat3	E. coli	12352	solid	5	4	3	MH	inhibitor	2	1	centrifugation	alcohol	boiling	lysis stuff	beer	17	1_D_M_ZIC_pHILIC_neg_85-907	Dionex	UV	SeQuant ZIC-pHILIC	HFX	negative	
+	S9	cell wall	treat3	E. coli	12353	solid	5	4	3	MH	inhibitor	2	1	centrifugation	alcohol	boiling	lysis stuff	beer	18	1_D_M_ZIC_pHILIC_neg_85-908	Dionex	UV	SeQuant ZIC-pHILIC	HFX	negative	
+	S10	cell wall	treat2	E. coli	12354	solid	5	4	3	MH	inhibitor	2	1	centrifugation	alcohol	boiling	lysis stuff	beer	19	1_D_M_ZIC_pHILIC_neg_85-909	Dionex	UV	SeQuant ZIC-pHILIC	HFX	negative	
+	S11	cell wall	treat2	E. coli	12355	solid	5	4	3	MH	inhibitor	2	1	centrifugation	alcohol	boiling	lysis stuff	beer	20	1_D_M_ZIC_pHILIC_neg_85-910	Dionex	UV	SeQuant ZIC-pHILIC	HFX	negative	
+	S12	cell wall	treat3	E. coli	12356	solid	5	4	3	MH	inhibitor	2	1	centrifugation	alcohol	boiling	lysis stuff	beer	21	1_D_M_ZIC_pHILIC_neg_85-911	Dionex	UV	SeQuant ZIC-pHILIC	HFX	negative	
+	S13	cell wall	treat1	E. coli	12357	solid	5	4	3	MH	inhibitor	2	1	centrifugation	alcohol	boiling	lysis stuff	beer	22	1_D_M_ZIC_pHILIC_neg_85-912	Dionex	UV	SeQuant ZIC-pHILIC	HFX	negative	
