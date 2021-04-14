@@ -31,6 +31,7 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
   private List<String> mandatoryColumns;
   private List<String> mandatoryFilled;
   private List<String> optionalCols;
+  private HashMap<String, String> headerNamesToConditions;
   private Map<SampleType, Map<String, List<String>>> headersToTypeCodePerSampletype;
   private Map<String, Set<String>> parsedCategoriesToValues;
 
@@ -67,6 +68,14 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
     this.optionalCols = new ArrayList<>(Arrays.asList("Strain lab collection number",
         "Culture type", "Medium", "Harvesting conditions", "Washing solvent", "Cell lysis",
         "Lysis parameters", "Sample solvent", "SOP reference code for technical information"));
+    this.headerNamesToConditions = new HashMap<>();
+    headerNamesToConditions.put("Growth conditions: Temperature (°C)", "growth_temperature");
+    headerNamesToConditions.put("Growth conditions: Temperature", "growth_temperature");
+    headerNamesToConditions.put("Growth conditions: Time", "growth_time");
+    headerNamesToConditions.put("Growth conditions: rpm", "growth_rpm");
+    headerNamesToConditions.put("Stimulation OD", "stimulation_od");
+    headerNamesToConditions.put("Stimulation Time", "stimulation_time");
+    headerNamesToConditions.put("Condition: Stimulus", "stimulus");
 
     Map<String, List<String>> sourceMetadata = new HashMap<>();
     sourceMetadata.put("Species", Collections.singletonList("Q_NCBI_ORGANISM"));
@@ -200,7 +209,8 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
       if (position > -1) {
         headerMapping.put(header[i], i);
         meta.add(i);
-      } else if (header[i].toLowerCase().contains("condition") && header[i].contains(":")) {
+      } else if (headerNamesToConditions.containsKey(header[i])
+          || header[i].toLowerCase().contains("condition:")) {
         String condition = tryReplacePredefinedConditionNames(header[i]);
         if (condition.contains(":")) {
           condition = header[i].split(":")[1].trim();
@@ -348,9 +358,10 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
 
         String lcmsMethod = row[headerMapping.get("LCMS method name")];
         String msDevice = row[headerMapping.get("MS device")];
-        String lcDevice = row[headerMapping.get("LC device")];
         String column = row[headerMapping.get("LC column name")];
         String ionMode = row[headerMapping.get("MS ion mode")];
+        String sopRefCode = row[headerMapping.get("SOP reference code for technical information")];
+        String lcDevice = row[headerMapping.get("LC device")];
         String lcDetectionMethod = row[headerMapping.get("LC detection method")];// TODO do not put
                                                                                  // this into ms
                                                                                  // props
@@ -359,6 +370,9 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
         msProperties.setLCDevice(lcDevice);
         msProperties.setIonizationMode(ionMode);
         msProperties.setColumnName(column);
+        if (sopRefCode != null && !sopRefCode.isEmpty()) {
+          msProperties.setAdditionalInformation("SOP reference code: " + sopRefCode);
+        }
         msProperties.setWashingSolvent(washingSolvent);
         String expID = Integer.toString(msProperties.hashCode());
         msPropertiesToID.put(msProperties, expID);
@@ -467,14 +481,8 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
   }
 
   private String tryReplacePredefinedConditionNames(String condition) {
-    Map<String, String> headNamesToConditions = new HashMap<>();
-    headNamesToConditions.put("Growth conditions: Temperature (°C)", "growth_temperature");
-    headNamesToConditions.put("Growth conditions: Temperature", "growth_temperature");
-    headNamesToConditions.put("Growth conditions: Time", "growth_time");
-    headNamesToConditions.put("Growth conditions: rpm", "rpm");
-    headNamesToConditions.put("Condition: Stimulus", "stimulus");
-    if (headNamesToConditions.containsKey(condition)) {
-      return headNamesToConditions.get(condition);
+    if (headerNamesToConditions.containsKey(condition)) {
+      return headerNamesToConditions.get(condition);
     }
     return condition;
   }

@@ -190,7 +190,12 @@ public class MetaboDesignReaderTest {
         p.getExperimentalDesignProperties().getExperimentalDesign();
     assert (design.containsKey("growth_temperature"));
     assert (design.containsKey("growth_time"));
+    assert (design.containsKey("growth_rpm"));
     assert (design.containsKey("treatment"));
+    assert (design.containsKey("stimulus"));
+    System.err.println(design.keySet());
+    assert (design.containsKey("stimulation_od"));
+    assert (design.containsKey("stimulation_time"));
     assertEquals(design.get("treatment").keySet().size(), 4);
 
     if (r.getError() != null)

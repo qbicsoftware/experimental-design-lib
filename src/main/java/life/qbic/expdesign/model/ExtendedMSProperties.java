@@ -14,6 +14,7 @@ public class ExtendedMSProperties {
   private String lcDetectionMethod;
   private String ionizationMode;
   private String washingSolvent;
+  private String additionalInformation;
 
   public ExtendedMSProperties(String lcmsMethod, String msDevice) {
     super();
@@ -106,6 +107,8 @@ public class ExtendedMSProperties {
     result = prime * result + ((lcmsDescription == null) ? 0 : lcmsDescription.hashCode());
     result = prime * result + ((lcmsMethod == null) ? 0 : lcmsMethod.hashCode());
     result = prime * result + ((washingSolvent == null) ? 0 : washingSolvent.hashCode());
+    result =
+        prime * result + ((additionalInformation == null) ? 0 : additionalInformation.hashCode());
     return result;
   }
 
@@ -163,6 +166,11 @@ public class ExtendedMSProperties {
         return false;
     } else if (!washingSolvent.equals(other.washingSolvent))
       return false;
+    if (additionalInformation == null) {
+      if (other.additionalInformation != null)
+        return false;
+    } else if (!additionalInformation.equals(other.additionalInformation))
+      return false;
     return true;
   }
 
@@ -186,7 +194,13 @@ public class ExtendedMSProperties {
       res.put("Q_CHROMATOGRAPHY_COLUMN_NAME", columnName);
     if (!washingSolvent.isEmpty())
       res.put("Q_WASHING_SOLVENT", washingSolvent);
+    if (additionalInformation!=null && !additionalInformation.isEmpty())
+      res.put("Q_ADDITIONAL_INFO", additionalInformation);
     return res;
+  }
+
+  public void setAdditionalInformation(String info) {
+    this.additionalInformation = info;
   }
 
 }
