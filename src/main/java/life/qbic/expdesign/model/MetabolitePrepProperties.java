@@ -70,7 +70,7 @@ public class MetabolitePrepProperties {
     Map<String, Object> res = new HashMap<String, Object>();
 
     if (harvestingConditions != null && !harvestingConditions.isEmpty()) {
-      res.put("Q_HARVESTING_CONDITIONS", harvestingConditions);
+      res.put("Q_CELL_HARVESTING_METHOD", harvestingConditions);
     }
     if (cellLysis != null && !cellLysis.isEmpty()) {
       res.put("Q_CELL_LYSIS", cellLysis);

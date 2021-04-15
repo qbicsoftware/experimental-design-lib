@@ -46,7 +46,7 @@ public class MetaboDesignReaderTest {
     speciesPrepProps.put("Q_CULTURE_TYPE", "solid");
 
     Map<String, Object> tissuePrepProps = new HashMap<>();
-    tissuePrepProps.put("Q_HARVESTING_CONDITIONS", "centrifugation");
+    tissuePrepProps.put("Q_CELL_HARVESTING_METHOD", "centrifugation");
     tissuePrepProps.put("Q_CELL_LYSIS", "boiling");
     tissuePrepProps.put("Q_CELL_LYSIS_PARAMETERS", "lysis stuff");
 
