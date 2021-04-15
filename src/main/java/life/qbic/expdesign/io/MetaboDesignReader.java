@@ -326,7 +326,6 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
         // expressionSystem = row[headerMapping.get("Expression System")];
         // }
         // String tissue = row[headerMapping.get("Tissue")];//TODO whole organism?
-        String replicateID = "";
         // if (headerMapping.containsKey("Technical Replicates")) {
         // replicateID = row[headerMapping.get("Technical Replicates")];
         // }
@@ -406,7 +405,7 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
         }
         // we don't have tissue ids, so we build unique identifiers by adding sourceID and tissue
         // name - biospecimen is used here
-        String tissueID = sourceID + "-" + biospecimen + "-" + replicateID;
+        String tissueID = sourceID + "-" + biospecimen;
         TSVSampleBean tissueSample = tissueToSample.get(tissueID);
         if (tissueSample == null) {
           sampleID++;
@@ -428,16 +427,17 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
         }
 
         // if sample secondary name not known => create metabolite sample
-        TSVSampleBean metabolite = metaboliteToSample.get(sampleKey);
+        String measureID = "measured sample from " + tissueID;
+        TSVSampleBean metabolite = metaboliteToSample.get(measureID);
         if (metabolite == null) {
           sampleID++;
 
           metabolite = new TSVSampleBean(Integer.toString(sampleID), SampleType.Q_TEST_SAMPLE,
-              sampleKey, fillMetadata(header, row, meta, factors, loci, SampleType.Q_TEST_SAMPLE));
+              measureID, fillMetadata(header, row, meta, factors, loci, SampleType.Q_TEST_SAMPLE));
           samplesInOrder.get(MetaboSampleHierarchy.Molecules).add(metabolite);
           metabolite.addParentID(tissueSample.getCode());
-          metabolite.addProperty("Q_EXTERNALDB_ID", sampleKey);
-          metaboliteToSample.put(sampleKey, metabolite);
+          metabolite.addProperty("Q_EXTERNALDB_ID", measureID);
+          metaboliteToSample.put(measureID, metabolite);
           metabolite.addProperty("Q_SAMPLE_TYPE", "SMALLMOLECULES");
         }
         msRun.addParentID(metabolite.getCode());
@@ -475,7 +475,7 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
     experimentInfos.put("Q_MS_MEASUREMENT", msExperiments);
     for (MetaboSampleHierarchy level : order) {
       beans.addAll(samplesInOrder.get(level));
-      // printSampleLevel(samplesInOrder.get(level));TODO
+      printSampleLevel(samplesInOrder.get(level));
     }
     return beans;
   }
