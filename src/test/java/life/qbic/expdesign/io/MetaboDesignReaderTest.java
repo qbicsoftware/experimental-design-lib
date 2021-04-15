@@ -47,7 +47,7 @@ public class MetaboDesignReaderTest {
 
     Map<String, Object> tissuePrepProps = new HashMap<>();
     tissuePrepProps.put("Q_CELL_HARVESTING_METHOD", "centrifugation");
-    tissuePrepProps.put("Q_CELL_LYSIS_METHOD", "boiling");
+    tissuePrepProps.put("Q_CELL_LYSIS_METHODS", Arrays.asList("beads", "boiling"));
     tissuePrepProps.put("Q_CELL_LYSIS_PARAMETERS", "lysis stuff");
 
     Map<String, Object> msProps = new HashMap<>();
@@ -86,6 +86,7 @@ public class MetaboDesignReaderTest {
     for (String exp : specialExperimentsOfTypeOrNull.keySet()) {
       Map<String, Object> experiment = specialExperimentsOfTypeOrNull.get(exp);
       if (experiment.containsKey(entry.getKey())) {
+        System.err.println("search " + experiment.get(entry.getKey()));
         if (experiment.get(entry.getKey()).equals(entry.getValue())) {
           return true;
         }

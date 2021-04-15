@@ -345,6 +345,11 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
         String lysisParams = row[headerMapping.get("Lysis parameters")];
         String strainCollNumber = row[headerMapping.get("Strain lab collection number")];
 
+        List<String> lysisList = new ArrayList<>();
+        if (!cellLysis.isEmpty()) {
+          lysisList = new ArrayList<String>(Arrays.asList(cellLysis.split(LIST_SEPARATOR)));
+        }
+        
         speciesSet.add(species);
         tissueSet.add(biospecimen);
 
@@ -420,7 +425,7 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
           tissueToSample.put(tissueID, tissueSample);
 
           MetabolitePrepProperties props =
-              new MetabolitePrepProperties(harvestingConditions, cellLysis, lysisParams);
+              new MetabolitePrepProperties(harvestingConditions, lysisList, lysisParams);
           String prepExpID = Integer.toString(props.hashCode());
           metaboPrepPropertiesToID.put(props, prepExpID);
           tissueSample.setExperiment(prepExpID);
@@ -475,7 +480,7 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
     experimentInfos.put("Q_MS_MEASUREMENT", msExperiments);
     for (MetaboSampleHierarchy level : order) {
       beans.addAll(samplesInOrder.get(level));
-      printSampleLevel(samplesInOrder.get(level));
+//      printSampleLevel(samplesInOrder.get(level));
     }
     return beans;
   }
