@@ -73,7 +73,7 @@ public class MetabolitePrepProperties {
       res.put("Q_CELL_HARVESTING_METHOD", harvestingConditions);
     }
     if (cellLysis != null && !cellLysis.isEmpty()) {
-      res.put("Q_CELL_LYSIS", cellLysis);
+      res.put("Q_CELL_LYSIS_METHOD", cellLysis);
     }
     if (lysisParameters != null && !lysisParameters.isEmpty()) {
       res.put("Q_CELL_LYSIS_PARAMETERS", lysisParameters);

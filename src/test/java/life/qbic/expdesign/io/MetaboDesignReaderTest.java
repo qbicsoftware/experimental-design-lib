@@ -47,7 +47,7 @@ public class MetaboDesignReaderTest {
 
     Map<String, Object> tissuePrepProps = new HashMap<>();
     tissuePrepProps.put("Q_CELL_HARVESTING_METHOD", "centrifugation");
-    tissuePrepProps.put("Q_CELL_LYSIS", "boiling");
+    tissuePrepProps.put("Q_CELL_LYSIS_METHOD", "boiling");
     tissuePrepProps.put("Q_CELL_LYSIS_PARAMETERS", "lysis stuff");
 
     Map<String, Object> msProps = new HashMap<>();
