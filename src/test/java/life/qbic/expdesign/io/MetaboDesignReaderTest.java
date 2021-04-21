@@ -46,8 +46,8 @@ public class MetaboDesignReaderTest {
     speciesPrepProps.put("Q_CULTURE_TYPE", "solid");
 
     Map<String, Object> tissuePrepProps = new HashMap<>();
-    tissuePrepProps.put("Q_CELL_HARVESTING_METHOD", "centrifugation");
-    tissuePrepProps.put("Q_CELL_LYSIS_METHODS", Arrays.asList("beads", "boiling"));
+//    tissuePrepProps.put("Q_CELL_HARVESTING_METHOD", "centrifugation");
+    tissuePrepProps.put("Q_CELL_LYSIS_METHOD", Arrays.asList("beads", "boiling"));
     tissuePrepProps.put("Q_CELL_LYSIS_PARAMETERS", "lysis stuff");
 
     Map<String, Object> msProps = new HashMap<>();
@@ -59,6 +59,9 @@ public class MetaboDesignReaderTest {
     // msProps.put("Q_MS_LCMS_METHOD_INFO", "UV");
     msProps.put("Q_LC_DETECTION_METHOD", "UV");
     msProps.put("Q_WASHING_SOLVENT", "alcohol");
+    msProps.put("Q_MS_DISSOCIATION_METHOD", "hammer");
+    msProps.put("Q_MS_DISSOCIATION_ENERGY", 0.2);
+    msProps.put("Q_MS_RESOLVING_POWER", "over 9000");
 
     ExperimentType msType = ExperimentType.Q_MS_MEASUREMENT;
     ExperimentType orgType = ExperimentType.Q_EXPERIMENTAL_DESIGN;
@@ -87,11 +90,24 @@ public class MetaboDesignReaderTest {
       Map<String, Object> experiment = specialExperimentsOfTypeOrNull.get(exp);
       if (experiment.containsKey(entry.getKey())) {
         System.err.println("search " + experiment.get(entry.getKey()));
-        if (experiment.get(entry.getKey()).equals(entry.getValue())) {
+        if(experiment.get(entry.getKey()) instanceof List<?>) {
+          List<Object> a = (List<Object>) experiment.get(entry.getKey());
+          List<Object> b = (List<Object>) entry.getValue();
+          for(Object o : a) {
+            if(!b.contains(o)) {
+              return false;
+            }
+          }
           return true;
+        } else {
+         if (experiment.get(entry.getKey()).equals(entry.getValue())) {
+          return true;
+         }
         }
       }
     }
+    System.err.println("--debug--");
+    System.err.println(specialExperimentsOfTypeOrNull);
     System.err.println("not found in experiment " + entry);
     return false;
   }

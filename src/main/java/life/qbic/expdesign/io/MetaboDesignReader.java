@@ -53,9 +53,9 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
 
 
   public MetaboDesignReader() {
-    this.mandatoryColumns = new ArrayList<>(Arrays.asList("Secondary name", "Biospecimen",
-        "Species", "Injection volume (uL)", "LCMS method name", "LC device", "LC detection method",
-        "LC column name", "MS device", "MS ion mode"));
+    this.mandatoryColumns = new ArrayList<>(Arrays.asList("Secondary name", "Biological replicate",
+        "Biospecimen", "Species", "Injection volume (uL)", "LCMS method name", "LC device",
+        "LC detection method", "LC column name", "MS device", "MS ion mode"));
     this.mandatoryFilled = new ArrayList<>(
         Arrays.asList("Secondary name", "Biospecimen", "Species", "LCMS method name", "LC device",
             "LC detection method", "LC column name", "MS device", "MS ion mode"));
@@ -67,7 +67,8 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
     // "Lysis parameters", "Sample solvent", "SOP reference code for technical information"));
     this.optionalCols = new ArrayList<>(Arrays.asList("Strain lab collection number",
         "Culture type", "Medium", "Harvesting conditions", "Washing solvent", "Cell lysis",
-        "Lysis parameters", "Sample solvent", "SOP reference code for technical information"));
+        "Lysis parameters", "Sample solvent", "SOP reference code for technical information",
+        "Mass resolving power", "Dissociation method", "Dissociation energy (eV)"));
     this.headerNamesToConditions = new HashMap<>();
     headerNamesToConditions.put("Growth conditions: Temperature (°C)", "growth_temperature");
     headerNamesToConditions.put("Growth conditions: Temperature", "growth_temperature");
@@ -119,6 +120,7 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
     addValueForCategory(headerMapping, row, "LC column name");
     addValueForCategory(headerMapping, row, "MS device");
     addValueForCategory(headerMapping, row, "MS ion mode");
+    addValueForCategory(headerMapping, row, "Dissociation method");
   }
 
   private void addValueForCategory(Map<String, Integer> headerMapping, String[] row, String cat) {
@@ -247,14 +249,13 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
       boolean extr = true;
       for (String[] row : data) {
         String val = row[col];
-        String sourceID = row[headerMapping.get("Secondary name")]; // for now: one row, one new
-                                                                    // source
-        // String replicateID = "";
-        // if (headerMapping.containsKey("Technical Replicates")) {
-        // replicateID = row[headerMapping.get("Technical Replicates")];
-        // }
-        String extractID = sourceID + row[headerMapping.get("Biospecimen")];// + replicateID; TODO
-                                                                            // might use more cols
+        String sourceID = row[headerMapping.get("Secondary name")];
+        String replicateID = "";
+        if (headerMapping.containsKey("Technical Replicates")) {
+          replicateID = row[headerMapping.get("Technical Replicates")];
+        }
+        sourceID = replicateID + sourceID;
+        String extractID = sourceID + row[headerMapping.get("Biospecimen")];
         // if different for same entities: not an entity attribute
         if (idToVal.containsKey(sourceID)) {
           if (!idToVal.get(sourceID).equals(val))
@@ -319,6 +320,7 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
             return null;
           }
         }
+        // TODO biological replicates
         String sourceID = row[headerMapping.get("Secondary name")];
         String species = row[headerMapping.get("Species")];
         String expressionSystem = null;
@@ -349,7 +351,7 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
         if (!cellLysis.isEmpty()) {
           lysisList = new ArrayList<String>(Arrays.asList(cellLysis.split(LIST_SEPARATOR)));
         }
-        
+
         speciesSet.add(species);
         tissueSet.add(biospecimen);
 
@@ -369,11 +371,30 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
         String lcDetectionMethod = row[headerMapping.get("LC detection method")];// TODO do not put
                                                                                  // this into ms
                                                                                  // props
+        String dissociationMethod = row[headerMapping.get("Dissociation method")];
+        double dissociationEnergy = -1;
+        String energyString = row[headerMapping.get("Dissociation energy (eV)")];
+        String massResPower = row[headerMapping.get("Mass resolving power")];
+
+        if (energyString != null && !energyString.isEmpty()) {
+          try {
+            dissociationEnergy = Double.parseDouble(energyString);
+          } catch (NumberFormatException e) {
+            error = "Dissociation energy: " + energyString + " is not a number.";
+            return null;
+          }
+        }
+
         ExtendedMSProperties msProperties = new ExtendedMSProperties(lcmsMethod, msDevice);
         msProperties.setLCDetectionMethod(lcDetectionMethod);
         msProperties.setLCDevice(lcDevice);
         msProperties.setIonizationMode(ionMode);
         msProperties.setColumnName(column);
+        if (dissociationEnergy > 0) {
+          msProperties.setDissociationEnergy(dissociationEnergy);
+        }
+        msProperties.setDissociationMethod(dissociationMethod);
+        msProperties.setMassResolvingPower(massResPower);
         if (sopRefCode != null && !sopRefCode.isEmpty()) {
           msProperties.setAdditionalInformation("SOP reference code: " + sopRefCode);
         }
@@ -385,7 +406,6 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
         samplesInOrder.get(MetaboSampleHierarchy.MassSpecRun).add(msRun);
 
         // if organism id not known => create organism entity. put in map.
-        // else get organism entity. same for tissue. this is done for pool rows, as well
         TSVSampleBean sampleSource = sourceIDToSample.get(sourceID);
         if (sampleSource == null) {
           sampleID++;
@@ -480,7 +500,7 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
     experimentInfos.put("Q_MS_MEASUREMENT", msExperiments);
     for (MetaboSampleHierarchy level : order) {
       beans.addAll(samplesInOrder.get(level));
-//      printSampleLevel(samplesInOrder.get(level));
+      // printSampleLevel(samplesInOrder.get(level));
     }
     return beans;
   }
