@@ -2,6 +2,7 @@ package life.qbic.expdesign.io;
 
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNull;
 import java.io.File;
 import java.io.IOException;
@@ -30,7 +31,8 @@ public class MetaboDesignReaderTest {
       new File(getClass().getResource("mtx/metabo_full_example1.tsv").getFile());
   private File standardtest =
       new File(getClass().getResource("mtx/metabo_small_test.tsv").getFile());
-
+  private File noReplicates = new File(getClass().getResource("mtx/noRepl.tsv").getFile());
+  private File threeGroupsAThree = new File(getClass().getResource("mtx/3a3.tsv").getFile());
 
   @Before
   public void setUp() {}
@@ -46,7 +48,7 @@ public class MetaboDesignReaderTest {
     speciesPrepProps.put("Q_CULTURE_TYPE", "solid");
 
     Map<String, Object> tissuePrepProps = new HashMap<>();
-//    tissuePrepProps.put("Q_CELL_HARVESTING_METHOD", "centrifugation");
+    // tissuePrepProps.put("Q_CELL_HARVESTING_METHOD", "centrifugation");
     tissuePrepProps.put("Q_CELL_LYSIS_METHOD", Arrays.asList("beads", "boiling"));
     tissuePrepProps.put("Q_CELL_LYSIS_PARAMETERS", "lysis stuff");
 
@@ -90,19 +92,19 @@ public class MetaboDesignReaderTest {
       Map<String, Object> experiment = specialExperimentsOfTypeOrNull.get(exp);
       if (experiment.containsKey(entry.getKey())) {
         System.err.println("search " + experiment.get(entry.getKey()));
-        if(experiment.get(entry.getKey()) instanceof List<?>) {
+        if (experiment.get(entry.getKey()) instanceof List<?>) {
           List<Object> a = (List<Object>) experiment.get(entry.getKey());
           List<Object> b = (List<Object>) entry.getValue();
-          for(Object o : a) {
-            if(!b.contains(o)) {
+          for (Object o : a) {
+            if (!b.contains(o)) {
               return false;
             }
           }
           return true;
         } else {
-         if (experiment.get(entry.getKey()).equals(entry.getValue())) {
-          return true;
-         }
+          if (experiment.get(entry.getKey()).equals(entry.getValue())) {
+            return true;
+          }
         }
       }
     }
@@ -235,54 +237,51 @@ public class MetaboDesignReaderTest {
     assertNull(r.getError());
   }
 
-  // @Test
-  // public void testReadSamples() throws IOException, JAXBException {
-  // MSDesignReader r = new MSDesignReader();
-  //
-  // List<ISampleBean> samples1 = r.readSamples(tsv, false);
-  //
-  // if (r.getError() != null)
-  // System.err.println("2" + r.getError());
-  //
-  // r = new MSDesignReader();
-  // List<ISampleBean> samples2 = r.readSamples(tsv, true);
-  //
-  // assertEquals(samples1, samples2);
-  //
-  // SamplePreparator p = new SamplePreparator();
-  // p.processTSV(tsv, new MSDesignReader(), false);
-  // System.err.print(p.getSummary());
-  // assert (p.getSummary().size() == 7);
-  // List<List<ISampleBean>> levels = p.getProcessed();
-  // assertEquals(levels.get(0).size(), 1);// organism
-  // assertEquals(levels.get(1).size(), 2);// tissue
-  // assertEquals(levels.get(2).size(), 6);// proteins
-  // assertEquals(levels.get(3).size(), 5);// peptides
-  // assertEquals(levels.get(4).size(), 6);// pool of peptides + fractions of peptides
-  // assertEquals(levels.get(5).size(), 4);// fractions of pool, pool of other peptide fractions
-  // assertEquals(levels.get(6).size(), 11);// ms measurements
-  // assertEquals(samples1.size(), 35);
-  // for (List<ISampleBean> l : levels) {
-  // System.out.println("level");
-  // System.out.println(l);
-  // }
-  //
-  // p.processTSV(altTSV, new MSDesignReader(), false);
-  // assert (p.getSummary().size() == 7);
-  // levels = p.getProcessed();
-  // assertEquals(levels.get(0).size(), 1);// organism
-  // assertEquals(levels.get(1).size(), 2);// tissue
-  // assertEquals(levels.get(2).size(), 4);// proteins
-  // assertEquals(levels.get(3).size(), 3);// peptides (unpooled samples) + protein pool
-  // assertEquals(levels.get(4).size(), 6);// pool of peptides + fractions of peptides
-  // assertEquals(levels.get(5).size(), 4);// fractions of pool, pool of other fractions
-  // assertEquals(levels.get(6).size(), 9);// ms measurements
-  // assertEquals(samples1.size(), 35);
-  //
-  // assert (p.getSpeciesSet().contains("Homo sapiens"));
-  // assert (p.getTissueSet().contains("Liver"));
-  // assert (p.getTissueSet().contains("Whole blood"));
-  // }
+  @Test
+  public void testReadSamples() throws IOException, JAXBException {
+    MetaboDesignReader r = new MetaboDesignReader();
+
+    List<ISampleBean> samples1 = r.readSamples(noReplicates, false);
+
+    if (r.getError() != null)
+      System.err.println("testReadSamples error? " + r.getError());
+
+    r = new MetaboDesignReader();
+    List<ISampleBean> samples2 = r.readSamples(threeGroupsAThree, true);
+
+    assertNotEquals(samples1, samples2);
+
+    SamplePreparator p = new SamplePreparator();
+    p.processTSV(noReplicates, new MetaboDesignReader(), false);
+    System.err.print(p.getSummary());
+    assert (p.getSummary().size() == 4);
+    List<List<ISampleBean>> levels = p.getProcessed();
+    assertEquals(levels.get(0).size(), 1);// organism
+    assertEquals(levels.get(1).size(), 1);// tissue
+    assertEquals(levels.get(2).size(), 3);// metabolome
+    assertEquals(levels.get(3).size(), 3);// ms measurements
+    assertEquals(samples1.size(), 8);
+    for (List<ISampleBean> l : levels) {
+      System.out.println("level");
+      System.out.println(l);
+    }
+
+    p.processTSV(threeGroupsAThree, new MetaboDesignReader(), false);
+    assert (p.getSummary().size() == 4);
+    levels = p.getProcessed();
+    assertEquals(levels.get(0).size(), 3);// organism
+    assertEquals(levels.get(1).size(), 3);// tissue
+    assertEquals(levels.get(2).size(), 9);// metabolome
+    assertEquals(levels.get(3).size(), 9);// ms measurements
+    assertEquals(samples2.size(), 24);
+
+    assert (p.getSpeciesSet().contains("E. coli"));
+    assert (p.getTissueSet().contains("cell wall"));
+    for (List<ISampleBean> l : levels) {
+      System.out.println("level");
+      System.out.println(l);
+    }
+  }
 
   @Test
   public void testGetGraphStructure() throws IOException, JAXBException {

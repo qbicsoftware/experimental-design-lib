@@ -249,12 +249,12 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
       boolean extr = true;
       for (String[] row : data) {
         String val = row[col];
-        String sourceID = row[headerMapping.get("Secondary name")];
+        String sourceID = row[headerMapping.get("Species")];
         String replicateID = "";
-        if (headerMapping.containsKey("Technical Replicates")) {
-          replicateID = row[headerMapping.get("Technical Replicates")];
+        if (headerMapping.containsKey("Biological replicate")) {
+          replicateID = row[headerMapping.get("Biological replicate")];
         }
-        sourceID = replicateID + sourceID;
+        sourceID += replicateID;
         String extractID = sourceID + row[headerMapping.get("Biospecimen")];
         // if different for same entities: not an entity attribute
         if (idToVal.containsKey(sourceID)) {
@@ -321,8 +321,13 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
           }
         }
         // TODO biological replicates
-        String sourceID = row[headerMapping.get("Secondary name")];
         String species = row[headerMapping.get("Species")];
+        String sourceID = species;
+        String replicateID = "";
+        if (headerMapping.containsKey("Biological replicate")) {
+          replicateID = row[headerMapping.get("Biological replicate")];
+        }
+        sourceID += replicateID;
         String expressionSystem = null;
         // if (headerMapping.containsKey("Expression System")) {
         // expressionSystem = row[headerMapping.get("Expression System")];
@@ -452,7 +457,7 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
         }
 
         // if sample secondary name not known => create metabolite sample
-        String measureID = "measured sample from " + tissueID;
+        String measureID = row[headerMapping.get(SAMPLE_KEYWORD)];
         TSVSampleBean metabolite = metaboliteToSample.get(measureID);
         if (metabolite == null) {
           sampleID++;
