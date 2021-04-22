@@ -256,20 +256,6 @@ under the License.
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/qbicsoftware/experimental-design-lib/checkstyle.html#life.qbic.expdesign.model.MassSpecSampleHierarchy.java">life/qbic/expdesign/model/MassSpecSampleHierarchy.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  1
-                </td>
-                <td>
-                  0
-                </td>
-              </tr>
-                          <tr>
-                <td>
                   <a href="https://github.com/qbicsoftware/experimental-design-lib/checkstyle.html#life.qbic.expdesign.io.Command.java">life/qbic/expdesign/io/Command.java</a>
                 </td>
                 <td>
@@ -284,7 +270,35 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="https://github.com/qbicsoftware/experimental-design-lib/checkstyle.html#life.qbic.expdesign.model.MassSpecSampleHierarchy.java">life/qbic/expdesign/model/MassSpecSampleHierarchy.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  1
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/qbicsoftware/experimental-design-lib/checkstyle.html#life.qbic.expdesign.VocabularyValidator.java">life/qbic/expdesign/VocabularyValidator.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  4
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/qbicsoftware/experimental-design-lib/checkstyle.html#life.qbic.expdesign.io.IExperimentalDesignReader.java">life/qbic/expdesign/io/IExperimentalDesignReader.java</a>
                 </td>
                 <td>
                   0
@@ -319,20 +333,6 @@ under the License.
                 </td>
                 <td>
                   17
-                </td>
-                <td>
-                  0
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/qbicsoftware/experimental-design-lib/checkstyle.html#life.qbic.expdesign.io.IExperimentalDesignReader.java">life/qbic/expdesign/io/IExperimentalDesignReader.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  4
                 </td>
                 <td>
                   0
