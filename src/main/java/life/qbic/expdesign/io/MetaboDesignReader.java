@@ -320,7 +320,6 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
             return null;
           }
         }
-        // TODO biological replicates
         String species = row[headerMapping.get("Species")];
         String sourceID = species;
         String replicateID = "";
@@ -332,12 +331,6 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
         // if (headerMapping.containsKey("Expression System")) {
         // expressionSystem = row[headerMapping.get("Expression System")];
         // }
-        // String tissue = row[headerMapping.get("Tissue")];//TODO whole organism?
-        // if (headerMapping.containsKey("Technical Replicates")) {
-        // replicateID = row[headerMapping.get("Technical Replicates")];
-        // }
-
-        // String fileName = row[headerMapping.get("File Name")];// TODO Sample Number?
 
         String sampleKey = row[headerMapping.get(SAMPLE_KEYWORD)];
         // String sampleAltName = row[headerMapping.get(SAMPLE_ALTNAME_KEYWORD)];
@@ -346,7 +339,7 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
         String harvestingConditions = row[headerMapping.get("Harvesting conditions")];
         String washingSolvent = row[headerMapping.get("Washing solvent")];
         String sampleSolvent = row[headerMapping.get("Sample solvent")];
-        String cultureType = row[headerMapping.get("Culture type")];
+//        String cultureType = row[headerMapping.get("Culture type")]; TODO unused?
         String biospecimen = row[headerMapping.get("Biospecimen")];
         String cellLysis = row[headerMapping.get("Cell lysis")];
         String lysisParams = row[headerMapping.get("Lysis parameters")];
@@ -423,7 +416,7 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
           samplesInOrder.get(MetaboSampleHierarchy.Organism).add(sampleSource);
           sourceIDToSample.put(sourceID, sampleSource);
 
-          CultureProperties props = new CultureProperties(cultureMedium, cultureType);
+          CultureProperties props = new CultureProperties(cultureMedium);
           String cultExpID = Integer.toString(props.hashCode());
           culturePropertiesToID.put(props, cultExpID);
           sampleSource.setExperiment(cultExpID);

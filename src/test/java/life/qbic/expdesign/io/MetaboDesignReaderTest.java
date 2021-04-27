@@ -45,7 +45,7 @@ public class MetaboDesignReaderTest {
 
     Map<String, Object> speciesPrepProps = new HashMap<>();
     speciesPrepProps.put("Q_CULTURE_MEDIUM", "MH");
-    speciesPrepProps.put("Q_CULTURE_TYPE", "solid");
+//    speciesPrepProps.put("Q_CULTURE_TYPE", "solid");
 
     Map<String, Object> tissuePrepProps = new HashMap<>();
     // tissuePrepProps.put("Q_CELL_HARVESTING_METHOD", "centrifugation");
@@ -58,6 +58,7 @@ public class MetaboDesignReaderTest {
     msProps.put("Q_LC_DEVICE", "Dionex");
     msProps.put("Q_IONIZATION_MODE", "negative");
     msProps.put("Q_CHROMATOGRAPHY_COLUMN_NAME", "SeQuant ZIC-pHILIC");
+    msProps.put("Q_CHROMATOGRAPHY_TYPE", "HILIC");
     // msProps.put("Q_MS_LCMS_METHOD_INFO", "UV");
     msProps.put("Q_LC_DETECTION_METHOD", "UV");
     msProps.put("Q_WASHING_SOLVENT", "alcohol");

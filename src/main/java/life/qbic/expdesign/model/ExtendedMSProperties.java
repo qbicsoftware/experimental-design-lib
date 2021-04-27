@@ -2,8 +2,12 @@ package life.qbic.expdesign.model;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class ExtendedMSProperties {
+
+  private final Logger logger = LogManager.getLogger(ExtendedMSProperties.class);
 
   private String lcmsMethod;
   private String msDevice;
@@ -72,6 +76,22 @@ public class ExtendedMSProperties {
 
   public void setColumnName(String columnName) {
     this.columnName = columnName;
+    matchChromatographyType(columnName);
+  }
+
+  private void matchChromatographyType(String columnName) {
+    Map<String, String> colNamesToChromatographyTypes = new HashMap<>();
+    colNamesToChromatographyTypes.put("C18 Gemini", "RP_HPLC_C18_COLUMN");
+    colNamesToChromatographyTypes.put("HILIC", "HILIC");
+    for (String key : colNamesToChromatographyTypes.keySet()) {
+      if (columnName.contains(key)) {
+        String value = colNamesToChromatographyTypes.get(key);
+        logger.info("Setting chromatography type for " + columnName + " column to " + value);
+        this.chromatographyType = value;
+        return;
+      }
+    }
+    logger.info("Chromatography type could not be determined for column " + columnName);
   }
 
   public String getLCDetectionMethod() {

@@ -8,10 +8,9 @@ public class CultureProperties {
   private String cultureMedium;
   private String cultureType;
 
-  public CultureProperties(String cultureMedium, String cultureType) {
+  public CultureProperties(String cultureMedium) {
     super();
     this.cultureMedium = cultureMedium;
-    this.cultureType = cultureType;
   }
 
   public String getCultureMedium() {
