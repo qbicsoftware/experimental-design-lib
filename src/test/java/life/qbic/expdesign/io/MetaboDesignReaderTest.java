@@ -33,6 +33,10 @@ public class MetaboDesignReaderTest {
       new File(getClass().getResource("mtx/metabo_small_test.tsv").getFile());
   private File noReplicates = new File(getClass().getResource("mtx/noRepl.tsv").getFile());
   private File threeGroupsAThree = new File(getClass().getResource("mtx/3a3.tsv").getFile());
+  private File allIDsMissing =
+      new File(getClass().getResource("mtx/metabo_one_id_missing.tsv").getFile());
+  private File oneIDMissing =
+      new File(getClass().getResource("mtx/metabo_one_id_missing.tsv").getFile());
 
   @Before
   public void setUp() {}
@@ -41,11 +45,12 @@ public class MetaboDesignReaderTest {
   public void testExperimentMetadata() throws IOException, JAXBException {
     SamplePreparator p = new SamplePreparator();
     p.processTSV(fullExample1, new MetaboDesignReader(), false);
-    System.out.println("ERROR? " + p.getError());
+
+    assertEquals(null, p.getError());
 
     Map<String, Object> speciesPrepProps = new HashMap<>();
     speciesPrepProps.put("Q_CULTURE_MEDIUM", "MH");
-//    speciesPrepProps.put("Q_CULTURE_TYPE", "solid");
+    // speciesPrepProps.put("Q_CULTURE_TYPE", "solid");
 
     Map<String, Object> tissuePrepProps = new HashMap<>();
     // tissuePrepProps.put("Q_CELL_HARVESTING_METHOD", "centrifugation");
@@ -134,6 +139,16 @@ public class MetaboDesignReaderTest {
   }
 
   @Test
+  public void testOrganismIDNeeded() throws IOException, JAXBException {
+    SamplePreparator p = new SamplePreparator();
+    p.processTSV(allIDsMissing, new MetaboDesignReader(), false);
+    assert (!p.getError().isEmpty());
+
+    p.processTSV(oneIDMissing, new MetaboDesignReader(), false);
+    assert (!p.getError().isEmpty());
+  }
+
+  @Test
   public void testSampleMetadata() throws IOException, JAXBException {
     SamplePreparator p = new SamplePreparator();
     p.processTSV(fullExample1, new MetaboDesignReader(), false);
@@ -206,6 +221,7 @@ public class MetaboDesignReaderTest {
     SamplePreparator p = new SamplePreparator();
     MetaboDesignReader r = new MetaboDesignReader();
     p.processTSV(fullExample1, r, false);
+    assertEquals(null, r.getError());
     Map<String, Map<Pair<String, String>, List<String>>> design =
         p.getExperimentalDesignProperties().getExperimentalDesign();
     assert (design.containsKey("growth_temperature"));
@@ -217,10 +233,6 @@ public class MetaboDesignReaderTest {
     assert (design.containsKey("stimulation_od"));
     assert (design.containsKey("stimulation_time"));
     assertEquals(design.get("treatment").keySet().size(), 4);
-
-    if (r.getError() != null)
-      System.out.println(r.getError());
-    assertNull(r.getError());
   }
 
   @Test
@@ -244,12 +256,15 @@ public class MetaboDesignReaderTest {
 
     List<ISampleBean> samples1 = r.readSamples(noReplicates, false);
 
+    assertEquals(null, r.getError());
+
     if (r.getError() != null)
       System.err.println("testReadSamples error? " + r.getError());
 
     r = new MetaboDesignReader();
     List<ISampleBean> samples2 = r.readSamples(threeGroupsAThree, true);
 
+    assertEquals(null, r.getError());
     assertNotEquals(samples1, samples2);
 
     SamplePreparator p = new SamplePreparator();
@@ -296,10 +311,11 @@ public class MetaboDesignReaderTest {
   public void testGetTSVByRows() throws IOException, JAXBException {
     MetaboDesignReader r = new MetaboDesignReader();
     r.readSamples(standardtest, true);
+    assertEquals(null, r.getError());
     // for (String l : r.getTSVByRows()) {
     // System.out.println(l);
     // }
-    assertEquals(r.getTSVByRows().size(), 14);
+    assertEquals(3, r.getTSVByRows().size());
   }
 
   public void testGetSpeciesSet() throws IOException {

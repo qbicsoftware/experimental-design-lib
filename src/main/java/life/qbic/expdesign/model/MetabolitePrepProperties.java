@@ -6,20 +6,22 @@ import java.util.Map;
 
 public class MetabolitePrepProperties {
 
-  private String harvestingConditions;
+  private String harvestingMethod;
+  private String harvestingVolume;
   private List<String> cellLysisTypes;
   private String lysisParameters;
 
-  public MetabolitePrepProperties(String harvestingConditions, List<String> lysisList,
-      String lysisParams) {
+  public MetabolitePrepProperties(String harvestingConditions, String harvestingVolume,
+      List<String> lysisList, String lysisParams) {
     super();
-    this.harvestingConditions = harvestingConditions;
+    this.harvestingMethod = harvestingConditions;
+    this.harvestingVolume = harvestingVolume;
     this.cellLysisTypes = lysisList;
     this.lysisParameters = lysisParams;
   }
 
   public String getHarvestingConditions() {
-    return harvestingConditions;
+    return harvestingMethod;
   }
 
   public List<String> getCellLysisTypes() {
@@ -30,14 +32,18 @@ public class MetabolitePrepProperties {
     return lysisParameters;
   }
 
+  public String getHarvestingVolume() {
+    return harvestingVolume;
+  }
+
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
     result = prime * result + ((cellLysisTypes == null) ? 0 : cellLysisTypes.hashCode());
     result = prime * result + ((lysisParameters == null) ? 0 : lysisParameters.hashCode());
-    result =
-        prime * result + ((harvestingConditions == null) ? 0 : harvestingConditions.hashCode());
+    result = prime * result + ((harvestingMethod == null) ? 0 : harvestingMethod.hashCode());
+    result = prime * result + ((harvestingVolume == null) ? 0 : harvestingVolume.hashCode());
     return result;
   }
 
@@ -60,10 +66,15 @@ public class MetabolitePrepProperties {
         return false;
     } else if (!lysisParameters.equals(other.lysisParameters))
       return false;
-    if (harvestingConditions == null) {
-      if (other.harvestingConditions != null)
+    if (harvestingMethod == null) {
+      if (other.harvestingMethod != null)
         return false;
-    } else if (!harvestingConditions.equals(other.harvestingConditions))
+    } else if (!harvestingMethod.equals(other.harvestingMethod))
+      return false;
+    if (harvestingVolume == null) {
+      if (other.harvestingVolume != null)
+        return false;
+    } else if (!harvestingVolume.equals(other.harvestingVolume))
       return false;
     return true;
   }
@@ -71,8 +82,8 @@ public class MetabolitePrepProperties {
   public Map<String, Object> getPropertyMap() {
     Map<String, Object> res = new HashMap<String, Object>();
 
-    if (harvestingConditions != null && !harvestingConditions.isEmpty()) {
-      res.put("Q_CELL_HARVESTING_METHOD", harvestingConditions);
+    if (harvestingMethod != null && !harvestingMethod.isEmpty()) {
+      res.put("Q_CELL_HARVESTING_METHOD", harvestingMethod);
     }
     if (cellLysisTypes != null && !cellLysisTypes.isEmpty()) {
       res.put("Q_CELL_LYSIS_METHOD", cellLysisTypes);
@@ -80,7 +91,9 @@ public class MetabolitePrepProperties {
     if (lysisParameters != null && !lysisParameters.isEmpty()) {
       res.put("Q_CELL_LYSIS_PARAMETERS", lysisParameters);
     }
-    System.err.println(res);
+    if (harvestingVolume != null && !harvestingVolume.isEmpty()) {
+      res.put("Q_CELL_HARVESTING_VOLUME", harvestingVolume);
+    }
     return res;
   }
 
