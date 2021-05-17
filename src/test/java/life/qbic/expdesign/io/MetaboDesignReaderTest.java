@@ -29,6 +29,8 @@ public class MetaboDesignReaderTest {
 
   private File fullExample1 =
       new File(getClass().getResource("mtx/metabo_full_example1.tsv").getFile());
+  private File withoutMS =
+      new File(getClass().getResource("mtx/msOptional.tsv").getFile());
   private File standardtest =
       new File(getClass().getResource("mtx/metabo_small_test.tsv").getFile());
   private File noReplicates = new File(getClass().getResource("mtx/noRepl.tsv").getFile());
@@ -318,16 +320,25 @@ public class MetaboDesignReaderTest {
     assertEquals(3, r.getTSVByRows().size());
   }
 
+  @Test
+  public void testMSOptional() throws IOException {
+    MetaboDesignReader r = new MetaboDesignReader();
+    r.readSamples(withoutMS, false);
+    assertEquals(null, r.getError());
+  }
+  
+  @Test
   public void testGetSpeciesSet() throws IOException {
     MetaboDesignReader r = new MetaboDesignReader();
     r.readSamples(standardtest, false);
-    assertEquals(r.getSpeciesSet(), new HashSet<String>(Arrays.asList("Homo Sapiens")));
+    assertEquals(r.getSpeciesSet(), new HashSet<String>(Arrays.asList("E. coli")));
   }
-
+  
+  @Test
   public void testGetTissueSet() throws IOException {
     MetaboDesignReader r = new MetaboDesignReader();
     r.readSamples(standardtest, false);
-    assertEquals(r.getTissueSet(), new HashSet<String>(Arrays.asList("Whole blood")));
+    assertEquals(r.getTissueSet(), new HashSet<String>(Arrays.asList("cell wall")));
   }
 
 }

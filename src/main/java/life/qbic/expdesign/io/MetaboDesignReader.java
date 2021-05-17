@@ -50,8 +50,6 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
   public static final String SAMPLE_KEYWORD = "Secondary name";
   // public static final String SAMPLE_ALTNAME_KEYWORD = "Sample Name";
 
-
-
   public MetaboDesignReader() {
     this.mandatoryColumns = new ArrayList<>(Arrays.asList("Secondary name", "Organism ID",
         "Biospecimen", "Species", "Injection volume (uL)", "LCMS method name", "LC device",
@@ -59,7 +57,7 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
         "Harvesting volume (ml)", "Technical comments"));
     this.mandatoryFilled = new ArrayList<>(
         Arrays.asList("Secondary name", "Biospecimen", "Organism ID", "Species", "LCMS method name",
-            "LC device", "LC detection method", "LC column name", "MS device", "MS ion mode"));
+            "LC device", "LC detection method", "LC column name"));
     this.optionalCols = new ArrayList<>(Arrays.asList("Strain lab collection number",
         "Medium", "Harvesting conditions", "Harvesting volume (ml)",
         "Washing solvent", "Cell lysis", "Lysis parameters", "Sample solvent", "Technical comments",
