@@ -10,7 +10,12 @@ This project adheres to `Semantic Versioning <https://semver.org/>`_.
 
 **Added**
 
+* Support for Metabolomics format
+
 **Fixed**
+
+* Sample type (peptides) is now correctly set for all possible digestion enzyme cases used in Proteomics imports
+* Remove parent pom
 
 **Dependencies**
 
