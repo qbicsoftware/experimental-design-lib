@@ -10,6 +10,8 @@ This project adheres to `Semantic Versioning <https://semver.org/>`_.
 
 **Added**
 
+* Support for Metabolomics format
+
 **Fixed**
 
 **Dependencies**
@@ -17,7 +19,7 @@ This project adheres to `Semantic Versioning <https://semver.org/>`_.
 **Deprecated**
 
 
-0.19.0 (2021-05-20)
+0.19.0 (2021-02-02)
 -------------------
 
 **Added**
