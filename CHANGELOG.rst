@@ -14,6 +14,8 @@ This project adheres to `Semantic Versioning <https://semver.org/>`_.
 
 **Fixed**
 
+* Sample type (peptides) is now correctly set for all possible digestion enzyme cases used in Proteomics imports
+
 **Dependencies**
 
 **Deprecated**
