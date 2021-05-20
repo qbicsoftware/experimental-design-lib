@@ -507,8 +507,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
               TSVSampleBean parentProteinSample =
                   new TSVSampleBean(Integer.toString(sampleID), SampleType.Q_TEST_SAMPLE, parentID,
                       fillMetadata(header, row, meta, factors, loci, SampleType.Q_TEST_SAMPLE));
-              System.err.println("510");
-              System.err.println(sampleID);
+
               ProteinPeptidePreparationProperties props =
                   new ProteinPeptidePreparationProperties(enzymes, digestType, "PROTEINS",
                       cleanProt, fracType, enrichType, isoLabelType, sampPrepType);
@@ -620,8 +619,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
             TSVSampleBean proteinSample = proteinToSample.get(sampleKey);
             if (proteinSample == null) {
               sampleID++;
-              System.err.println("622");
-              System.err.println(sampleID);
+
               proteinSample = new TSVSampleBean(Integer.toString(sampleID),
                   SampleType.Q_TEST_SAMPLE, sampleAltName,
                   fillMetadata(header, row, meta, factors, loci, SampleType.Q_TEST_SAMPLE));
@@ -645,8 +643,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
                 TSVSampleBean peptideSample = peptideToSample.get(peptideID);
                 if (peptideSample == null) {
                   sampleID++;
-                  System.err.println("647");
-                  System.err.println(sampleID);
+
                   peptideSample = new TSVSampleBean(Integer.toString(sampleID),
                       SampleType.Q_TEST_SAMPLE, sampleAltName,
                       fillMetadata(header, row, meta, factors, loci, SampleType.Q_TEST_SAMPLE));
@@ -700,8 +697,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
             }
 
             sampleID++;
-            System.err.println("695");
-            System.err.println(sampleID);
+
             TSVSampleBean fracSample =
                 new TSVSampleBean(Integer.toString(sampleID), SampleType.Q_TEST_SAMPLE, fracName,
                     fillMetadata(header, row, meta, factors, loci, SampleType.Q_TEST_SAMPLE));
