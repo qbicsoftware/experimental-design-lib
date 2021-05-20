@@ -2,19 +2,21 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-
-	<parent>
-		<groupId>life.qbic</groupId>
-		<artifactId>parent-pom</artifactId>
-		<version>3.1.4</version>
-	</parent>
-
+	
+	<groupId>life.qbic</groupId>
 	<artifactId>experimental-design-lib</artifactId>
 	<packaging>jar</packaging>
 	<version>0.20.0</version>
 	<name>Experimental Design Library</name>
 	<url>https://github.com/qbicsoftware/experimental-design-lib</url>
 	<description>Parsers, writers for experimental design formats etc.</description>
+	<properties>
+      <maven.compiler.source>1.8</maven.compiler.source>
+      <maven.compiler.target>1.8</maven.compiler.target>
+
+      <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+      <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+  	</properties>
 	<dependencies>
 		<dependency>
 			<groupId>life.qbic</groupId>
