@@ -7,6 +7,7 @@
 	<artifactId>experimental-design-lib</artifactId>
 	<packaging>jar</packaging>
 	<version>0.20.1</version>
+
 	<name>Experimental Design Library</name>
 	<url>https://github.com/qbicsoftware/experimental-design-lib</url>
 	<description>Parsers, writers for experimental design formats etc.</description>
