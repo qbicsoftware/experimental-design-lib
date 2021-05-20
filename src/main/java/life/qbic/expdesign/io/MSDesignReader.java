@@ -172,6 +172,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
       next = removeUTF8BOM(next);
       tsvByRows.add(next);
       String[] nextLine = next.split("\t", -1);// this is needed for trailing tabs
+
       if (data.isEmpty() || nextLine.length == data.get(0).length) {
         data.add(nextLine);
       } else {
@@ -506,7 +507,6 @@ public class MSDesignReader implements IExperimentalDesignReader {
               TSVSampleBean parentProteinSample =
                   new TSVSampleBean(Integer.toString(sampleID), SampleType.Q_TEST_SAMPLE, parentID,
                       fillMetadata(header, row, meta, factors, loci, SampleType.Q_TEST_SAMPLE));
-
               ProteinPeptidePreparationProperties props =
                   new ProteinPeptidePreparationProperties(enzymes, digestType, "PROTEINS",
                       cleanProt, fracType, enrichType, isoLabelType, sampPrepType);
@@ -522,6 +522,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
 
               parents.add(parentProteinSample);
               parentsProteins = true;
+
             }
             parentFound = false;
           }
@@ -563,6 +564,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
                 SampleType.Q_TEST_SAMPLE, sampleAltName,
                 fillMetadata(header, row, meta, factors, loci, SampleType.Q_TEST_SAMPLE));
             digestedPool.addProperty("Q_EXTERNALDB_ID", sampleKey);
+            digestedPool.addProperty("Q_SAMPLE_TYPE", "PEPTIDES");
 
             props = new ProteinPeptidePreparationProperties(enzymes, digestType, "PEPTIDES",
                 cleanPept, fracType, enrichType, isoLabelType, sampPrepType);
@@ -612,7 +614,6 @@ public class MSDesignReader implements IExperimentalDesignReader {
             TSVSampleBean proteinSample = proteinToSample.get(sampleKey);
             if (proteinSample == null) {
               sampleID++;
-
               proteinSample = new TSVSampleBean(Integer.toString(sampleID),
                   SampleType.Q_TEST_SAMPLE, sampleAltName,
                   fillMetadata(header, row, meta, factors, loci, SampleType.Q_TEST_SAMPLE));
@@ -636,7 +637,6 @@ public class MSDesignReader implements IExperimentalDesignReader {
                 TSVSampleBean peptideSample = peptideToSample.get(peptideID);
                 if (peptideSample == null) {
                   sampleID++;
-
                   peptideSample = new TSVSampleBean(Integer.toString(sampleID),
                       SampleType.Q_TEST_SAMPLE, sampleAltName,
                       fillMetadata(header, row, meta, factors, loci, SampleType.Q_TEST_SAMPLE));
@@ -690,7 +690,6 @@ public class MSDesignReader implements IExperimentalDesignReader {
             }
 
             sampleID++;
-
             TSVSampleBean fracSample =
                 new TSVSampleBean(Integer.toString(sampleID), SampleType.Q_TEST_SAMPLE, fracName,
                     fillMetadata(header, row, meta, factors, loci, SampleType.Q_TEST_SAMPLE));
