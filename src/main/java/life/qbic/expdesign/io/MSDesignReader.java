@@ -306,8 +306,10 @@ public class MSDesignReader implements IExperimentalDesignReader {
     tissueSet = new HashSet<String>();
     analyteSet = new HashSet<String>();
     analyteSet.add("PROTEINS");
-    int rowID = 0;
+    int rowID = 1;
     int sampleID = 0;
+
+    Set<String> uniqueSamples = new HashSet<>();
 
     for (String[] row : data) {
       fillParsedCategoriesToValuesForRow(headerMapping, row);
@@ -336,6 +338,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
         String fileName = row[headerMapping.get("File Name")];
 
         String sampleKey = row[headerMapping.get(SAMPLE_KEYWORD)];
+
         String sampleAltName = row[headerMapping.get(SAMPLE_ALTNAME_KEYWORD)];
 
         String poolName = row[headerMapping.get("Pooled Sample")];
@@ -364,6 +367,16 @@ public class MSDesignReader implements IExperimentalDesignReader {
         String fracType = row[headerMapping.get("Fractionation Type")];
         String enrichType = row[headerMapping.get("Enrichment Method")];
         String fracName = row[headerMapping.get("Cycle/Fraction Name")];
+
+        if (uniqueSamples.contains(sampleKey) && fracName.isEmpty()) {
+          error = String.format(
+              "Error in line %s: %s must be unique, if no fractionation is used, but %s was found in multiple rows.",
+              rowID, SAMPLE_KEYWORD, sampleKey);
+          return null;
+        } else {
+          uniqueSamples.add(sampleKey);
+        }
+
         String isoLabelType = row[headerMapping.get("Labeling Type")];
         String isoLabel = row[headerMapping.get("Label")];
 
