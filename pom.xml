@@ -43,8 +43,6 @@
 			<version>1.9.0</version>
 		</dependency>
 	</dependencies>
-	<!-- we only need to tell maven where to find our parent pom and other QBiC 
-		dependencies -->
 	<repositories>
 		<repository>
 			<releases>
