@@ -18,9 +18,9 @@ experimental-design-lib
 
 </div>
 
-## How to compile
+## How to run
 
-Compile the project and build an executable java archive:
+Create a runable version of this code with maven and java 8:
 
 ```
 mvn clean package
@@ -28,7 +28,7 @@ mvn clean package
 
 The JAR file will be created in the ``/target`` folder
 
-## Add this library as a dependency
+## How to use
 
 This library is not hosted on maven central. To use it, you have to include our artifact repository to your pom.
 
@@ -55,7 +55,7 @@ Then include this library as an artifact.
 <dependency>
     <groupId>life.qbic</groupId>
     <artifactId>experimental-design-lib</artifactId>
-    <version>0.21.0-SNAPSHOT</version>
+    <version>[version-number]</version>
 </dependency>
 ```
 
