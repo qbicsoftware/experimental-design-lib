@@ -27,19 +27,19 @@ import life.qbic.expdesign.SamplePreparator;
 public class MSDesignReaderTest {
 
 
-  private File tsv = new File(getClass().getResource("ptx_example1.tsv").getFile());
-  private File checkMetadata = new File(getClass().getResource("fullmeta.tsv").getFile());
-  private File altTSV = new File(getClass().getResource("ptx_example_noParents.tsv").getFile());
-  private File small = new File(getClass().getResource("ptx_ex_small.tsv").getFile());
-  private File big = new File(getClass().getResource("ptx_big_example.tsv").getFile());
-  private File bug = new File(getClass().getResource("false1.txt").getFile());
+  private File tsv = new File(getClass().getResource("ptx/ptx_example1.tsv").getFile());
+  private File checkMetadata = new File(getClass().getResource("ptx/fullmeta.tsv").getFile());
+  private File altTSV = new File(getClass().getResource("ptx/ptx_example_noParents.tsv").getFile());
+  private File small = new File(getClass().getResource("ptx/ptx_ex_small.tsv").getFile());
+  private File big = new File(getClass().getResource("ptx/ptx_big_example.tsv").getFile());
+  private File bug = new File(getClass().getResource("ptx/false1.txt").getFile());
   private File enrich_big =
-      new File(getClass().getResource("changed_FBS_complex_example_phospho.txt").getFile());
-  private File falseHeader = new File(getClass().getResource("wrongHeader.txt").getFile());
-  private File trimmableHeader = new File(getClass().getResource("trimHeader.txt").getFile());
-  private File noparents = new File(getClass().getResource("noparents.txt").getFile());
-  private File noPeptides = new File(getClass().getResource("noPeptides.txt").getFile());
-  private File nullPeptides = new File(getClass().getResource("null_peptides.tsv").getFile());
+      new File(getClass().getResource("ptx/changed_FBS_complex_example_phospho.txt").getFile());
+  private File falseHeader = new File(getClass().getResource("ptx/wrongHeader.txt").getFile());
+  private File trimmableHeader = new File(getClass().getResource("ptx/trimHeader.txt").getFile());
+  private File noparents = new File(getClass().getResource("ptx/noparents.txt").getFile());
+  private File noPeptides = new File(getClass().getResource("ptx/noPeptides.txt").getFile());
+  private File nullPeptides = new File(getClass().getResource("ptx/null_peptides.tsv").getFile());
 
   @Before
   public void setUp() {}
