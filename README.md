@@ -1,12 +1,7 @@
-experimental-design-lib
------------------------------------
-# <p align=center>Experimental Design Library</p>
-
-<p align="center"><i>Library for parsing of different experimental design formats and mapping to openbis properties </i></p>
-
 <div align="center">
+# Experimental Design Library
 
-
+<i>Library for parsing of different experimental design formats and mapping to openbis properties </i>
 
 [![Build Maven Package](https://github.com/qbicsoftware/experimental-design-lib/actions/workflows/build_package.yml/badge.svg)](https://github.com/qbicsoftware/experimental-design-lib/actions/workflows/build_package.yml)
 [![Run Maven Tests](https://github.com/qbicsoftware/experimental-design-lib/actions/workflows/run_tests.yml/badge.svg)](https://github.com/qbicsoftware/experimental-design-lib/actions/workflows/run_tests.yml)
