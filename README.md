@@ -54,3 +54,10 @@ Then include this library as an artifact.
 </dependency>
 ```
 
+## Data Models
+
+This library contains multiple parsers for different experimental design formats.
+The SamplePreparator class uses one parser and returns experiment and sample representations used in different other portlets.
+An overview of the different parsers and interfaces can be seen here:
+
+![Parsers](./doc/figures/uml_exp_design.svg)
