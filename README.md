@@ -67,8 +67,8 @@ The library isa-creator-lib is used to enable parsing of the ISA-Tab format.
 Example use:
 
 ```java
-// create a new reader for the "Easy Design" (no measurement technology-specific
-// data, only identifiers and data about species, tissues sample types)
+// create a new reader for the "Easy Design" (no "measurement technology"-specific
+// data, only identifiers and data about species, tissues, sample types and factors)
 EasyDesignReader reader = new EasyDesignReader();
 
 // create sample preparator class
