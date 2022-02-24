@@ -67,19 +67,27 @@ The library isa-creator-lib is used to enable parsing of the ISA-Tab format.
 Example use:
 
 ```java
-// create a new reader for the "Easy Design" (no measurement technology-specific data, only identifiers and data about species, tissues sample types)
+// create a new reader for the "Easy Design" (no measurement technology-specific
+// data, only identifiers and data about species, tissues sample types)
 EasyDesignReader reader = new EasyDesignReader();
+
 // create sample preparator class
 SamplePreparator preparator = new SamplePreparator();
-// parse a TSV and return a hierarchical structure (e.g. species - tissues - measured samples) of the samples (each list of samples is one level)
+
+// parse a TSV and return a hierarchical structure (e.g.
+// species - tissues - measured samples) of the samples (each list of samples is one level)
 List<List<ISampleBean>> structure = preparator.processTSV("design.tsv", reader, false);
-// set "true", to create an experimental design graph based on species, tissues, or experimental factors defined in the TSV
+
+// set "true", to create an experimental design graph based on species, tissues, or
+// experimental factors defined in the TSV
 preparator.processTSV("design.tsv", reader, true);
+
 // return the graph structure
 StructuredExperiment graphStructure = preparator.getSampleGraph();
+
 // get a map that summarizes the number of similar samples based on an experimental factor
 Map<String, List<SampleSummary>> factorToSampleMap = graphStructure.getFactorsToSamples();
+
 // get sample summaries grouped by genotype (if genotype was defined)
 List<SampleSummary> samplesByGenotype = factorToSampleMap.get("genotype");
 ```
-
