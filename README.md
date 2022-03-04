@@ -1,19 +1,43 @@
 # Experimental Design Library
 
-[![Build Status](https://travis-ci.org/qbicsoftware/experimental-design-lib.svg?branch=development)](https://travis-ci.org/qbicsoftware/experimental-design-lib)[![Code Coverage]( https://codecov.io/gh/qbicsoftware/experimental-design-lib/branch/development/graph/badge.svg)](https://codecov.io/gh/qbicsoftware/experimental-design-lib)
+[![Build Maven Package](https://github.com/qbicsoftware/experimental-design-lib/actions/workflows/build_package.yml/badge.svg)](https://github.com/qbicsoftware/experimental-design-lib/actions/workflows/build_package.yml)
+[![Run Maven Tests](https://github.com/qbicsoftware/experimental-design-lib/actions/workflows/run_tests.yml/badge.svg)](https://github.com/qbicsoftware/experimental-design-lib/actions/workflows/run_tests.yml)
+[![CodeQL](https://github.com/qbicsoftware/experimental-design-lib/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/qbicsoftware/experimental-design-lib/actions/workflows/codeql-analysis.yml)
+[![release](https://img.shields.io/github/v/release/qbicsoftware/experimental-design-lib?include_prereleases)](https://github.com/qbicsoftware/experimental-design-lib/releases)
 
-Parsers, writers for experimental design formats etc.
+[![license](https://img.shields.io/github/license/qbicsoftware/experimental-design-lib)](https://github.com/qbicsoftware/experimental-design-lib/blob/main/LICENSE)
+![language](https://img.shields.io/badge/language-java-blue.svg)
 
-## Author
+Parsers, writers for experimental design formats.
 
-Created by Andreas Friedrich (andreas.friedrich@qbic.uni-tuebingen.de).
+## How to Run
 
-## Description
+Create a runnable version of this code with maven and java 8:
 
-## How to Install
+```
+mvn clean package
+```
+
+The JAR file will be created in the ``/target`` folder, for example:
+
+```
+|-target
+|---experimental-design-lib-<version-number>.jar
+|---...
+```
+
+## How to Use
+
+With Maven you can include the recent library version as dependency with:
+
+```XML
+<dependency>
+  <groupId>life.qbic</groupId>
+  <artifactId>experimental-design-lib</artifactId>
+  <version>version-number</version>
+</dependency>
+```
 
 ## License
 
-This project is licensed under an MIT License:
-
-* https://github.com/qbicsoftware/experimental-design-lib/blob/development/LICENSE
+This work is licensed under the [MIT license](https://mit-license.org/).
