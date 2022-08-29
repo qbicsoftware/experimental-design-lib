@@ -103,13 +103,13 @@ public class MHCLigandDesignReader implements IExperimentalDesignReader {
 
   public MHCLigandDesignReader() {
     this.mandatoryColumns = new ArrayList<String>(Arrays.asList("Organism", "Patient ID", "Tissue",
-        "Antibody", "Prep Date", "MS Run Date", "Filename", "HLA Typing", "Share", "MS Device",
+        "Antibody", "Antibody Mass", "Prep Date", "MS Run Date", "Filename", "HLA Typing", "Share", "MS Device",
         "LCMS Method", "Replicate", "Workflow Type"));
     this.mandatoryFilled = new ArrayList<String>(
         Arrays.asList("Organism", "Patient ID", "Tissue", "Antibody", "MS Run Date", "Filename"));
     this.optionalCols =
         new ArrayList<String>(Arrays.asList("Sample Mass", "Cell Count", "Sample Volume",
-            "Antibody Mass", "HLA Typing", "MS Comment", "Cell Type", "Tumor Type", "Sequencing"));
+            "HLA Typing", "MS Comment", "Cell Type", "Tumor Type", "Sequencing"));
 
     Map<String, String> sourceMetadata = new HashMap<String, String>();
     sourceMetadata.put("Organism", "Q_NCBI_ORGANISM");
