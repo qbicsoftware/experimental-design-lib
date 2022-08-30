@@ -80,6 +80,7 @@ public class MHCLigandDesignReader implements IExperimentalDesignReader {
       // Mouse MHC (H-2)
       put("B22.249", new String[] {"MHC_CLASS_I"});// H2-Db
       put("Y3", new String[] {"MHC_CLASS_I"});// H2-Kb
+      put("Y3_B22.249", new String[] {"MHC_CLASS_I"});//H2-Db+H2-Kb
       put("M5.144.15.2", new String[] {"MHC_CLASS_II"});// H2-Ab
     };
   };
