@@ -90,18 +90,11 @@ public class MHCLigandDesignReader implements IExperimentalDesignReader {
     if (antibodyToMHCClass.containsKey(antibody))
       return antibodyToMHCClass.get(antibody);
     else {
-      logger.error(antibody + " is an unknown antibody. Returning 'null' as MHC Class");
+      logger.error(antibody + " is an unknown antibody. Please make sure to only use pre-defined antibodies.");
       return null;
     }
   }
   
-  public static void main(String[] args) throws IOException, JAXBException {
-    MHCLigandDesignReader r = new MHCLigandDesignReader();
-      SamplePreparator p = new SamplePreparator();
-      p.processTSV(new File("/Users/frieda/Desktop/190603_QBiC_Batchupload_Ligandomics_LCa_QMLME_with_barcodes.tsv"), r, false);
-      System.out.println(p.getProcessed());
-  }
-
   public MHCLigandDesignReader() {
     this.mandatoryColumns = new ArrayList<String>(Arrays.asList("Organism", "Patient ID", "Tissue",
         "Antibody", "Antibody Mass", "Prep Date", "MS Run Date", "Filename", "HLA Typing", "Share", "MS Device",
@@ -397,7 +390,9 @@ public class MHCLigandDesignReader implements IExperimentalDesignReader {
               fillMetadata(header, row, meta, factors, loci, SampleType.Q_MHC_LIGAND_EXTRACT));
           ligandExtract.addProperty("Q_ANTIBODY", antibody);
           String[] mhcClass = getMHCClass(antibody);
-          if (mhcClass.length == 1) {
+          if (mhcClass == null) {
+            return null;
+          } else {
             ligandExtract.addProperty("Q_MHC_CLASS", mhcClass[0]);
           }
           ligandExtract.addParentID(prepID);
