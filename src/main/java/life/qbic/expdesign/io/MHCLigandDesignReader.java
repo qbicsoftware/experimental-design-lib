@@ -94,7 +94,7 @@ public class MHCLigandDesignReader implements IExperimentalDesignReader {
       return null;
     }
   }
-
+  
   public MHCLigandDesignReader() {
     this.mandatoryColumns = new ArrayList<String>(Arrays.asList("Organism", "Patient ID", "Tissue",
         "Antibody", "Antibody Mass", "Prep Date", "MS Run Date", "Filename", "HLA Typing", "Share", "MS Device",
@@ -390,7 +390,8 @@ public class MHCLigandDesignReader implements IExperimentalDesignReader {
               fillMetadata(header, row, meta, factors, loci, SampleType.Q_MHC_LIGAND_EXTRACT));
           ligandExtract.addProperty("Q_ANTIBODY", antibody);
           String[] mhcClass = getMHCClass(antibody);
-          if(mhcClass == null) {
+
+          if (mhcClass == null) {
             return null;
           } else {
             ligandExtract.addProperty("Q_MHC_CLASS", mhcClass[0]);
