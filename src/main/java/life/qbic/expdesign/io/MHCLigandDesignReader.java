@@ -35,6 +35,7 @@ public class MHCLigandDesignReader implements IExperimentalDesignReader {
   private List<String> mandatoryFilled;
   private List<String> optionalCols;
   private Map<SampleType, Map<String, String>> headersToTypeCodePerSampletype;
+  private Map<String, Set<String>> parsedCategoriesToValues;
   private String msSampleXML =
       "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?> <qproperties> <qfactors> <qcategorical label=\"technical_replicate\" value=\"%repl\"/> <qcategorical label=\"workflow_type\" value=\"%wftype\"/> </qfactors> </qproperties>";
 
@@ -138,7 +139,32 @@ public class MHCLigandDesignReader implements IExperimentalDesignReader {
     headersToTypeCodePerSampletype.put(SampleType.Q_MHC_LIGAND_EXTRACT, ligandsMetadata);
     // headersToTypeCodePerSampletype.put("Q_MS_RUN", msRunMetadata);
   }
+  private void fillParsedCategoriesToValuesForRow(Map<String, Integer> headerMapping,
+      String[] row) {
+    // logger.info("Collecting possible CV entries for row.");
+    addValueForCategory(headerMapping, row, "Organism");
+    addValueForCategory(headerMapping, row, "Tissue");
+    addValueForCategory(headerMapping, row, "Dignity");
+    addValueForCategory(headerMapping, row, "Tumor Type");
+    addValueForCategory(headerMapping, row, "TNM");
+    addValueForCategory(headerMapping, row, "Antibody");
+    addValueForCategory(headerMapping, row, "MHC Class");
+  }
 
+  private void addValueForCategory(Map<String, Integer> headerMapping, String[] row, String cat) {
+    if (headerMapping.containsKey(cat)) {
+      String val = row[headerMapping.get(cat)];
+      if (val != null && !val.isEmpty()) {
+          if (parsedCategoriesToValues.containsKey(cat)) {
+            parsedCategoriesToValues.get(cat).add(val);
+          } else {
+            Set<String> set = new HashSet<String>();
+            set.add(val);
+            parsedCategoriesToValues.put(cat, set);
+        }
+      }
+    }
+  }
   public Map<String, List<Map<String, Object>>> getExperimentInfos() {
     return experimentInfos;
   }
@@ -163,6 +189,7 @@ public class MHCLigandDesignReader implements IExperimentalDesignReader {
    */
   public List<ISampleBean> readSamples(File file, boolean parseGraph) throws IOException {
     tsvByRows = new ArrayList<String>();
+    parsedCategoriesToValues = new HashMap<>();
 
     BufferedReader reader = new BufferedReader(new FileReader(file));
     ArrayList<String[]> data = new ArrayList<String[]>();
@@ -261,6 +288,7 @@ public class MHCLigandDesignReader implements IExperimentalDesignReader {
     int rowID = 0;
     int sampleID = 0;
     for (String[] row : data) {
+      fillParsedCategoriesToValuesForRow(headerMapping, row);
       rowID++;
       boolean special = false;
       if (!special) {
@@ -723,8 +751,15 @@ public class MHCLigandDesignReader implements IExperimentalDesignReader {
 
   @Override
   public Map<String, List<String>> getParsedCategoriesToValues(List<String> header) {
-    logger.warn("Method getParsedCategoriesToValues not implemented.");
-    return new HashMap<>();
+    Map<String, List<String>> res = new HashMap<>();
+    for (String cat : header) {
+      if (parsedCategoriesToValues.containsKey(cat)) {
+        res.put(cat, new ArrayList<>(parsedCategoriesToValues.get(cat)));
+      } else {
+        logger.warn(cat + " not found");
+      }
+    }
+    return res;
   }
 
 }
