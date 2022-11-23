@@ -709,13 +709,13 @@ public class EasyDesignReader implements IExperimentalDesignReader {
   }
 
   @Override
-  public Map<String, List<String>> getParsedCategoriesToValues(List<String> header) {
+  public Map<String, List<String>> getParsedValuesForColumns(List<String> colNames) {
     Map<String, List<String>> res = new HashMap<>();
-    for (String cat : header) {
-      if (parsedCategoriesToValues.containsKey(cat)) {
-        res.put(cat, new ArrayList<>(parsedCategoriesToValues.get(cat)));
+    for (String columnName : colNames) {
+      if (parsedCategoriesToValues.containsKey(columnName)) {
+        res.put(columnName, new ArrayList<>(parsedCategoriesToValues.get(columnName)));
       } else {
-        logger.warn(cat + " not found");
+        logger.warn(columnName + " not found");
       }
     }
     return res;

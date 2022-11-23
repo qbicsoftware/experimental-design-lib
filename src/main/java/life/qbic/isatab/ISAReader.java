@@ -756,7 +756,8 @@ public class ISAReader implements IExperimentalDesignReader {
   }
 
   @Override
-  public Map<String, List<String>> getParsedCategoriesToValues(List<String> header) {
+  public Map<String, List<String>> getParsedValuesForColumns(List<String> colNames) {
+    log.warn("Method getParsedValuesForColumns not implemented.");
     return null;
   }
 }

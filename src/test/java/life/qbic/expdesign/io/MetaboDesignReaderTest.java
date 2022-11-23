@@ -243,7 +243,7 @@ public class MetaboDesignReaderTest {
     MetaboDesignReader r = new MetaboDesignReader();
     p.processTSV(fullExample1, r, false);
     System.out.println("vocabs");
-    System.out.println(p.getParsedCategoriesToValues(new ArrayList<String>(
+    System.out.println(p.getParsedValuesForCategories(new ArrayList<>(
         Arrays.asList("Medium", "Harvesting conditions", "LCMS method name", "LC device",
             "LC detection method", "MS device", "MS ion mode", "Species", "Biospecimen"))));
 
