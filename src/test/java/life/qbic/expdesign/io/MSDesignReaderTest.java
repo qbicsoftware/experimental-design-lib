@@ -291,7 +291,7 @@ public class MSDesignReaderTest {
    p.processTSV(tsv, new MSDesignReader(), false);
    System.out.println("vocabs");
    System.out
-   .println(p.getParsedCategoriesToValues(new ArrayList<String>(Arrays.asList("LC Column",
+   .println(p.getParsedValuesForCategories(new ArrayList<>(Arrays.asList("LC Column",
    "MS Device", "Fractionation Type", "Enrichment Type", "Labeling Type", "LCMS Method",
    "Digestion Method", "Digestion Enzyme", "Sample Preparation", "Species", "Tissue"))));
   

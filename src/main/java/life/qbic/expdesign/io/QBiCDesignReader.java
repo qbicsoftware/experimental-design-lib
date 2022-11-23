@@ -542,8 +542,8 @@ public class QBiCDesignReader implements IExperimentalDesignReader {
   }
 
   @Override
-  public Map<String, List<String>> getParsedCategoriesToValues(List<String> header) {
-    logger.warn("Method getParsedCategoriesToValues not implemented.");
+  public Map<String, List<String>> getParsedValuesForColumns(List<String> colNames) {
+    logger.warn("Method getParsedValuesForColumns not implemented.");
     return new HashMap<>();
   }
 

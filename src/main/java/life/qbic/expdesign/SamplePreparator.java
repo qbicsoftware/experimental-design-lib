@@ -365,8 +365,13 @@ public class SamplePreparator {
     return experimentalDesignXML;
   }
 
-  public Map<String, List<String>> getParsedCategoriesToValues(ArrayList<String> cats) {
-    return reader.getParsedCategoriesToValues(cats);
+  /**
+   * Returns a map containing lists of unique values from an experimental design format based on property names
+   * @param names a list of property names found in the format for which data should be returned
+   * @return a mapping between property names and a list of unique values read by the respective parser of the format
+   */
+  public Map<String, List<String>> getParsedValuesForCategories(ArrayList<String> names) {
+    return reader.getParsedValuesForColumns(names);
   }
 
 }
