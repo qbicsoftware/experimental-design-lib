@@ -137,18 +137,13 @@ public class MHCLigandDesignReader implements IExperimentalDesignReader {
     headersToTypeCodePerSampletype.put(SampleType.Q_BIOLOGICAL_SAMPLE, extractMetadata);
     headersToTypeCodePerSampletype.put(SampleType.Q_TEST_SAMPLE, new HashMap<>());
     headersToTypeCodePerSampletype.put(SampleType.Q_MHC_LIGAND_EXTRACT, ligandsMetadata);
-    // headersToTypeCodePerSampletype.put("Q_MS_RUN", msRunMetadata);
   }
   private void fillParsedCategoriesToValuesForRow(Map<String, Integer> headerMapping,
       String[] row) {
     // logger.info("Collecting possible CV entries for row.");
     addValueForCategory(headerMapping, row, "Organism");
     addValueForCategory(headerMapping, row, "Tissue");
-    addValueForCategory(headerMapping, row, "Dignity");
     addValueForCategory(headerMapping, row, "Tumor Type");
-    addValueForCategory(headerMapping, row, "TNM");
-    addValueForCategory(headerMapping, row, "Antibody");
-    addValueForCategory(headerMapping, row, "MHC Class");
   }
 
   private void addValueForCategory(Map<String, Integer> headerMapping, String[] row, String cat) {
