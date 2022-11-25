@@ -13,6 +13,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import life.qbic.expdesign.model.MSExperimentProperties;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import life.qbic.datamodel.ms.MSProperties;
@@ -46,44 +47,73 @@ public class MSDesignReader implements IExperimentalDesignReader {
   public static final String LIST_SEPARATOR = "\\+";
   public static final Set<String> LABELING_TYPES_WITHOUT_LABELS =
       new HashSet<>(Arrays.asList("LFQ", "None"));
-  public static final String SAMPLE_KEYWORD = "Secondary Name";
-  public static final String SAMPLE_ALTNAME_KEYWORD = "Sample Name";
+  public static final String SAMPLE_KEYWORD = MSExperimentProperties.Secondary_Name.label;
+  public static final String SAMPLE_ALTNAME_KEYWORD = MSExperimentProperties.Sample_Name.label;
 
   public MSDesignReader() {
-    this.mandatoryColumns = new ArrayList<>(
-        Arrays.asList("Labeling Type", "File Name", "Organism ID", "Sample Name", "Secondary Name",
-            "Species", "Tissue", "LC Column", "MS Device", "LCMS Method", "Injection Volume (uL)"));
-    this.mandatoryFilled =
-        new ArrayList<>(Arrays.asList("Labeling Type", "File Name", "Organism ID", "Sample Name",
-            "Secondary Name", "Species", "Tissue", "LC Column", "MS Device", "LCMS Method"));
-    this.optionalCols = new ArrayList<>(Arrays.asList("Expression System", "Technical Replicates",
-        "Pooled Sample", "Cycle/Fraction Name", "Fractionation Type", "Sample Preparation",
-        "Sample Cleanup (Protein)", "Digestion Method", "Enrichment Method",
-        "Sample Cleanup (Peptide)", "Label", "Customer Comment", "Facility Comment",
-        "Digestion Enzyme"));
+    this.mandatoryColumns = new ArrayList<>();
+    this.mandatoryColumns.add(MSExperimentProperties.Labeling_Type.label);
+    this.mandatoryColumns.add(MSExperimentProperties.File_Name.label);
+    this.mandatoryColumns.add(MSExperimentProperties.Organism_ID.label);
+    this.mandatoryColumns.add(MSExperimentProperties.Sample_Name.label);
+    this.mandatoryColumns.add(MSExperimentProperties.Secondary_Name.label);
+    this.mandatoryColumns.add(MSExperimentProperties.Species.label);
+    this.mandatoryColumns.add(MSExperimentProperties.Tissue.label);
+    this.mandatoryColumns.add(MSExperimentProperties.LC_Column.label);
+    this.mandatoryColumns.add(MSExperimentProperties.MS_Device.label);
+    this.mandatoryColumns.add(MSExperimentProperties.LCMS_Method.label);
+    this.mandatoryColumns.add(MSExperimentProperties.Injection_Volume.label);
+
+    this.mandatoryFilled = new ArrayList<>();
+    this.mandatoryFilled.add(MSExperimentProperties.Labeling_Type.label);
+    this.mandatoryFilled.add(MSExperimentProperties.File_Name.label);
+    this.mandatoryFilled.add(MSExperimentProperties.Organism_ID.label);
+    this.mandatoryFilled.add(MSExperimentProperties.Sample_Name.label);
+    this.mandatoryFilled.add(MSExperimentProperties.Secondary_Name.label);
+    this.mandatoryFilled.add(MSExperimentProperties.Species.label);
+    this.mandatoryFilled.add(MSExperimentProperties.Tissue.label);
+    this.mandatoryFilled.add(MSExperimentProperties.LC_Column.label);
+    this.mandatoryFilled.add(MSExperimentProperties.MS_Device.label);
+    this.mandatoryFilled.add(MSExperimentProperties.LCMS_Method.label);
+
+    this.optionalCols = new ArrayList<>();
+    this.optionalCols.add(MSExperimentProperties.Expression_System.label);
+    this.optionalCols.add(MSExperimentProperties.Technical_Replicates.label);
+    this.optionalCols.add(MSExperimentProperties.Pooled_Sample.label);
+    this.optionalCols.add(MSExperimentProperties.Cycle_Fraction_Name.label);
+    this.optionalCols.add(MSExperimentProperties.Fractionation_Type.label);
+    this.optionalCols.add(MSExperimentProperties.Sample_Preparation.label);
+    this.optionalCols.add(MSExperimentProperties.Enrichment_Method.label);
+    this.optionalCols.add(MSExperimentProperties.Digestion_Method.label);
+    this.optionalCols.add(MSExperimentProperties.Sample_Cleanup_Peptide.label);
+    this.optionalCols.add(MSExperimentProperties.Sample_Cleanup_Protein.label);
+    this.optionalCols.add(MSExperimentProperties.Label.label);
+    this.optionalCols.add(MSExperimentProperties.Customer_Comment.label);
+    this.optionalCols.add(MSExperimentProperties.Facility_Comment.label);
+    this.optionalCols.add(MSExperimentProperties.Digestion_Enzyme.label);
 
     Map<String, List<String>> sourceMetadata = new HashMap<>();
-    sourceMetadata.put("Species", Collections.singletonList("Q_NCBI_ORGANISM"));
-    sourceMetadata.put("Expression System", Collections.singletonList("Q_EXPRESSION_SYSTEM"));
-    sourceMetadata.put("Organism ID", Arrays.asList("Q_EXTERNALDB_ID", "Q_SECONDARY_NAME"));
+    sourceMetadata.put(MSExperimentProperties.Species.label, Collections.singletonList("Q_NCBI_ORGANISM"));
+    sourceMetadata.put(MSExperimentProperties.Expression_System.label, Collections.singletonList("Q_EXPRESSION_SYSTEM"));
+    sourceMetadata.put(MSExperimentProperties.Organism_ID.label, Arrays.asList("Q_EXTERNALDB_ID", "Q_SECONDARY_NAME"));
 
     Map<String, List<String>> extractMetadata = new HashMap<>();
-    extractMetadata.put("Tissue", Collections.singletonList("Q_PRIMARY_TISSUE"));
-    extractMetadata.put("Customer Comment", Collections.singletonList("Q_ADDITIONAL_INFO"));
+    extractMetadata.put(MSExperimentProperties.Tissue.label, Collections.singletonList("Q_PRIMARY_TISSUE"));
+    extractMetadata.put(MSExperimentProperties.Customer_Comment.label, Collections.singletonList("Q_ADDITIONAL_INFO"));
     // extractMetadata.put("Extract ID", "Q_EXTERNALDB_ID");
     // extractMetadata.put("Detailed Tissue", "Q_TISSUE_DETAILED");
 
     Map<String, List<String>> proteinMetadata = new HashMap<>();
-    proteinMetadata.put("Label", Collections.singletonList("Q_MOLECULAR_LABEL"));
+    proteinMetadata.put(MSExperimentProperties.Label.label, Collections.singletonList("Q_MOLECULAR_LABEL"));
 
     Map<String, List<String>> peptideMetadata = new HashMap<>();
-    peptideMetadata.put("Label", Collections.singletonList("Q_MOLECULAR_LABEL"));
+    peptideMetadata.put(MSExperimentProperties.Label.label, Collections.singletonList("Q_MOLECULAR_LABEL"));
     // peptideMetadata.put("Secondary Name", Collections.singletonList("Q_SECONDARY_NAME"));
     // peptideMetadata.put("Sample Secondary Name", "Q_EXTERNALDB_ID");
 
     Map<String, List<String>> msRunMetadata = new HashMap<>();
-    msRunMetadata.put("Facility Comment", Collections.singletonList("Q_ADDITIONAL_INFO"));
-    msRunMetadata.put("Injection Volume (uL)", Collections.singletonList("Q_INJECTION_VOLUME"));
+    msRunMetadata.put(MSExperimentProperties.Facility_Comment.label, Collections.singletonList("Q_ADDITIONAL_INFO"));
+    msRunMetadata.put(MSExperimentProperties.Injection_Volume.label, Collections.singletonList("Q_INJECTION_VOLUME"));
 
     headersToTypeCodePerSampletype = new HashMap<>();
     headersToTypeCodePerSampletype.put(SampleType.Q_BIOLOGICAL_ENTITY, sourceMetadata);
@@ -104,21 +134,21 @@ public class MSDesignReader implements IExperimentalDesignReader {
   private void fillParsedCategoriesToValuesForRow(Map<String, Integer> headerMapping,
       String[] row) {
     // logger.info("Collecting possible CV entries for row.");
-    addValueForCategory(headerMapping, row, "MS Device");
-    addValueForCategory(headerMapping, row, "LC Column");
-    addValueForCategory(headerMapping, row, "Sample Cleanup (Protein)");
-    addValueForCategory(headerMapping, row, "Sample Cleanup (Peptide)");
-    addValueForCategory(headerMapping, row, "Sample Preparation");
-    addValueForCategory(headerMapping, row, "Digestion Enzyme");
-    addValueForCategory(headerMapping, row, "Digestion Method");
-    addValueForCategory(headerMapping, row, "Fractionation Type");
-    addValueForCategory(headerMapping, row, "Enrichment Method");
-    addValueForCategory(headerMapping, row, "Labeling Type");
-    addValueForCategory(headerMapping, row, "Label");
-    addValueForCategory(headerMapping, row, "Species");
-    addValueForCategory(headerMapping, row, "Expression System");
-    addValueForCategory(headerMapping, row, "Tissue");
-    addValueForCategory(headerMapping, row, "LCMS Method");
+    addValueForCategory(headerMapping, row, MSExperimentProperties.MS_Device.label);
+    addValueForCategory(headerMapping, row, MSExperimentProperties.LC_Column.label);
+    addValueForCategory(headerMapping, row, MSExperimentProperties.Sample_Cleanup_Protein.label);
+    addValueForCategory(headerMapping, row, MSExperimentProperties.Sample_Cleanup_Peptide.label);
+    addValueForCategory(headerMapping, row, MSExperimentProperties.Sample_Preparation.label);
+    addValueForCategory(headerMapping, row, MSExperimentProperties.Digestion_Enzyme.label);
+    addValueForCategory(headerMapping, row, MSExperimentProperties.Digestion_Method.label);
+    addValueForCategory(headerMapping, row, MSExperimentProperties.Fractionation_Type.label);
+    addValueForCategory(headerMapping, row, MSExperimentProperties.Enrichment_Method.label);
+    addValueForCategory(headerMapping, row, MSExperimentProperties.Labeling_Type.label);
+    addValueForCategory(headerMapping, row, MSExperimentProperties.Label.label);
+    addValueForCategory(headerMapping, row, MSExperimentProperties.Species.label);
+    addValueForCategory(headerMapping, row, MSExperimentProperties.Expression_System.label);
+    addValueForCategory(headerMapping, row, MSExperimentProperties.Tissue.label);
+    addValueForCategory(headerMapping, row, MSExperimentProperties.LCMS_Method.label);
   }
 
   private void addValueForCategory(Map<String, Integer> headerMapping, String[] row, String cat) {
@@ -159,11 +189,11 @@ public class MSDesignReader implements IExperimentalDesignReader {
    * @throws IOException
    */
   public List<ISampleBean> readSamples(File file, boolean parseGraph) throws IOException {
-    tsvByRows = new ArrayList<String>();
+    tsvByRows = new ArrayList<>();
     parsedCategoriesToValues = new HashMap<>();
 
     BufferedReader reader = new BufferedReader(new FileReader(file));
-    ArrayList<String[]> data = new ArrayList<String[]>();
+    ArrayList<String[]> data = new ArrayList<>();
     String next;
     int i = 0;
     // isPilot = false;
@@ -197,7 +227,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
     List<Integer> properties = new ArrayList<>();
     List<Integer> loci = new ArrayList<>();
 
-    ArrayList<String> found = new ArrayList<String>(Arrays.asList(header));
+    ArrayList<String> found = new ArrayList<>(Arrays.asList(header));
     for (String col : mandatoryColumns) {
       if (!found.contains(col)) {
         error = "Mandatory column " + col + " not found.";
@@ -236,20 +266,20 @@ public class MSDesignReader implements IExperimentalDesignReader {
       }
     }
     // sort attributes
-    Set<Integer> entityFactors = new HashSet<Integer>();
-    Set<Integer> extractFactors = new HashSet<Integer>();
+    Set<Integer> entityFactors = new HashSet<>();
+    Set<Integer> extractFactors = new HashSet<>();
     for (int col : factors) {
-      Map<String, String> idToVal = new HashMap<String, String>();
+      Map<String, String> idToVal = new HashMap<>();
       boolean ent = true;
       boolean extr = true;
       for (String[] row : data) {
         String val = row[col];
-        String sourceID = row[headerMapping.get("Organism ID")];
+        String sourceID = row[headerMapping.get(MSExperimentProperties.Organism_ID.label)];
         String replicateID = "";
-        if (headerMapping.containsKey("Technical Replicates")) {
-          replicateID = row[headerMapping.get("Technical Replicates")];
+        if (headerMapping.containsKey(MSExperimentProperties.Technical_Replicates.label)) {
+          replicateID = row[headerMapping.get(MSExperimentProperties.Technical_Replicates.label)];
         }
-        String extractID = sourceID + row[headerMapping.get("Tissue")] + replicateID;
+        String extractID = sourceID + row[headerMapping.get(MSExperimentProperties.Tissue.label)] + replicateID;
         // if different for same entities: not an entity attribute
         if (idToVal.containsKey(sourceID)) {
           if (!idToVal.get(sourceID).equals(val))
@@ -267,14 +297,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
       if (extr)
         extractFactors.add(col);
     }
-    // if (parseGraph) {
-    // for (int factorCol : factors) {
-    // String label = parseXMLPartLabel(header[factorCol]);
-    // nodesForFactorPerLabel.put(label, new LinkedHashSet<SampleSummary>());
-    // }
-    // nodesForFactorPerLabel.put("None", new LinkedHashSet<SampleSummary>());
-    // }
-    // create samples
+
     List<ISampleBean> beans = new ArrayList<>();
 
     // worst case order of samples (hierarchy):
@@ -321,26 +344,26 @@ public class MSDesignReader implements IExperimentalDesignReader {
             return null;
           }
         }
-        String sourceID = row[headerMapping.get("Organism ID")];
-        String species = row[headerMapping.get("Species")];
+        String sourceID = row[headerMapping.get(MSExperimentProperties.Organism_ID.label)];
+        String species = row[headerMapping.get(MSExperimentProperties.Species.label)];
         String expressionSystem = null;
-        if (headerMapping.containsKey("Expression System")) {
-          expressionSystem = row[headerMapping.get("Expression System")];
+        if (headerMapping.containsKey(MSExperimentProperties.Expression_System.label)) {
+          expressionSystem = row[headerMapping.get(MSExperimentProperties.Expression_System.label)];
         }
-        String tissue = row[headerMapping.get("Tissue")];
+        String tissue = row[headerMapping.get(MSExperimentProperties.Tissue.label)];
         String replicateID = "";
-        if (headerMapping.containsKey("Technical Replicates")) {
-          replicateID = row[headerMapping.get("Technical Replicates")];
+        if (headerMapping.containsKey(MSExperimentProperties.Technical_Replicates.label)) {
+          replicateID = row[headerMapping.get(MSExperimentProperties.Technical_Replicates.label)];
         }
 
-        String fileName = row[headerMapping.get("File Name")];
+        String fileName = row[headerMapping.get(MSExperimentProperties.File_Name.label)];
 
         String sampleKey = row[headerMapping.get(SAMPLE_KEYWORD)];
         String sampleAltName = row[headerMapping.get(SAMPLE_ALTNAME_KEYWORD)];
 
-        String poolName = row[headerMapping.get("Pooled Sample")];
-        String digestType = row[headerMapping.get("Digestion Method")];
-        String enzymeString = row[headerMapping.get("Digestion Enzyme")];
+        String poolName = row[headerMapping.get(MSExperimentProperties.Pooled_Sample.label)];
+        String digestType = row[headerMapping.get(MSExperimentProperties.Digestion_Method.label)];
+        String enzymeString = row[headerMapping.get(MSExperimentProperties.Digestion_Enzyme.label)];
         List<String> enzymes = new ArrayList<>();
         if (!enzymeString.isEmpty()) {
           enzymes = new ArrayList<String>(Arrays.asList(enzymeString.split(LIST_SEPARATOR)));
@@ -349,23 +372,23 @@ public class MSDesignReader implements IExperimentalDesignReader {
           analyteSet.add("PEPTIDES");
         }
         String cleanProt = null;
-        if (headerMapping.containsKey("Sample Cleanup (Protein)")) {
-          cleanProt = row[headerMapping.get("Sample Cleanup (Protein)")];
+        if (headerMapping.containsKey(MSExperimentProperties.Sample_Cleanup_Protein.label)) {
+          cleanProt = row[headerMapping.get(MSExperimentProperties.Sample_Cleanup_Protein.label)];
         }
         String cleanPept = null;
-        if (headerMapping.containsKey("Sample Cleanup (Peptide)")) {
-          cleanPept = row[headerMapping.get("Sample Cleanup (Peptide)")];
+        if (headerMapping.containsKey(MSExperimentProperties.Sample_Cleanup_Peptide.label)) {
+          cleanPept = row[headerMapping.get(MSExperimentProperties.Sample_Cleanup_Peptide.label)];
         }
         String sampPrepType = null;
-        if (headerMapping.containsKey("Sample Preparation")) {
-          sampPrepType = row[headerMapping.get("Sample Preparation")];
+        if (headerMapping.containsKey(MSExperimentProperties.Sample_Preparation.label)) {
+          sampPrepType = row[headerMapping.get(MSExperimentProperties.Sample_Preparation.label)];
         }
 
-        String fracType = row[headerMapping.get("Fractionation Type")];
-        String enrichType = row[headerMapping.get("Enrichment Method")];
-        String fracName = row[headerMapping.get("Cycle/Fraction Name")];
-        String isoLabelType = row[headerMapping.get("Labeling Type")];
-        String isoLabel = row[headerMapping.get("Label")];
+        String fracType = row[headerMapping.get(MSExperimentProperties.Fractionation_Type.label)];
+        String enrichType = row[headerMapping.get(MSExperimentProperties.Enrichment_Method.label)];
+        String fracName = row[headerMapping.get(MSExperimentProperties.Cycle_Fraction_Name.label)];
+        String isoLabelType = row[headerMapping.get(MSExperimentProperties.Labeling_Type.label)];
+        String isoLabel = row[headerMapping.get(MSExperimentProperties.Label.label)];
 
         // perform some sanity testing using XOR operator
         if ((isoLabelType.isEmpty() ^ isoLabel.isEmpty())
@@ -411,9 +434,9 @@ public class MSDesignReader implements IExperimentalDesignReader {
             fillMetadata(header, row, meta, factors, new ArrayList<>(), SampleType.Q_MS_RUN));
         msRun.addProperty("File", fileName);
 
-        String lcmsMethod = row[headerMapping.get("LCMS Method")];
-        String msDevice = row[headerMapping.get("MS Device")];
-        String column = row[headerMapping.get("LC Column")];
+        String lcmsMethod = row[headerMapping.get(MSExperimentProperties.LCMS_Method.label)];
+        String msDevice = row[headerMapping.get(MSExperimentProperties.MS_Device.label)];
+        String column = row[headerMapping.get(MSExperimentProperties.LC_Column.label)];
         MSProperties msProperties = new MSProperties(lcmsMethod, msDevice, "", column);
         String expID = Integer.toString(msProperties.hashCode());
         msPropertiesToID.put(msProperties, expID);
@@ -749,7 +772,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
     experimentInfos = new HashMap<String, List<Map<String, Object>>>();
 
     // Sample preparation experiments
-    List<Map<String, Object>> samplePreparations = new ArrayList<Map<String, Object>>();
+    List<Map<String, Object>> samplePreparations = new ArrayList<>();
     for (ProteinPeptidePreparationProperties props : SamplePrepPropertiesToID.keySet()) {
       Map<String, Object> propMap = props.getPropertyMap();
       propMap.put("Code", Integer.toString(props.hashCode()));// used to match samples to their
@@ -759,7 +782,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
     experimentInfos.put("Q_SAMPLE_PREPARATION", samplePreparations);
 
     // MS experiments
-    List<Map<String, Object>> msExperiments = new ArrayList<Map<String, Object>>();
+    List<Map<String, Object>> msExperiments = new ArrayList<>();
     for (MSProperties expProperties : msPropertiesToID.keySet()) {
       Map<String, Object> propMap = expProperties.getPropertyMap();
       propMap.put("Code", msPropertiesToID.get(expProperties));
@@ -790,26 +813,6 @@ public class MSDesignReader implements IExperimentalDesignReader {
     return new ArrayList<>(Arrays.asList(poolName.split(LIST_SEPARATOR)));
   }
 
-  // private Map<String, Object> parseMSExperimentData(String[] row,
-  // Map<String, Integer> headerMapping, HashMap<String, Object> metadata) {
-  // Map<String, String> designMap = new HashMap<String, String>();
-  // designMap.put("MS Device", "Q_MS_DEVICE");
-  // designMap.put("LC Column", "Q_CHROMATOGRAPHY_TYPE");
-  // designMap.put("LCMS Method", "Q_MS_LCMS_METHOD");
-  // for (String col : designMap.keySet()) {
-  // Object val = "";
-  // String openbisType = designMap.get(col);
-  // if (headerMapping.containsKey(col)) {
-  // val = row[headerMapping.get(col)];
-  // if (parsers.containsKey(openbisType)) {
-  // val = parsers.get(openbisType).parse((String) val);
-  // }
-  // }
-  // metadata.put(openbisType, val);
-  // }
-  // return metadata;
-  // }
-
   public Set<String> getSpeciesSet() {
     return speciesSet;
   }
@@ -819,7 +822,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
   }
 
   private boolean checkUniqueIDsBetweenSets(Set<String> speciesSet, Set<String> tissueSet) {
-    Set<String> intersection1 = new HashSet<String>(speciesSet);
+    Set<String> intersection1 = new HashSet<>(speciesSet);
     intersection1.retainAll(tissueSet);
     if (!intersection1.isEmpty()) {
       error = "Entry " + intersection1.iterator().next()
@@ -844,7 +847,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
   private HashMap<String, Object> fillMetadata(String[] header, String[] data, List<Integer> meta,
       Set<Integer> factors, List<Integer> loci, SampleType type) {
     Map<String, List<String>> headersToOpenbisCode = headersToTypeCodePerSampletype.get(type);
-    HashMap<String, Object> res = new HashMap<String, Object>();
+    HashMap<String, Object> res = new HashMap<>();
     if (headersToOpenbisCode != null) {
       for (int i : meta) {
         String label = header[i];

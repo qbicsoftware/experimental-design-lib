@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.xml.bind.JAXBException;
+import life.qbic.expdesign.model.StandardExperimentProperties;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import life.qbic.datamodel.samples.ISampleBean;
@@ -45,22 +46,26 @@ public class EasyDesignReader implements IExperimentalDesignReader {
 
   public EasyDesignReader() {
     Set<String> mandatory =
-        new HashSet<String>(Arrays.asList("Organism", "Organism ID", "Tissue", "Extract ID"));
-    // "Analyte", "Analyte ID"));
+        new HashSet<>();
+    mandatory.add(StandardExperimentProperties.Organism.label);
+    mandatory.add(StandardExperimentProperties.Organism_ID.label);
+    mandatory.add(StandardExperimentProperties.Tissue.label);
+    mandatory.add(StandardExperimentProperties.Extract_ID.label);
     this.mandatory = new ArrayList<String>(mandatory);
-    Map<String, String> sourceMetadata = new HashMap<String, String>();
-    sourceMetadata.put("Organism", "Q_NCBI_ORGANISM");
-    sourceMetadata.put("Organism ID", "Q_EXTERNALDB_ID");
-    sourceMetadata.put("Source Comment", "Q_ADDITIONAL_INFO");
-    Map<String, String> extractMetadata = new HashMap<String, String>();
-    extractMetadata.put("Tissue", "Q_PRIMARY_TISSUE");
-    extractMetadata.put("Extract ID", "Q_EXTERNALDB_ID");
-    extractMetadata.put("Tissue Comment", "Q_ADDITIONAL_INFO");
-    extractMetadata.put("Detailed Tissue", "Q_TISSUE_DETAILED");
-    Map<String, String> prepMetadata = new HashMap<String, String>();
-    prepMetadata.put("Analyte", "Q_SAMPLE_TYPE");
-    prepMetadata.put("Analyte ID", "Q_EXTERNALDB_ID");
-    prepMetadata.put("Preparation Comment", "Q_ADDITIONAL_INFO");
+
+    Map<String, String> sourceMetadata = new HashMap<>();
+    sourceMetadata.put(StandardExperimentProperties.Organism.label, "Q_NCBI_ORGANISM");
+    sourceMetadata.put(StandardExperimentProperties.Organism_ID.label, "Q_EXTERNALDB_ID");
+    sourceMetadata.put(StandardExperimentProperties.Source_Comment.label, "Q_ADDITIONAL_INFO");
+    Map<String, String> extractMetadata = new HashMap<>();
+    extractMetadata.put(StandardExperimentProperties.Tissue.label, "Q_PRIMARY_TISSUE");
+    extractMetadata.put(StandardExperimentProperties.Extract_ID.label, "Q_EXTERNALDB_ID");
+    extractMetadata.put(StandardExperimentProperties.Tissue_Comment.label, "Q_ADDITIONAL_INFO");
+    extractMetadata.put(StandardExperimentProperties.Detailed_Tissue.label, "Q_TISSUE_DETAILED");
+    Map<String, String> prepMetadata = new HashMap<>();
+    prepMetadata.put(StandardExperimentProperties.Analyte.label, "Q_SAMPLE_TYPE");
+    prepMetadata.put(StandardExperimentProperties.Analyte_ID.label, "Q_EXTERNALDB_ID");
+    prepMetadata.put(StandardExperimentProperties.Preparation_Comment.label, "Q_ADDITIONAL_INFO");
     headersToTypeCodePerSampletype = new HashMap<>();
     headersToTypeCodePerSampletype.put(SampleType.Q_BIOLOGICAL_ENTITY, sourceMetadata);
     headersToTypeCodePerSampletype.put(SampleType.Q_BIOLOGICAL_SAMPLE, extractMetadata);
@@ -216,15 +221,17 @@ public class EasyDesignReader implements IExperimentalDesignReader {
         return null;
       }
     }
-    if (found.contains("Analyte") && found.contains("Analyte ID")) {
-      headerMapping.put("Analyte", found.indexOf("Analyte"));
-      headerMapping.put("Analyte ID", found.indexOf("Analyte ID"));
+    String analyteName = StandardExperimentProperties.Analyte.label;
+    String analyteIDName = StandardExperimentProperties.Analyte_ID.label;
+    if (found.contains(analyteName) && found.contains(analyteIDName)) {
+      headerMapping.put(analyteName, found.indexOf(analyteName));
+      headerMapping.put(analyteIDName, found.indexOf(analyteIDName));
       analytesIncluded = true;
-    } else if (!found.contains("Analyte") && !found.contains("Analyte ID"))
+    } else if (!found.contains(analyteName) && !found.contains(analyteIDName))
       analytesIncluded = false;
     else {
       error =
-          "One of the columns Analyte and Analyte ID was not found. Both are needed to add Analyte samples.";
+          "One of the columns "+analyteName+" and "+analyteIDName+" was not found. Both are needed to add "+analyteName+" samples.";
       return null;
     }
     for (i = 0; i < header.length; i++) {
@@ -275,16 +282,16 @@ public class EasyDesignReader implements IExperimentalDesignReader {
       }
     }
     // sort attributes
-    Set<Integer> entityFactors = new HashSet<Integer>();
-    Set<Integer> extractFactors = new HashSet<Integer>();
+    Set<Integer> entityFactors = new HashSet<>();
+    Set<Integer> extractFactors = new HashSet<>();
     for (int col : factors) {
-      Map<String, String> idToVal = new HashMap<String, String>();
+      Map<String, String> idToVal = new HashMap<>();
       boolean ent = true;
       boolean extr = true;
       for (String[] row : data) {
         String val = row[col];
-        String sourceID = row[headerMapping.get("Organism ID")];
-        String extractID = row[headerMapping.get("Extract ID")];
+        String sourceID = row[headerMapping.get(StandardExperimentProperties.Organism_ID.label)];
+        String extractID = row[headerMapping.get(StandardExperimentProperties.Extract_ID.label)];
         // if different for same entities: not an entity attribute
         if (idToVal.containsKey(sourceID)) {
           if (!idToVal.get(sourceID).equals(val))
@@ -311,14 +318,14 @@ public class EasyDesignReader implements IExperimentalDesignReader {
     }
 
     // create samples
-    List<ISampleBean> beans = new ArrayList<ISampleBean>();
-    List<List<ISampleBean>> order = new ArrayList<List<ISampleBean>>();
-    Map<String, TSVSampleBean> sourceIDToSample = new HashMap<String, TSVSampleBean>();
-    Map<String, TSVSampleBean> extractIDToSample = new HashMap<String, TSVSampleBean>();
-    Map<String, TSVSampleBean> analyteIDToSample = new HashMap<String, TSVSampleBean>();
-    Set<String> speciesSet = new HashSet<String>();
-    Set<String> tissueSet = new HashSet<String>();
-    Set<String> analyteSet = new HashSet<String>();
+    List<ISampleBean> beans = new ArrayList<>();
+    List<List<ISampleBean>> order = new ArrayList<>();
+    Map<String, TSVSampleBean> sourceIDToSample = new HashMap<>();
+    Map<String, TSVSampleBean> extractIDToSample = new HashMap<>();
+    Map<String, TSVSampleBean> analyteIDToSample = new HashMap<>();
+    Set<String> speciesSet = new HashSet<>();
+    Set<String> tissueSet = new HashSet<>();
+    Set<String> analyteSet = new HashSet<>();
     int rowID = 0;
     // int sampleID = 0;
     for (String[] row : data) {
@@ -332,17 +339,17 @@ public class EasyDesignReader implements IExperimentalDesignReader {
           return null;
         }
       }
-      String sourceID = row[headerMapping.get("Organism ID")];
-      String extractID = row[headerMapping.get("Extract ID")];
-      String species = row[headerMapping.get("Organism")];
-      String tissue = row[headerMapping.get("Tissue")];
+      String sourceID = row[headerMapping.get(StandardExperimentProperties.Organism_ID.label)];
+      String extractID = row[headerMapping.get(StandardExperimentProperties.Extract_ID.label)];
+      String species = row[headerMapping.get(StandardExperimentProperties.Organism.label)];
+      String tissue = row[headerMapping.get(StandardExperimentProperties.Tissue.label)];
 
       String analyteID = "";
       String analyte = "";
       if (analytesIncluded) {
         numOfLevels++;
-        analyteID = row[headerMapping.get("Analyte ID")];
-        analyte = row[headerMapping.get("Analyte")];
+        analyteID = row[headerMapping.get(StandardExperimentProperties.Analyte_ID.label)];
+        analyte = row[headerMapping.get(StandardExperimentProperties.Analyte.label)];
         if (!analyte.isEmpty())
           analyteSet.add(analyte);
       }
@@ -515,8 +522,8 @@ public class EasyDesignReader implements IExperimentalDesignReader {
 
     // Property factor = getFactorOfSampleOrNull(factors, label);
     boolean newFactor = true;
-    Set<String> parentSources = new HashSet<String>();
-    Set<Integer> parentIDs = new HashSet<Integer>();
+    Set<String> parentSources = new HashSet<>();
+    Set<Integer> parentIDs = new HashSet<>();
     for (SampleSummary parentSum : parents) {
       parentIDs.add(parentSum.getId());
       String factorVal = parentSum.getFactorValue();
@@ -577,11 +584,11 @@ public class EasyDesignReader implements IExperimentalDesignReader {
 
   private boolean checkUniqueIDsBetweenSets(Set<String> speciesSet, Set<String> tissueSet,
       Set<String> analyteSet) {
-    Set<String> intersection1 = new HashSet<String>(speciesSet);
+    Set<String> intersection1 = new HashSet<>(speciesSet);
     intersection1.retainAll(tissueSet);
-    Set<String> intersection2 = new HashSet<String>(speciesSet);
+    Set<String> intersection2 = new HashSet<>(speciesSet);
     intersection2.retainAll(analyteSet);
-    Set<String> intersection3 = new HashSet<String>(tissueSet);
+    Set<String> intersection3 = new HashSet<>(tissueSet);
     intersection3.retainAll(analyteSet);
     if (!intersection1.isEmpty()) {
       error = "Identifier " + intersection1.iterator().next()
@@ -603,11 +610,11 @@ public class EasyDesignReader implements IExperimentalDesignReader {
 
   private boolean checkUniqueNamesBetweenSets(Set<String> speciesSet, Set<String> tissueSet,
       Set<String> analyteSet) {
-    Set<String> intersection1 = new HashSet<String>(speciesSet);
+    Set<String> intersection1 = new HashSet<>(speciesSet);
     intersection1.retainAll(tissueSet);
-    Set<String> intersection2 = new HashSet<String>(speciesSet);
+    Set<String> intersection2 = new HashSet<>(speciesSet);
     intersection2.retainAll(analyteSet);
-    Set<String> intersection3 = new HashSet<String>(tissueSet);
+    Set<String> intersection3 = new HashSet<>(tissueSet);
     intersection3.retainAll(analyteSet);
     if (!intersection1.isEmpty()) {
       error = "Entry " + intersection1.iterator().next()
@@ -638,7 +645,7 @@ public class EasyDesignReader implements IExperimentalDesignReader {
   private HashMap<String, Object> fillMetadata(String[] header, String[] data, List<Integer> meta,
       Set<Integer> factors, List<Integer> loci, SampleType type) {
     Map<String, String> headersToOpenbisCode = headersToTypeCodePerSampletype.get(type);
-    HashMap<String, Object> res = new HashMap<String, Object>();
+    HashMap<String, Object> res = new HashMap<>();
     for (int i : meta) {
       String label = header[i];
       if (!data[i].isEmpty() && headersToOpenbisCode.containsKey(label))
