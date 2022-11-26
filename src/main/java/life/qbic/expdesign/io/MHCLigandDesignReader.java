@@ -15,9 +15,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.xml.bind.JAXBException;
-
+import life.qbic.datamodel.experiments.ExperimentType;
 import life.qbic.expdesign.model.LigandomicsExperimentProperties;
+import life.qbic.expdesign.model.OpenbisPropertyCodes;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import life.qbic.datamodel.ms.LigandPrepRun;
@@ -25,7 +25,6 @@ import life.qbic.datamodel.ms.MSRunCollection;
 import life.qbic.datamodel.samples.ISampleBean;
 import life.qbic.datamodel.samples.SampleType;
 import life.qbic.datamodel.samples.TSVSampleBean;
-import life.qbic.expdesign.SamplePreparator;
 import life.qbic.expdesign.model.StructuredExperiment;
 import life.qbic.xml.properties.Unit;
 import life.qbic.xml.study.TechnologyType;
@@ -44,7 +43,7 @@ public class MHCLigandDesignReader implements IExperimentalDesignReader {
   // private ExperimentalDesignType designType;
 
   private String error;
-  private Map<String, List<Map<String, Object>>> experimentInfos;
+  private Map<ExperimentType, List<Map<String, Object>>> experimentInfos;
   private Set<String> speciesSet;
   private Set<String> tissueSet;
   private List<String> tsvByRows;
@@ -58,9 +57,9 @@ public class MHCLigandDesignReader implements IExperimentalDesignReader {
     private static final long serialVersionUID = -1689329489943865332L;
 
     {
-      put(LigandomicsExperimentProperties.Cell_Count.label, "Q_CELL_COUNT");
-      put(LigandomicsExperimentProperties.Sample_Mass.label, "Q_SAMPLE_MASS");
-      put(LigandomicsExperimentProperties.Sample_Volume.label, "Q_SAMPLE_VOLUME");
+      put(LigandomicsExperimentProperties.Cell_Count.label, OpenbisPropertyCodes.Q_CELL_COUNT.name());
+      put(LigandomicsExperimentProperties.Sample_Mass.label, OpenbisPropertyCodes.Q_SAMPLE_MASS.name());
+      put(LigandomicsExperimentProperties.Sample_Volume.label, OpenbisPropertyCodes.Q_SAMPLE_VOLUME.name());
     };
   };
 
@@ -133,25 +132,25 @@ public class MHCLigandDesignReader implements IExperimentalDesignReader {
     this.optionalCols.add(LigandomicsExperimentProperties.Sequencing.label);
 
     Map<String, String> sourceMetadata = new HashMap<>();
-    sourceMetadata.put(LigandomicsExperimentProperties.Organism.label, "Q_NCBI_ORGANISM");
-    sourceMetadata.put(LigandomicsExperimentProperties.Patient_ID.label, "Q_EXTERNALDB_ID");
-    sourceMetadata.put(LigandomicsExperimentProperties.Source_Comment.label, "Q_ADDITIONAL_INFO");
-    sourceMetadata.put(LigandomicsExperimentProperties.Other_Data_Reference.label, "Q_ADDITIONAL_DATA_INFO");
+    sourceMetadata.put(LigandomicsExperimentProperties.Organism.label, OpenbisPropertyCodes.Q_NCBI_ORGANISM.name());
+    sourceMetadata.put(LigandomicsExperimentProperties.Patient_ID.label, OpenbisPropertyCodes.Q_EXTERNALDB_ID.name());
+    sourceMetadata.put(LigandomicsExperimentProperties.Source_Comment.label, OpenbisPropertyCodes.Q_ADDITIONAL_INFO.name());
+    sourceMetadata.put(LigandomicsExperimentProperties.Other_Data_Reference.label, OpenbisPropertyCodes.Q_ADDITIONAL_DATA_INFO.name());
 
     Map<String, String> extractMetadata = new HashMap<>();
-    extractMetadata.put(LigandomicsExperimentProperties.Tissue.label, "Q_PRIMARY_TISSUE");
-    extractMetadata.put(LigandomicsExperimentProperties.Tissue_Comment.label, "Q_ADDITIONAL_INFO");
-    extractMetadata.put(LigandomicsExperimentProperties.Detailed_Tissue.label, "Q_TISSUE_DETAILED");
-    extractMetadata.put(LigandomicsExperimentProperties.Dignity.label, "Q_DIGNITY");
-    extractMetadata.put(LigandomicsExperimentProperties.Cell_Type.label, "Q_TISSUE_DETAILED");
-    extractMetadata.put(LigandomicsExperimentProperties.Tumor_Type.label, "Q_TUMOR_TYPE");
-    extractMetadata.put(LigandomicsExperimentProperties.Location.label, "Q_TISSUE_LOCATION");
-    extractMetadata.put(LigandomicsExperimentProperties.TNM.label, "Q_TUMOR_STAGE");
-    extractMetadata.put(LigandomicsExperimentProperties.Metastasis.label, "Q_IS_METASTASIS");
+    extractMetadata.put(LigandomicsExperimentProperties.Tissue.label, OpenbisPropertyCodes.Q_PRIMARY_TISSUE.name());
+    extractMetadata.put(LigandomicsExperimentProperties.Tissue_Comment.label, OpenbisPropertyCodes.Q_ADDITIONAL_INFO.name());
+    extractMetadata.put(LigandomicsExperimentProperties.Detailed_Tissue.label, OpenbisPropertyCodes.Q_TISSUE_DETAILED.name());
+    extractMetadata.put(LigandomicsExperimentProperties.Dignity.label, OpenbisPropertyCodes.Q_DIGNITY.name());
+    extractMetadata.put(LigandomicsExperimentProperties.Cell_Type.label, OpenbisPropertyCodes.Q_TISSUE_DETAILED.name());
+    extractMetadata.put(LigandomicsExperimentProperties.Tumor_Type.label, OpenbisPropertyCodes.Q_TUMOR_TYPE.name());
+    extractMetadata.put(LigandomicsExperimentProperties.Location.label, OpenbisPropertyCodes.Q_TISSUE_LOCATION.name());
+    extractMetadata.put(LigandomicsExperimentProperties.TNM.label, OpenbisPropertyCodes.Q_TUMOR_STAGE.name());
+    extractMetadata.put(LigandomicsExperimentProperties.Metastasis.label, OpenbisPropertyCodes.Q_IS_METASTASIS.name());
 
     Map<String, String> ligandsMetadata = new HashMap<>();
-    ligandsMetadata.put(LigandomicsExperimentProperties.Antibody.label, "Q_ANTIBODY");
-    ligandsMetadata.put(LigandomicsExperimentProperties.MHC_Class.label, "Q_MHC_CLASS");
+    ligandsMetadata.put(LigandomicsExperimentProperties.Antibody.label, OpenbisPropertyCodes.Q_ANTIBODY.name());
+    ligandsMetadata.put(LigandomicsExperimentProperties.MHC_Class.label, OpenbisPropertyCodes.Q_MHC_CLASS.name());
 
     headersToTypeCodePerSampletype = new HashMap<>();
     headersToTypeCodePerSampletype.put(SampleType.Q_BIOLOGICAL_ENTITY, sourceMetadata);
@@ -181,7 +180,7 @@ public class MHCLigandDesignReader implements IExperimentalDesignReader {
       }
     }
   }
-  public Map<String, List<Map<String, Object>>> getExperimentInfos() {
+  public Map<ExperimentType, List<Map<String, Object>>> getExperimentInfos() {
     return experimentInfos;
   }
 
@@ -313,31 +312,31 @@ public class MHCLigandDesignReader implements IExperimentalDesignReader {
           }
         }
         parsers = new HashMap<String, Command>();
-        parsers.put("Q_IS_METASTASIS", new Command() {
+        parsers.put(OpenbisPropertyCodes.Q_IS_METASTASIS.name(), new Command() {
           @Override
           public Object parse(String value) {
             return parseBoolean(value);
           }
         });
-        parsers.put("Q_ANTIBODY", new Command() {
+        parsers.put(OpenbisPropertyCodes.Q_ANTIBODY.name(), new Command() {
           @Override
           public Object parse(String value) {
             return parseAntibody(value);
           }
         });
-        parsers.put("Q_PREPARATION_DATE", new Command() {
+        parsers.put(OpenbisPropertyCodes.Q_PREPARATION_DATE.name(), new Command() {
           @Override
           public Object parse(String value) {
             return parseDate(value);
           }
         });
-        parsers.put("Q_MEASUREMENT_FINISH_DATE", new Command() {
+        parsers.put(OpenbisPropertyCodes.Q_MEASUREMENT_FINISH_DATE.name(), new Command() {
           @Override
           public Object parse(String value) {
             return parseDate(value);
           }
         });
-        parsers.put("Q_MS_LCMS_METHOD", new Command() {
+        parsers.put(OpenbisPropertyCodes.Q_MS_LCMS_METHOD.name(), new Command() {
           @Override
           public Object parse(String value) {
             return parseLCMSMethod(value);
@@ -368,7 +367,7 @@ public class MHCLigandDesignReader implements IExperimentalDesignReader {
           sampleSource = new TSVSampleBean(Integer.toString(sampleID),
               SampleType.Q_BIOLOGICAL_ENTITY, sourceID,
               fillMetadata(header, row, meta, factors, loci, SampleType.Q_BIOLOGICAL_ENTITY));
-          sampleSource.addProperty("Q_EXTERNALDB_ID", sourceID);
+          sampleSource.addProperty(OpenbisPropertyCodes.Q_EXTERNALDB_ID.name(), sourceID);
           roots.add(sampleSource);
           order.get(0).add(sampleSource);
           sourceIDToSample.put(sourceID, sampleSource);
@@ -378,15 +377,15 @@ public class MHCLigandDesignReader implements IExperimentalDesignReader {
           TSVSampleBean blood = new TSVSampleBean(Integer.toString(sampleID),
               SampleType.Q_BIOLOGICAL_SAMPLE, bloodID, new HashMap<String, Object>());
           blood.addParentID(sourceID);
-          blood.addProperty("Q_PRIMARY_TISSUE", "Blood plasma");
-          blood.addProperty("Q_EXTERNALDB_ID", bloodID);
+          blood.addProperty(OpenbisPropertyCodes.Q_PRIMARY_TISSUE.name(), "Blood plasma");
+          blood.addProperty(OpenbisPropertyCodes.Q_EXTERNALDB_ID.name(), bloodID);
           tissueSet.add("Blood plasma");
           order.get(1).add(blood);
           sampleID++;
           TSVSampleBean dna = new TSVSampleBean(Integer.toString(sampleID),
               SampleType.Q_TEST_SAMPLE, sourceID + "_DNA", new HashMap<String, Object>());
           dna.addParentID(bloodID);
-          dna.addProperty("Q_SAMPLE_TYPE", "DNA");
+          dna.addProperty(OpenbisPropertyCodes.Q_SAMPLE_TYPE.name(), "DNA");
           dna.addProperty("MHC_I", parseMHCClass(mhcTypes, 1));
           dna.addProperty("MHC_II", parseMHCClass(mhcTypes, 2));
           order.get(2).add(dna);
@@ -402,7 +401,7 @@ public class MHCLigandDesignReader implements IExperimentalDesignReader {
               fillMetadata(header, row, meta, factors, loci, SampleType.Q_BIOLOGICAL_SAMPLE));
           order.get(1).add(tissueSample);
           tissueSample.addParentID(sourceID);
-          tissueSample.addProperty("Q_EXTERNALDB_ID", extractID);
+          tissueSample.addProperty(OpenbisPropertyCodes.Q_EXTERNALDB_ID.name(), extractID);
           tissueToSample.put(extractID, tissueSample);
 
           sampleID++;
@@ -411,9 +410,9 @@ public class MHCLigandDesignReader implements IExperimentalDesignReader {
                   fillMetadata(header, row, meta, factors, loci, SampleType.Q_TEST_SAMPLE));
           order.get(2).add(analyteSample);
           analyteSample.addParentID(extractID);
-          analyteSample.addProperty("Q_EXTERNALDB_ID", prepID);
+          analyteSample.addProperty(OpenbisPropertyCodes.Q_EXTERNALDB_ID.name(), prepID);
           analyteToSample.put(prepID, tissueSample);
-          analyteSample.addProperty("Q_SAMPLE_TYPE", "CELL_LYSATE");
+          analyteSample.addProperty(OpenbisPropertyCodes.Q_SAMPLE_TYPE.name(), "CELL_LYSATE");
         }
         // Ligand Extract Level (Analyte)
         TSVSampleBean ligandExtract = analyteToSample.get(ligandExtrID);
@@ -430,16 +429,16 @@ public class MHCLigandDesignReader implements IExperimentalDesignReader {
           ligandExtract = new TSVSampleBean(Integer.toString(sampleID),
               SampleType.Q_MHC_LIGAND_EXTRACT, extractID,
               fillMetadata(header, row, meta, factors, loci, SampleType.Q_MHC_LIGAND_EXTRACT));
-          ligandExtract.addProperty("Q_ANTIBODY", antibody);
+          ligandExtract.addProperty(OpenbisPropertyCodes.Q_ANTIBODY.name(), antibody);
           String[] mhcClass = getMHCClass(antibody);
 
           if (mhcClass == null) {
             return null;
           } else {
-            ligandExtract.addProperty("Q_MHC_CLASS", mhcClass[0]);
+            ligandExtract.addProperty(OpenbisPropertyCodes.Q_MHC_CLASS.name(), mhcClass[0]);
           }
           ligandExtract.addParentID(prepID);
-          ligandExtract.addProperty("Q_EXTERNALDB_ID", ligandExtrID);
+          ligandExtract.addProperty(OpenbisPropertyCodes.Q_EXTERNALDB_ID.name(), ligandExtrID);
           order.get(3).add(ligandExtract);
           analyteToSample.put(ligandExtrID, ligandExtract);
 
@@ -468,8 +467,8 @@ public class MHCLigandDesignReader implements IExperimentalDesignReader {
         msRun.addParentID(ligandExtrID);
         msRun.addProperty("File", fName);//needed to later match barcodes to filename
         String extID = fName.split("\\.")[0]; // can't be out of bounds
-        msRun.addProperty("Q_EXTERNALDB_ID", extID); // file name is unique id
-        msRun.addProperty("Q_PROPERTIES",
+        msRun.addProperty(OpenbisPropertyCodes.Q_EXTERNALDB_ID.name(), extID); // file name is unique id
+        msRun.addProperty(OpenbisPropertyCodes.Q_PROPERTIES.name(),
             msSampleXML.replace("%repl", replicate).replace("%wftype", wfType));
         order.get(4).add(msRun);
       }
@@ -484,7 +483,7 @@ public class MHCLigandDesignReader implements IExperimentalDesignReader {
       // experiments later
       ligandExperiments.add(map);
     }
-    experimentInfos.put("Q_MHC_LIGAND_EXTRACTION", ligandExperiments);
+    experimentInfos.put(ExperimentType.Q_MHC_LIGAND_EXTRACTION, ligandExperiments);
 
     // MS experiments
     List<Map<String, Object>> msExperiments = new ArrayList<>();
@@ -494,7 +493,7 @@ public class MHCLigandDesignReader implements IExperimentalDesignReader {
       // experiments later
       msExperiments.add(map);
     }
-    experimentInfos.put("Q_MS_MEASUREMENT", msExperiments);
+    experimentInfos.put(ExperimentType.Q_MS_MEASUREMENT, msExperiments);
     for (List<ISampleBean> level : order)
       beans.addAll(level);
     boolean unique = checkUniqueIDsBetweenSets(speciesSet, tissueSet);
@@ -562,14 +561,14 @@ public class MHCLigandDesignReader implements IExperimentalDesignReader {
     String antibodyMass = doubleOrNothing(row[headerMapping.get(LigandomicsExperimentProperties.Antibody_Mass.label)]);
 
     String prepDate = row[headerMapping.get(LigandomicsExperimentProperties.Prep_Date.label)];
-    String abKey = "Q_MHC_ANTIBODY_COL1";
-    String abMassKey = "Q_MHC_ANTIBODY_MASS_COL1";
+    String abKey = OpenbisPropertyCodes.Q_MHC_ANTIBODY_COL1.name();
+    String abMassKey = OpenbisPropertyCodes.Q_MHC_ANTIBODY_MASS_COL1.name();
     if (metadata.containsKey(abKey)) {
-      abKey = "Q_MHC_ANTIBODY_COL2";
-      abMassKey = "Q_MHC_ANTIBODY_MASS_COL2";
+      abKey = OpenbisPropertyCodes.Q_MHC_ANTIBODY_COL2.name();
+      abMassKey = OpenbisPropertyCodes.Q_MHC_ANTIBODY_MASS_COL2.name();
       if (metadata.containsKey(abKey)) {
-        abKey = "Q_MHC_ANTIBODY_COL3";
-        abMassKey = "Q_MHC_ANTIBODY_MASS_COL3";
+        abKey = OpenbisPropertyCodes.Q_MHC_ANTIBODY_COL3.name();
+        abMassKey = OpenbisPropertyCodes.Q_MHC_ANTIBODY_MASS_COL3.name();
       }
     }
     for (String colName : amountCodeMap.keySet()) {
@@ -584,7 +583,7 @@ public class MHCLigandDesignReader implements IExperimentalDesignReader {
     if (!antibodyMass.isEmpty())
       metadata.put(abMassKey, antibodyMass);
     if (!prepDate.isEmpty()) {
-      metadata.put("Q_PREPARATION_DATE", parseDate(prepDate));
+      metadata.put(OpenbisPropertyCodes.Q_PREPARATION_DATE.name(), parseDate(prepDate));
     }
     return metadata;
   }
@@ -601,12 +600,12 @@ public class MHCLigandDesignReader implements IExperimentalDesignReader {
   private Map<String, Object> parseMSExperimentData(String[] row,
       Map<String, Integer> headerMapping, HashMap<String, Object> metadata) {
     Map<String, String> designMap = new HashMap<>();
-    designMap.put(LigandomicsExperimentProperties.MS_Run_Date.label, "Q_MEASUREMENT_FINISH_DATE");
-    designMap.put(LigandomicsExperimentProperties.Share.label, "Q_EXTRACT_SHARE");
-    designMap.put(LigandomicsExperimentProperties.MS_Device.label, "Q_MS_DEVICE");
-    designMap.put(LigandomicsExperimentProperties.LCMS_Method.label, "Q_MS_LCMS_METHOD");
-    designMap.put(LigandomicsExperimentProperties.MS_Comment.label, "Q_ADDITIONAL_INFO");
-    metadata.put("Q_CURRENT_STATUS", "FINISHED");
+    designMap.put(LigandomicsExperimentProperties.MS_Run_Date.label, OpenbisPropertyCodes.Q_MEASUREMENT_FINISH_DATE.name());
+    designMap.put(LigandomicsExperimentProperties.Share.label, OpenbisPropertyCodes.Q_EXTRACT_SHARE.name());
+    designMap.put(LigandomicsExperimentProperties.MS_Device.label, OpenbisPropertyCodes.Q_MS_DEVICE.name());
+    designMap.put(LigandomicsExperimentProperties.LCMS_Method.label, OpenbisPropertyCodes.Q_MS_LCMS_METHOD.name());
+    designMap.put(LigandomicsExperimentProperties.MS_Comment.label, OpenbisPropertyCodes.Q_ADDITIONAL_INFO.name());
+    metadata.put(OpenbisPropertyCodes.Q_CURRENT_STATUS.name(), "FINISHED");
     for (String col : designMap.keySet()) {
       Object val = "";
       String openbisType = designMap.get(col);

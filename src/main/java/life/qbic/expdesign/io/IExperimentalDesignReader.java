@@ -8,6 +8,7 @@ import java.util.Set;
 
 import javax.xml.bind.JAXBException;
 
+import life.qbic.datamodel.experiments.ExperimentType;
 import life.qbic.datamodel.samples.ISampleBean;
 import life.qbic.expdesign.model.StructuredExperiment;
 import life.qbic.xml.study.TechnologyType;
@@ -18,7 +19,7 @@ public interface IExperimentalDesignReader {
 
   String getError();
 
-  Map<String, List<Map<String, Object>>> getExperimentInfos();
+  Map<ExperimentType, List<Map<String, Object>>> getExperimentInfos();
 
   Set<String> getSpeciesSet();
 

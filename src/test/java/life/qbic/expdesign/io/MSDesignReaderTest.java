@@ -66,9 +66,9 @@ public class MSDesignReaderTest {
     ExperimentType msType = ExperimentType.Q_MS_MEASUREMENT;
     ExperimentType prepType = ExperimentType.Q_SAMPLE_PREPARATION;
     Map<String, Map<String, Object>> prepExps =
-        p.transformAndReturnSpecialExperimentsOfTypeOrNull(prepType.toString());
+        p.transformAndReturnSpecialExperimentsOfTypeOrNull(prepType);
     Map<String, Map<String, Object>> msExps =
-        p.transformAndReturnSpecialExperimentsOfTypeOrNull(msType.toString());
+        p.transformAndReturnSpecialExperimentsOfTypeOrNull(msType);
     for (Entry<String, Object> entry : samplePrepProps.entrySet()) {
       assert (searchExperimentsForProperty(prepExps, prepType, entry));
     }

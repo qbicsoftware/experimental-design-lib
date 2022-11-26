@@ -12,7 +12,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import life.qbic.datamodel.experiments.ExperimentType;
 import life.qbic.expdesign.model.MetaboExperimentProperties;
+import life.qbic.expdesign.model.OpenbisPropertyCodes;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import life.qbic.datamodel.samples.ISampleBean;
@@ -37,7 +39,7 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
   private Map<String, Set<String>> parsedCategoriesToValues;
 
   private String error;
-  private Map<String, List<Map<String, Object>>> experimentInfos;
+  private Map<ExperimentType, List<Map<String, Object>>> experimentInfos;
   private Set<String> speciesSet;
   private Set<String> tissueSet;
   private Set<String> analyteSet;
@@ -102,13 +104,14 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
     headerNamesToConditions.put("Condition: Stimulus", "stimulus");
 
     Map<String, List<String>> sourceMetadata = new HashMap<>();
-    sourceMetadata.put(MetaboExperimentProperties.Species.label, Collections.singletonList("Q_NCBI_ORGANISM"));
-    sourceMetadata.put(MetaboExperimentProperties.Expression_System.label, Collections.singletonList("Q_EXPRESSION_SYSTEM"));
+    sourceMetadata.put(MetaboExperimentProperties.Species.label, Collections.singletonList(
+        OpenbisPropertyCodes.Q_NCBI_ORGANISM.name()));
+    sourceMetadata.put(MetaboExperimentProperties.Expression_System.label, Collections.singletonList(OpenbisPropertyCodes.Q_EXPRESSION_SYSTEM.name()));
     sourceMetadata.put(MetaboExperimentProperties.Strain_Lab_Collection_Number.label,
-        Arrays.asList("Q_STRAIN_LAB_COLLECTION_NUMBER"));
+        Arrays.asList(OpenbisPropertyCodes.Q_STRAIN_LAB_COLLECTION_NUMBER.name()));
 
     Map<String, List<String>> extractMetadata = new HashMap<>();
-    extractMetadata.put(MetaboExperimentProperties.Biospecimen.label, Collections.singletonList("Q_PRIMARY_TISSUE"));
+    extractMetadata.put(MetaboExperimentProperties.Biospecimen.label, Collections.singletonList(OpenbisPropertyCodes.Q_PRIMARY_TISSUE.name()));
 
     Map<String, List<String>> molMetadata = new HashMap<>();
     // peptideMetadata.put("Label", Collections.singletonList("Q_MOLECULAR_LABEL"));
@@ -116,9 +119,9 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
     // peptideMetadata.put("Sample Secondary Name", "Q_EXTERNALDB_ID");
 
     Map<String, List<String>> msRunMetadata = new HashMap<>();
-    msRunMetadata.put(MetaboExperimentProperties.Injection_Volume.label, Collections.singletonList("Q_INJECTION_VOLUME"));
-    msRunMetadata.put(MetaboExperimentProperties.Sample_Solvent.label, Collections.singletonList("Q_SAMPLE_SOLVENT"));
-    msRunMetadata.put(MetaboExperimentProperties.Technical_Comments.label, Collections.singletonList("Q_ADDITIONAL_INFO"));
+    msRunMetadata.put(MetaboExperimentProperties.Injection_Volume.label, Collections.singletonList(OpenbisPropertyCodes.Q_INJECTION_VOLUME.name()));
+    msRunMetadata.put(MetaboExperimentProperties.Sample_Solvent.label, Collections.singletonList(OpenbisPropertyCodes.Q_SAMPLE_SOLVENT.name()));
+    msRunMetadata.put(MetaboExperimentProperties.Technical_Comments.label, Collections.singletonList(OpenbisPropertyCodes.Q_ADDITIONAL_INFO.name()));
 
     headersToTypeCodePerSampletype = new HashMap<>();
     headersToTypeCodePerSampletype.put(SampleType.Q_BIOLOGICAL_ENTITY, sourceMetadata);
@@ -162,7 +165,7 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
     }
   }
 
-  public Map<String, List<Map<String, Object>>> getExperimentInfos() {
+  public Map<ExperimentType, List<Map<String, Object>>> getExperimentInfos() {
     return experimentInfos;
   }
 
@@ -183,11 +186,11 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
    * @throws IOException
    */
   public List<ISampleBean> readSamples(File file, boolean parseGraph) throws IOException {
-    tsvByRows = new ArrayList<String>();
+    tsvByRows = new ArrayList<>();
     parsedCategoriesToValues = new HashMap<>();
 
     BufferedReader reader = new BufferedReader(new FileReader(file));
-    ArrayList<String[]> data = new ArrayList<String[]>();
+    ArrayList<String[]> data = new ArrayList<>();
     String next;
     int i = 0;
     while ((next = reader.readLine()) != null) {
@@ -375,7 +378,7 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
         TSVSampleBean msRun = new TSVSampleBean(Integer.toString(sampleID), SampleType.Q_MS_RUN, "",
             fillMetadata(header, row, meta, factors, new ArrayList<>(), SampleType.Q_MS_RUN));
         msRun.addProperty("File", sampleKey);// TODO? file name
-        msRun.addProperty("Q_SAMPLE_SOLVENT", sampleSolvent);
+        msRun.addProperty(OpenbisPropertyCodes.Q_SAMPLE_SOLVENT.name(), sampleSolvent);
 
         String lcmsMethod = row[headerMapping.get(MetaboExperimentProperties.LCMS_Method_Name.label)];
         String msDevice = row[headerMapping.get(MetaboExperimentProperties.MS_Device.label)];
@@ -428,7 +431,7 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
           sampleSource = new TSVSampleBean(Integer.toString(sampleID),
               SampleType.Q_BIOLOGICAL_ENTITY, sourceID,
               fillMetadata(header, row, meta, entityFactors, loci, SampleType.Q_BIOLOGICAL_ENTITY));
-          sampleSource.addProperty("Q_STRAIN_LAB_COLLECTION_NUMBER", strainCollNumber);
+          sampleSource.addProperty(OpenbisPropertyCodes.Q_STRAIN_LAB_COLLECTION_NUMBER.name(), strainCollNumber);
           // sampleSource.addProperty("Q_EXTERNALDB_ID", sourceID);
           samplesInOrder.get(MetaboSampleHierarchy.Organism).add(sampleSource);
           sourceIDToSample.put(sourceID, sampleSource);
@@ -440,7 +443,7 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
 
           if (expressionSystem != null) {
             speciesSet.add(expressionSystem);
-            sampleSource.addProperty("Q_EXPRESSION_SYSTEM", expressionSystem);
+            sampleSource.addProperty(OpenbisPropertyCodes.Q_EXPRESSION_SYSTEM.name(), expressionSystem);
           }
         }
         // we don't have tissue ids, so we build unique identifiers by adding sourceID and tissue
@@ -456,7 +459,7 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
           // tissueSample.addProperty("Q_PRIMARY_TISSUE", "Whole organism");
           samplesInOrder.get(MetaboSampleHierarchy.Tissue).add(tissueSample);
           tissueSample.addParentID(sampleSource.getCode());
-          tissueSample.addProperty("Q_EXTERNALDB_ID", tissueID);
+          tissueSample.addProperty(OpenbisPropertyCodes.Q_EXTERNALDB_ID.name(), tissueID);
           tissueToSample.put(tissueID, tissueSample);
 
           MetabolitePrepProperties props = new MetabolitePrepProperties(harvestingMethod,
@@ -477,14 +480,14 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
               measureID, fillMetadata(header, row, meta, factors, loci, SampleType.Q_TEST_SAMPLE));
           samplesInOrder.get(MetaboSampleHierarchy.Molecules).add(metabolite);
           metabolite.addParentID(tissueSample.getCode());
-          metabolite.addProperty("Q_EXTERNALDB_ID", measureID);
+          metabolite.addProperty(OpenbisPropertyCodes.Q_EXTERNALDB_ID.name(), measureID);
           metaboliteToSample.put(measureID, metabolite);
-          metabolite.addProperty("Q_SAMPLE_TYPE", "SMALLMOLECULES");
+          metabolite.addProperty(OpenbisPropertyCodes.Q_SAMPLE_TYPE.name(), "SMALLMOLECULES");
         }
         msRun.addParentID(metabolite.getCode());
       }
     }
-    experimentInfos = new HashMap<String, List<Map<String, Object>>>();
+    experimentInfos = new HashMap<>();
 
     // Cell cultures
     List<Map<String, Object>> cultures = new ArrayList<>();
@@ -494,7 +497,7 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
       // experiments later
       cultures.add(propMap);
     }
-    experimentInfos.put("Q_EXPERIMENTAL_DESIGN", cultures);
+    experimentInfos.put(ExperimentType.Q_EXPERIMENTAL_DESIGN, cultures);
 
     // Extract preparation experiments
     List<Map<String, Object>> extractPreparations = new ArrayList<>();
@@ -504,7 +507,7 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
       // experiments later
       extractPreparations.add(propMap);
     }
-    experimentInfos.put("Q_SAMPLE_EXTRACTION", extractPreparations);
+    experimentInfos.put(ExperimentType.Q_SAMPLE_EXTRACTION, extractPreparations);
 
     // MS experiments
     List<Map<String, Object>> msExperiments = new ArrayList<>();
@@ -513,7 +516,7 @@ public class MetaboDesignReader implements IExperimentalDesignReader {
       propMap.put("Code", msPropertiesToID.get(expProperties));
       msExperiments.add(propMap);
     }
-    experimentInfos.put("Q_MS_MEASUREMENT", msExperiments);
+    experimentInfos.put(ExperimentType.Q_MS_MEASUREMENT, msExperiments);
     for (MetaboSampleHierarchy level : order) {
       beans.addAll(samplesInOrder.get(level));
       // printSampleLevel(samplesInOrder.get(level));

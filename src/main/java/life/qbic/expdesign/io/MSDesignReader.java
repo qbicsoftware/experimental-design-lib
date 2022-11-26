@@ -13,7 +13,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import life.qbic.datamodel.experiments.ExperimentType;
 import life.qbic.expdesign.model.MSExperimentProperties;
+import life.qbic.expdesign.model.OpenbisPropertyCodes;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import life.qbic.datamodel.ms.MSProperties;
@@ -36,7 +38,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
   private Map<String, Set<String>> parsedCategoriesToValues;
 
   private String error;
-  private Map<String, List<Map<String, Object>>> experimentInfos;
+  private Map<ExperimentType, List<Map<String, Object>>> experimentInfos;
   private Set<String> speciesSet;
   private Set<String> tissueSet;
   private Set<String> analyteSet;
@@ -93,27 +95,37 @@ public class MSDesignReader implements IExperimentalDesignReader {
     this.optionalCols.add(MSExperimentProperties.Digestion_Enzyme.label);
 
     Map<String, List<String>> sourceMetadata = new HashMap<>();
-    sourceMetadata.put(MSExperimentProperties.Species.label, Collections.singletonList("Q_NCBI_ORGANISM"));
-    sourceMetadata.put(MSExperimentProperties.Expression_System.label, Collections.singletonList("Q_EXPRESSION_SYSTEM"));
-    sourceMetadata.put(MSExperimentProperties.Organism_ID.label, Arrays.asList("Q_EXTERNALDB_ID", "Q_SECONDARY_NAME"));
+    sourceMetadata.put(MSExperimentProperties.Species.label, Collections.singletonList(
+        OpenbisPropertyCodes.Q_NCBI_ORGANISM.name()));
+    sourceMetadata.put(MSExperimentProperties.Expression_System.label,
+        Collections.singletonList(OpenbisPropertyCodes.Q_EXPRESSION_SYSTEM.name()));
+    sourceMetadata.put(MSExperimentProperties.Organism_ID.label,
+        Arrays.asList(OpenbisPropertyCodes.Q_EXTERNALDB_ID.name(),
+            OpenbisPropertyCodes.Q_SECONDARY_NAME.name()));
 
     Map<String, List<String>> extractMetadata = new HashMap<>();
-    extractMetadata.put(MSExperimentProperties.Tissue.label, Collections.singletonList("Q_PRIMARY_TISSUE"));
-    extractMetadata.put(MSExperimentProperties.Customer_Comment.label, Collections.singletonList("Q_ADDITIONAL_INFO"));
+    extractMetadata.put(MSExperimentProperties.Tissue.label,
+        Collections.singletonList(OpenbisPropertyCodes.Q_PRIMARY_TISSUE.name()));
+    extractMetadata.put(MSExperimentProperties.Customer_Comment.label,
+        Collections.singletonList(OpenbisPropertyCodes.Q_ADDITIONAL_INFO.name()));
     // extractMetadata.put("Extract ID", "Q_EXTERNALDB_ID");
     // extractMetadata.put("Detailed Tissue", "Q_TISSUE_DETAILED");
 
     Map<String, List<String>> proteinMetadata = new HashMap<>();
-    proteinMetadata.put(MSExperimentProperties.Label.label, Collections.singletonList("Q_MOLECULAR_LABEL"));
+    proteinMetadata.put(MSExperimentProperties.Label.label,
+        Collections.singletonList(OpenbisPropertyCodes.Q_MOLECULAR_LABEL.name()));
 
     Map<String, List<String>> peptideMetadata = new HashMap<>();
-    peptideMetadata.put(MSExperimentProperties.Label.label, Collections.singletonList("Q_MOLECULAR_LABEL"));
+    peptideMetadata.put(MSExperimentProperties.Label.label,
+        Collections.singletonList(OpenbisPropertyCodes.Q_MOLECULAR_LABEL.name()));
     // peptideMetadata.put("Secondary Name", Collections.singletonList("Q_SECONDARY_NAME"));
     // peptideMetadata.put("Sample Secondary Name", "Q_EXTERNALDB_ID");
 
     Map<String, List<String>> msRunMetadata = new HashMap<>();
-    msRunMetadata.put(MSExperimentProperties.Facility_Comment.label, Collections.singletonList("Q_ADDITIONAL_INFO"));
-    msRunMetadata.put(MSExperimentProperties.Injection_Volume.label, Collections.singletonList("Q_INJECTION_VOLUME"));
+    msRunMetadata.put(MSExperimentProperties.Facility_Comment.label,
+        Collections.singletonList(OpenbisPropertyCodes.Q_ADDITIONAL_INFO.name()));
+    msRunMetadata.put(MSExperimentProperties.Injection_Volume.label,
+        Collections.singletonList(OpenbisPropertyCodes.Q_INJECTION_VOLUME.name()));
 
     headersToTypeCodePerSampletype = new HashMap<>();
     headersToTypeCodePerSampletype.put(SampleType.Q_BIOLOGICAL_ENTITY, sourceMetadata);
@@ -168,7 +180,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
     }
   }
 
-  public Map<String, List<Map<String, Object>>> getExperimentInfos() {
+  public Map<ExperimentType, List<Map<String, Object>>> getExperimentInfos() {
     return experimentInfos;
   }
 
@@ -183,7 +195,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
    * Reads in a TSV file containing openBIS samples that should be registered. Returns a List of
    * TSVSampleBeans containing all the necessary information to register each sample with its meta
    * information to openBIS, given that the types and parents exist.
-   * 
+   *
    * @param file
    * @return ArrayList of TSVSampleBeans
    * @throws IOException
@@ -236,8 +248,9 @@ public class MSDesignReader implements IExperimentalDesignReader {
     }
     for (i = 0; i < header.length; i++) {
       int position = mandatoryColumns.indexOf(header[i]);
-      if (position == -1)
+      if (position == -1) {
         position = optionalCols.indexOf(header[i]);
+      }
       if (position > -1) {
         headerMapping.put(header[i], i);
         meta.add(i);
@@ -279,23 +292,28 @@ public class MSDesignReader implements IExperimentalDesignReader {
         if (headerMapping.containsKey(MSExperimentProperties.Technical_Replicates.label)) {
           replicateID = row[headerMapping.get(MSExperimentProperties.Technical_Replicates.label)];
         }
-        String extractID = sourceID + row[headerMapping.get(MSExperimentProperties.Tissue.label)] + replicateID;
+        String extractID =
+            sourceID + row[headerMapping.get(MSExperimentProperties.Tissue.label)] + replicateID;
         // if different for same entities: not an entity attribute
         if (idToVal.containsKey(sourceID)) {
-          if (!idToVal.get(sourceID).equals(val))
+          if (!idToVal.get(sourceID).equals(val)) {
             ent = false;
+          }
         }
         if (idToVal.containsKey(extractID)) {
-          if (!idToVal.get(extractID).equals(val))
+          if (!idToVal.get(extractID).equals(val)) {
             extr = false;
+          }
         }
         idToVal.put(sourceID, val);
         idToVal.put(extractID, val);
       }
-      if (ent)
+      if (ent) {
         entityFactors.add(col);
-      if (extr)
+      }
+      if (extr) {
         extractFactors.add(col);
+      }
     }
 
     List<ISampleBean> beans = new ArrayList<>();
@@ -393,7 +411,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
         // perform some sanity testing using XOR operator
         if ((isoLabelType.isEmpty() ^ isoLabel.isEmpty())
             && !collectionContainsStringCaseInsensitive(LABELING_TYPES_WITHOUT_LABELS,
-                isoLabelType)) {
+            isoLabelType)) {
           error = String.format(
               "Error in line %s: If sample label is specified, the isotope labeling type must be set and vice versa.",
               rowID);
@@ -459,7 +477,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
 
           if (expressionSystem != null) {
             speciesSet.add(expressionSystem);
-            sampleSource.addProperty("Q_EXPRESSION_SYSTEM", expressionSystem);
+            sampleSource.addProperty(OpenbisPropertyCodes.Q_EXPRESSION_SYSTEM.name(), expressionSystem);
           }
         }
         // we don't have tissue ids, so we build unique identifiers by adding sourceID and tissue
@@ -471,10 +489,10 @@ public class MSDesignReader implements IExperimentalDesignReader {
 
           tissueSample = new TSVSampleBean(Integer.toString(sampleID),
               SampleType.Q_BIOLOGICAL_SAMPLE, tissueID, fillMetadata(header, row, meta,
-                  extractFactors, loci, SampleType.Q_BIOLOGICAL_SAMPLE));
+              extractFactors, loci, SampleType.Q_BIOLOGICAL_SAMPLE));
           samplesInOrder.get(MassSpecSampleHierarchy.Tissue).add(tissueSample);
           tissueSample.addParentID(sampleSource.getCode());
-          tissueSample.addProperty("Q_EXTERNALDB_ID", tissueID);
+          tissueSample.addProperty(OpenbisPropertyCodes.Q_EXTERNALDB_ID.name(), tissueID);
           tissueToSample.put(tissueID, tissueSample);
         }
 
@@ -540,9 +558,9 @@ public class MSDesignReader implements IExperimentalDesignReader {
 
               samplesInOrder.get(MassSpecSampleHierarchy.Proteins).add(parentProteinSample);
               parentProteinSample.addParentID(tissueSample.getCode());
-              parentProteinSample.addProperty("Q_EXTERNALDB_ID", parentID);
+              parentProteinSample.addProperty(OpenbisPropertyCodes.Q_EXTERNALDB_ID.name(), parentID);
               proteinToSample.put(parentID, parentProteinSample);
-              parentProteinSample.addProperty("Q_SAMPLE_TYPE", "PROTEINS");
+              parentProteinSample.addProperty(OpenbisPropertyCodes.Q_SAMPLE_TYPE.name(), "PROTEINS");
 
               parents.add(parentProteinSample);
               parentsProteins = true;
@@ -566,7 +584,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
           TSVSampleBean pool =
               new TSVSampleBean(Integer.toString(sampleID), SampleType.Q_TEST_SAMPLE, sampleAltName,
                   fillMetadata(header, row, meta, factors, loci, SampleType.Q_TEST_SAMPLE));
-          pool.addProperty("Q_EXTERNALDB_ID", sampleKey);
+          pool.addProperty(OpenbisPropertyCodes.Q_EXTERNALDB_ID.name(), sampleKey);
 
           ProteinPeptidePreparationProperties props =
               new ProteinPeptidePreparationProperties(enzymes, digestType, analyte, cleanType,
@@ -575,7 +593,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
           SamplePrepPropertiesToID.put(props, prepExpID);
           pool.setExperiment(prepExpID);
 
-          pool.addProperty("Q_SAMPLE_TYPE", analyte);
+          pool.addProperty(OpenbisPropertyCodes.Q_SAMPLE_TYPE.name(), analyte);
           for (TSVSampleBean parent : parents) {
             pool.addParentID(parent.getCode());
           }
@@ -587,8 +605,8 @@ public class MSDesignReader implements IExperimentalDesignReader {
             TSVSampleBean digestedPool = new TSVSampleBean(Integer.toString(sampleID),
                 SampleType.Q_TEST_SAMPLE, sampleAltName,
                 fillMetadata(header, row, meta, factors, loci, SampleType.Q_TEST_SAMPLE));
-            digestedPool.addProperty("Q_EXTERNALDB_ID", sampleKey);
-            digestedPool.addProperty("Q_SAMPLE_TYPE", "PEPTIDES");
+            digestedPool.addProperty(OpenbisPropertyCodes.Q_EXTERNALDB_ID.name(), sampleKey);
+            digestedPool.addProperty(OpenbisPropertyCodes.Q_SAMPLE_TYPE.name(), "PEPTIDES");
 
             props = new ProteinPeptidePreparationProperties(enzymes, digestType, "PEPTIDES",
                 cleanPept, fracType, enrichType, isoLabelType, sampPrepType);
@@ -604,7 +622,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
               samplesInOrder.get(MassSpecSampleHierarchy.PooledPeptides).add(digestedPool);
               peptPoolToSample.put(sampleKey, digestedPool);
             }
-            pool.addProperty("Q_SAMPLE_TYPE", "PEPTIDES");
+            pool.addProperty(OpenbisPropertyCodes.Q_SAMPLE_TYPE.name(), "PEPTIDES");
             msRun.addParentID(digestedPool.getCode());
           } else {
             msRun.addParentID(pool.getCode());
@@ -644,9 +662,9 @@ public class MSDesignReader implements IExperimentalDesignReader {
                   fillMetadata(header, row, meta, factors, loci, SampleType.Q_TEST_SAMPLE));
               samplesInOrder.get(MassSpecSampleHierarchy.Proteins).add(proteinSample);
               proteinSample.addParentID(tissueSample.getCode());
-              proteinSample.addProperty("Q_EXTERNALDB_ID", sampleKey);
+              proteinSample.addProperty(OpenbisPropertyCodes.Q_EXTERNALDB_ID.name(), sampleKey);
               proteinToSample.put(sampleKey, proteinSample);
-              proteinSample.addProperty("Q_SAMPLE_TYPE", "PROTEINS");
+              proteinSample.addProperty(OpenbisPropertyCodes.Q_SAMPLE_TYPE.name(), "PROTEINS");
 
               ProteinPeptidePreparationProperties props =
                   new ProteinPeptidePreparationProperties(enzymes, digestType, "PROTEINS",
@@ -668,9 +686,9 @@ public class MSDesignReader implements IExperimentalDesignReader {
                       fillMetadata(header, row, meta, factors, loci, SampleType.Q_TEST_SAMPLE));
                   samplesInOrder.get(MassSpecSampleHierarchy.Peptides).add(peptideSample);
                   peptideSample.addParentID(proteinSample.getCode());
-                  peptideSample.addProperty("Q_EXTERNALDB_ID", peptideID);
+                  peptideSample.addProperty(OpenbisPropertyCodes.Q_EXTERNALDB_ID.name(), peptideID);
                   peptideToSample.put(peptideID, peptideSample);
-                  peptideSample.addProperty("Q_SAMPLE_TYPE", "PEPTIDES");
+                  peptideSample.addProperty(OpenbisPropertyCodes.Q_SAMPLE_TYPE.name(), "PEPTIDES");
 
                   props = new ProteinPeptidePreparationProperties(enzymes, digestType, "PEPTIDES",
                       cleanPept, fracType, enrichType, isoLabelType, sampPrepType);
@@ -720,7 +738,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
             TSVSampleBean fracSample =
                 new TSVSampleBean(Integer.toString(sampleID), SampleType.Q_TEST_SAMPLE, fracName,
                     fillMetadata(header, row, meta, factors, loci, SampleType.Q_TEST_SAMPLE));
-            fracSample.addProperty("Q_EXTERNALDB_ID", fracName);
+            fracSample.addProperty(OpenbisPropertyCodes.Q_EXTERNALDB_ID.name(), fracName);
 
             ProteinPeptidePreparationProperties props =
                 new ProteinPeptidePreparationProperties(enzymes, digestType, "PROTEINS", cleanProt,
@@ -738,7 +756,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
               fracProtToSample.put(fracName, fracSample);
               samplesInOrder.get(MassSpecSampleHierarchy.FractionedProteins).add(fracSample);
             }
-            fracSample.addProperty("Q_SAMPLE_TYPE", analyte);
+            fracSample.addProperty(OpenbisPropertyCodes.Q_SAMPLE_TYPE.name(), analyte);
             fracSample.addParentID(parentID);
 
             // a new digestion sample is needed when digest parameters are specified
@@ -748,8 +766,8 @@ public class MSDesignReader implements IExperimentalDesignReader {
               TSVSampleBean digestedFrac =
                   new TSVSampleBean(Integer.toString(sampleID), SampleType.Q_TEST_SAMPLE, fracName,
                       fillMetadata(header, row, meta, factors, loci, SampleType.Q_TEST_SAMPLE));
-              digestedFrac.addProperty("Q_EXTERNALDB_ID", fracName);
-              digestedFrac.addProperty("Q_SAMPLE_TYPE", "PEPTIDES");
+              digestedFrac.addProperty(OpenbisPropertyCodes.Q_EXTERNALDB_ID.name(), fracName);
+              digestedFrac.addProperty(OpenbisPropertyCodes.Q_SAMPLE_TYPE.name(), "PEPTIDES");
               digestedFrac.addParentID(fracSample.getCode());
               fracPepToSample.put(fracName, digestedFrac);
               samplesInOrder.get(MassSpecSampleHierarchy.FractionedPeptides).add(digestedFrac);
@@ -769,7 +787,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
       }
 
     }
-    experimentInfos = new HashMap<String, List<Map<String, Object>>>();
+    experimentInfos = new HashMap<ExperimentType, List<Map<String, Object>>>();
 
     // Sample preparation experiments
     List<Map<String, Object>> samplePreparations = new ArrayList<>();
@@ -779,7 +797,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
       // experiments later
       samplePreparations.add(propMap);
     }
-    experimentInfos.put("Q_SAMPLE_PREPARATION", samplePreparations);
+    experimentInfos.put(ExperimentType.Q_SAMPLE_PREPARATION, samplePreparations);
 
     // MS experiments
     List<Map<String, Object>> msExperiments = new ArrayList<>();
@@ -788,7 +806,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
       propMap.put("Code", msPropertiesToID.get(expProperties));
       msExperiments.add(propMap);
     }
-    experimentInfos.put("Q_MS_MEASUREMENT", msExperiments);
+    experimentInfos.put(ExperimentType.Q_MS_MEASUREMENT, msExperiments);
     for (MassSpecSampleHierarchy level : order) {
       beans.addAll(samplesInOrder.get(level));
       // printSampleLevel(samplesInOrder.get(level));
@@ -861,9 +879,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
         }
       }
     }
-    if (factors.size() > 0)
-
-    {
+    if (factors.size() > 0) {
       String fRes = "";
       for (int i : factors) {
         if (!data[i].isEmpty()) {
@@ -891,13 +907,15 @@ public class MSDesignReader implements IExperimentalDesignReader {
 
   private String unitCheck(String string) {
     String[] split = string.split(":");
-    if (split.length > 2)
+    if (split.length > 2) {
       return string.replace(":", " -");
+    }
     if (split.length == 2) {
       String unit = split[1].trim();
       for (Unit u : Unit.values()) {
-        if (u.getValue().equals(unit))
+        if (u.getValue().equals(unit)) {
           return string;
+        }
       }
       return string.replace(":", " -");
     }
@@ -909,10 +927,11 @@ public class MSDesignReader implements IExperimentalDesignReader {
   }
 
   public String getError() {
-    if (error != null)
+    if (error != null) {
       logger.error(error);
-    else
+    } else {
       logger.info("Parsing of experimental design successful.");
+    }
     return error;
   }
 

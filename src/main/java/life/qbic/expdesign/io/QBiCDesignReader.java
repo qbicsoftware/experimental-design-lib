@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import life.qbic.datamodel.experiments.ExperimentType;
+import life.qbic.expdesign.model.OpenbisPropertyCodes;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import life.qbic.datamodel.identifiers.SampleCodeFunctions;
@@ -26,12 +28,12 @@ import life.qbic.xml.study.TechnologyType;
 public class QBiCDesignReader implements IExperimentalDesignReader {
 
   private ArrayList<String> vocabulary = new ArrayList<>(Arrays.asList("Identifier", "SPACE",
-      "EXPERIMENT", "SAMPLE TYPE", "Q_SECONDARY_NAME", "PARENT"));
-  private List<String> entityMandatory = new ArrayList<>(Arrays.asList("Q_NCBI_ORGANISM"));
-  private List<String> extractMandatory = new ArrayList<>(Arrays.asList("Q_PRIMARY_TISSUE"));
-  private List<String> extractSpecials = new ArrayList<>(Arrays.asList("Q_TISSUE_DETAILED"));
-  private List<String> testMandatory = new ArrayList<>(Arrays.asList("Q_SAMPLE_TYPE"));
-  private List<String> mhcSpecials = new ArrayList<>(Arrays.asList("Q_MHC_CLASS"));
+      "EXPERIMENT", "SAMPLE TYPE", OpenbisPropertyCodes.Q_SECONDARY_NAME.name(), "PARENT"));
+  private List<String> entityMandatory = new ArrayList<>(Arrays.asList(OpenbisPropertyCodes.Q_NCBI_ORGANISM.name()));
+  private List<String> extractMandatory = new ArrayList<>(Arrays.asList(OpenbisPropertyCodes.Q_PRIMARY_TISSUE.name()));
+  private List<String> extractSpecials = new ArrayList<>(Arrays.asList(OpenbisPropertyCodes.Q_TISSUE_DETAILED.name()));
+  private List<String> testMandatory = new ArrayList<>(Arrays.asList(OpenbisPropertyCodes.Q_SAMPLE_TYPE.name()));
+  private List<String> mhcSpecials = new ArrayList<>(Arrays.asList(OpenbisPropertyCodes.Q_MHC_CLASS.name()));
   private List<String> sampleTypesInOrder =
       new ArrayList<>(Arrays.asList("Q_BIOLOGICAL_ENTITY", "Q_BIOLOGICAL_SAMPLE",
           "Q_TEST_SAMPLE", "Q_MHC_LIGAND_EXTRACT", "Q_NGS_SINGLE_SAMPLE_RUN", "Q_MS_RUN"));
@@ -45,13 +47,13 @@ public class QBiCDesignReader implements IExperimentalDesignReader {
   private String contact;
   private String space;
   private String project;
-  private Map<String, List<Map<String, Object>>> experimentInfos;
+  private Map<ExperimentType, List<Map<String, Object>>> experimentInfos;
   private List<String> tsvByRows;
   private List<TechnologyType> technologyTypes;
 
   private static final Logger logger = LogManager.getLogger(QBiCDesignReader.class);
 
-  public Map<String, List<Map<String, Object>>> getExperimentInfos() {
+  public Map<ExperimentType, List<Map<String, Object>>> getExperimentInfos() {
     return experimentInfos;
   }
 
@@ -131,7 +133,7 @@ public class QBiCDesignReader implements IExperimentalDesignReader {
           Map<String, Object> expInfos = new HashMap<>();
           String[] namesplt = line.split(":");
           expInfos.put("Code", namesplt[0].split(" ")[1]);// TODO renamed from "Name"
-          String type = namesplt[1];
+          ExperimentType type = ExperimentType.valueOf(namesplt[1]);
           String entries = line.substring(line.indexOf("{") + 1, line.indexOf("}"));
           for (String entry : entries.split("##")) {
             String[] splt = entry.split("=");
