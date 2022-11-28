@@ -6,8 +6,7 @@
 	<groupId>life.qbic</groupId>
 	<artifactId>experimental-design-lib</artifactId>
 	<packaging>jar</packaging>
-	<version>0.20.3</version>
-
+	<version>0.21.0-SNAPSHOT</version>
 	<name>Experimental Design Library</name>
 	<url>https://github.com/qbicsoftware/experimental-design-lib</url>
 	<description>Parsers, writers for experimental design formats etc.</description>
@@ -43,9 +42,12 @@
 			<artifactId>isa-creator-lib</artifactId>
 			<version>1.9.0</version>
 		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-simple</artifactId>
+			<version>2.0.4</version>
+		</dependency>
 	</dependencies>
-	<!-- we only need to tell maven where to find our parent pom and other QBiC 
-		dependencies -->
 	<repositories>
 		<repository>
 			<releases>
@@ -89,11 +91,6 @@
 	</repositories>
 	<build>
 		<plugins>
-		    <plugin>
-        		<groupId>org.apache.maven.plugins</groupId>
-        		<artifactId>maven-compiler-plugin</artifactId>
-        		<version>3.8.1</version>
-      		</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -103,6 +100,11 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-site-plugin</artifactId>
 				<version>3.7.1</version>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.22.0</version>
 			</plugin>
 		</plugins>
 	</build>

@@ -77,11 +77,11 @@ public class MetaboDesignReaderTest {
     ExperimentType orgType = ExperimentType.Q_EXPERIMENTAL_DESIGN;
     ExperimentType extrType = ExperimentType.Q_SAMPLE_EXTRACTION;
     Map<String, Map<String, Object>> extrExps =
-        p.transformAndReturnSpecialExperimentsOfTypeOrNull(extrType.toString());
+        p.transformAndReturnSpecialExperimentsOfTypeOrNull(extrType);
     Map<String, Map<String, Object>> organismExps =
-        p.transformAndReturnSpecialExperimentsOfTypeOrNull(orgType.toString());
+        p.transformAndReturnSpecialExperimentsOfTypeOrNull(orgType);
     Map<String, Map<String, Object>> msExps =
-        p.transformAndReturnSpecialExperimentsOfTypeOrNull(msType.toString());
+        p.transformAndReturnSpecialExperimentsOfTypeOrNull(msType);
     for (Entry<String, Object> entry : tissuePrepProps.entrySet()) {
       assert (searchExperimentsForProperty(extrExps, extrType, entry));
     }
@@ -243,7 +243,7 @@ public class MetaboDesignReaderTest {
     MetaboDesignReader r = new MetaboDesignReader();
     p.processTSV(fullExample1, r, false);
     System.out.println("vocabs");
-    System.out.println(p.getParsedCategoriesToValues(new ArrayList<String>(
+    System.out.println(p.getParsedValuesForCategories(new ArrayList<>(
         Arrays.asList("Medium", "Harvesting conditions", "LCMS method name", "LC device",
             "LC detection method", "MS device", "MS ion mode", "Species", "Biospecimen"))));
 
