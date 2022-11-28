@@ -35,8 +35,8 @@ public class QBiCDesignReader implements IExperimentalDesignReader {
   private List<String> testMandatory = new ArrayList<>(Arrays.asList(OpenbisPropertyCodes.Q_SAMPLE_TYPE.name()));
   private List<String> mhcSpecials = new ArrayList<>(Arrays.asList(OpenbisPropertyCodes.Q_MHC_CLASS.name()));
   private List<String> sampleTypesInOrder =
-      new ArrayList<>(Arrays.asList("Q_BIOLOGICAL_ENTITY", "Q_BIOLOGICAL_SAMPLE",
-          "Q_TEST_SAMPLE", "Q_MHC_LIGAND_EXTRACT", "Q_NGS_SINGLE_SAMPLE_RUN", "Q_MS_RUN"));
+      new ArrayList<>(Arrays.asList(SampleType.Q_BIOLOGICAL_ENTITY.name(), SampleType.Q_BIOLOGICAL_SAMPLE.name(),
+          SampleType.Q_TEST_SAMPLE.name(), SampleType.Q_MHC_LIGAND_EXTRACT.name(), SampleType.Q_NGS_SINGLE_SAMPLE_RUN.name(), SampleType.Q_MS_RUN.name()));
 
   private String error;
   private String description;
