@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import life.qbic.datamodel.experiments.ExperimentType;
 import org.apache.log4j.Logger;
 import org.isatools.errorreporter.model.ErrorMessage;
 import org.isatools.errorreporter.model.ISAFileErrorReport;
@@ -723,7 +724,7 @@ public class ISAReader implements IExperimentalDesignReader {
   }
 
   @Override
-  public Map<String, List<Map<String, Object>>> getExperimentInfos() {
+  public Map<ExperimentType, List<Map<String, Object>>> getExperimentInfos() {
     return null;
   }
 

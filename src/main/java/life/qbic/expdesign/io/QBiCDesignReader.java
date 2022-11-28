@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import life.qbic.datamodel.experiments.ExperimentType;
+import life.qbic.expdesign.model.OpenbisPropertyCodes;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import life.qbic.datamodel.identifiers.SampleCodeFunctions;
@@ -25,16 +27,16 @@ import life.qbic.xml.study.TechnologyType;
 
 public class QBiCDesignReader implements IExperimentalDesignReader {
 
-  private ArrayList<String> vocabulary = new ArrayList<String>(Arrays.asList("Identifier", "SPACE",
-      "EXPERIMENT", "SAMPLE TYPE", "Q_SECONDARY_NAME", "PARENT"));
-  private List<String> entityMandatory = new ArrayList<String>(Arrays.asList("Q_NCBI_ORGANISM"));
-  private List<String> extractMandatory = new ArrayList<String>(Arrays.asList("Q_PRIMARY_TISSUE"));
-  private List<String> extractSpecials = new ArrayList<String>(Arrays.asList("Q_TISSUE_DETAILED"));
-  private List<String> testMandatory = new ArrayList<String>(Arrays.asList("Q_SAMPLE_TYPE"));
-  private List<String> mhcSpecials = new ArrayList<String>(Arrays.asList("Q_MHC_CLASS"));
+  private ArrayList<String> vocabulary = new ArrayList<>(Arrays.asList("Identifier", "SPACE",
+      "EXPERIMENT", "SAMPLE TYPE", OpenbisPropertyCodes.Q_SECONDARY_NAME.name(), "PARENT"));
+  private List<String> entityMandatory = new ArrayList<>(Arrays.asList(OpenbisPropertyCodes.Q_NCBI_ORGANISM.name()));
+  private List<String> extractMandatory = new ArrayList<>(Arrays.asList(OpenbisPropertyCodes.Q_PRIMARY_TISSUE.name()));
+  private List<String> extractSpecials = new ArrayList<>(Arrays.asList(OpenbisPropertyCodes.Q_TISSUE_DETAILED.name()));
+  private List<String> testMandatory = new ArrayList<>(Arrays.asList(OpenbisPropertyCodes.Q_SAMPLE_TYPE.name()));
+  private List<String> mhcSpecials = new ArrayList<>(Arrays.asList(OpenbisPropertyCodes.Q_MHC_CLASS.name()));
   private List<String> sampleTypesInOrder =
-      new ArrayList<String>(Arrays.asList("Q_BIOLOGICAL_ENTITY", "Q_BIOLOGICAL_SAMPLE",
-          "Q_TEST_SAMPLE", "Q_MHC_LIGAND_EXTRACT", "Q_NGS_SINGLE_SAMPLE_RUN", "Q_MS_RUN"));
+      new ArrayList<>(Arrays.asList(SampleType.Q_BIOLOGICAL_ENTITY.name(), SampleType.Q_BIOLOGICAL_SAMPLE.name(),
+          SampleType.Q_TEST_SAMPLE.name(), SampleType.Q_MHC_LIGAND_EXTRACT.name(), SampleType.Q_NGS_SINGLE_SAMPLE_RUN.name(), SampleType.Q_MS_RUN.name()));
 
   private String error;
   private String description;
@@ -45,13 +47,13 @@ public class QBiCDesignReader implements IExperimentalDesignReader {
   private String contact;
   private String space;
   private String project;
-  private Map<String, List<Map<String, Object>>> experimentInfos;
+  private Map<ExperimentType, List<Map<String, Object>>> experimentInfos;
   private List<String> tsvByRows;
   private List<TechnologyType> technologyTypes;
 
   private static final Logger logger = LogManager.getLogger(QBiCDesignReader.class);
 
-  public Map<String, List<Map<String, Object>>> getExperimentInfos() {
+  public Map<ExperimentType, List<Map<String, Object>>> getExperimentInfos() {
     return experimentInfos;
   }
 
@@ -90,11 +92,11 @@ public class QBiCDesignReader implements IExperimentalDesignReader {
    * @throws IOException
    */
   public List<ISampleBean> readSamples(File file, boolean parseGraph) throws IOException {
-    tsvByRows = new ArrayList<String>();
+    tsvByRows = new ArrayList<>();
     this.space = "";
     this.project = "";
     BufferedReader reader = new BufferedReader(new FileReader(file));
-    ArrayList<String[]> data = new ArrayList<String[]>();
+    ArrayList<String[]> data = new ArrayList<>();
     String next;
     int i = 0;
     boolean inDescription = false;
@@ -127,11 +129,11 @@ public class QBiCDesignReader implements IExperimentalDesignReader {
         } else if (line.startsWith("#EXP ")) {
           inDescription = false;
           if (experimentInfos == null)
-            experimentInfos = new HashMap<String, List<Map<String, Object>>>();
-          Map<String, Object> expInfos = new HashMap<String, Object>();
+            experimentInfos = new HashMap<>();
+          Map<String, Object> expInfos = new HashMap<>();
           String[] namesplt = line.split(":");
           expInfos.put("Code", namesplt[0].split(" ")[1]);// TODO renamed from "Name"
-          String type = namesplt[1];
+          ExperimentType type = ExperimentType.valueOf(namesplt[1]);
           String entries = line.substring(line.indexOf("{") + 1, line.indexOf("}"));
           for (String entry : entries.split("##")) {
             String[] splt = entry.split("=");
@@ -141,7 +143,7 @@ public class QBiCDesignReader implements IExperimentalDesignReader {
               val = replaceSpecials(splt[1]);
             if (val != null) {
               if (entry.contains("#")) {
-                List<String> list = new ArrayList<String>();
+                List<String> list = new ArrayList<>();
                 for (String item : entry.split("#"))
                   list.add(replaceSpecials(item));
                 val = list;
@@ -174,12 +176,12 @@ public class QBiCDesignReader implements IExperimentalDesignReader {
     String[] header = data.get(0);
     data.remove(0);
     // find out where the mandatory and other metadata data is
-    Map<Integer, Integer> mapping = new HashMap<Integer, Integer>();
-    List<Integer> meta = new ArrayList<Integer>();
-    List<Integer> factors = new ArrayList<Integer>();
-    List<Integer> loci = new ArrayList<Integer>();
+    Map<Integer, Integer> mapping = new HashMap<>();
+    List<Integer> meta = new ArrayList<>();
+    List<Integer> factors = new ArrayList<>();
+    List<Integer> loci = new ArrayList<>();
 
-    ArrayList<String> found = new ArrayList<String>(Arrays.asList(header));
+    ArrayList<String> found = new ArrayList<>(Arrays.asList(header));
     for (String col : vocabulary) {
       if (!found.contains(col)) {
         error = "Mandatory column " + col + " not found.";
@@ -215,8 +217,8 @@ public class QBiCDesignReader implements IExperimentalDesignReader {
       }
     }
     // create samples
-    List<ISampleBean> beans = new ArrayList<ISampleBean>();
-    List<List<ISampleBean>> order = new ArrayList<List<ISampleBean>>();
+    List<ISampleBean> beans = new ArrayList<>();
+    List<List<ISampleBean>> order = new ArrayList<>();
     Set<TechnologyType> techTypes = new HashSet<>();
     for (String[] row : data) {
       boolean special = false;
@@ -263,7 +265,7 @@ public class QBiCDesignReader implements IExperimentalDesignReader {
           return null;
         int experimentLevel = sampleTypesInOrder.indexOf(type);
         while (order.size() - 1 < experimentLevel) {
-          order.add(new ArrayList<ISampleBean>());
+          order.add(new ArrayList<>());
         }
         List<String> parentIDs = parseParentCodes(row[mapping.get(5)]);
         if (parentIDs == null)
@@ -311,7 +313,7 @@ public class QBiCDesignReader implements IExperimentalDesignReader {
   }
 
   private List<String> parseParentCodes(String parents) {
-    List<String> res = new ArrayList<String>();
+    List<String> res = new ArrayList<>();
     if (!parents.isEmpty()) {
       for (String parent : parents.split(" ")) {
         parent = parent.trim();
@@ -344,8 +346,8 @@ public class QBiCDesignReader implements IExperimentalDesignReader {
       error = type + " is not a valid sample type!";
       return false;
     }
-    List<String> blacklist = new ArrayList<String>();
-    List<String> mandatory = new ArrayList<String>();
+    List<String> blacklist = new ArrayList<>();
+    List<String> mandatory = new ArrayList<>();
     switch (type) {
       case "Q_BIOLOGICAL_ENTITY":
         mandatory = entityMandatory;
@@ -418,7 +420,7 @@ public class QBiCDesignReader implements IExperimentalDesignReader {
 
   private HashMap<String, Object> fillMetadata(String[] header, String[] data, List<Integer> meta,
       List<Integer> factors, List<Integer> loci) {
-    HashMap<String, Object> res = new HashMap<String, Object>();
+    HashMap<String, Object> res = new HashMap<>();
     for (int i : meta) {
       if (!data[i].isEmpty())
         res.put(header[i], data[i]);

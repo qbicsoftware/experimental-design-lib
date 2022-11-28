@@ -1,11 +1,13 @@
 package life.qbic.expdesign;
 
+import life.qbic.datamodel.experiments.ExperimentType;
 import life.qbic.datamodel.projects.ProjectInfo;
 import life.qbic.datamodel.samples.ISampleBean;
 import life.qbic.datamodel.samples.SampleType;
 import life.qbic.expdesign.io.IExperimentalDesignReader;
 import life.qbic.expdesign.io.QBiCDesignReader;
 import life.qbic.expdesign.model.ExperimentalDesignPropertyWrapper;
+import life.qbic.expdesign.model.OpenbisPropertyCodes;
 import life.qbic.expdesign.model.SampleSummaryBean;
 import life.qbic.expdesign.model.StructuredExperiment;
 import life.qbic.xml.study.TechnologyType;
@@ -50,7 +52,7 @@ public class SamplePreparator {
    * @param file A TSV File that must contain Identifier, space, project, experiment and sample type
    *        of each sample and optionally the parents of each sample. Additional metadata columns
    *        must be known to openBIS and fit to the sample type in question.
-   * @param designType
+   * @param reader
    * @throws IOException
    * @throws JAXBException
    */
@@ -159,7 +161,7 @@ public class SamplePreparator {
    * @return
    */
   public Map<String, Map<String, Object>> transformAndReturnSpecialExperimentsOfTypeOrNull(
-      String experimentType) {
+      ExperimentType experimentType) {
     if (reader.getExperimentInfos() == null)
       return null;
     List<Map<String, Object>> exps = reader.getExperimentInfos().get(experimentType);
@@ -282,18 +284,18 @@ public class SamplePreparator {
       int i, Map<String, List<ISampleBean>> sampleToChildrenMap) {
     boolean isPartOfSplit = false;
     boolean pool = false;
-    Set<String> sampleContent = new HashSet<String>();
+    Set<String> sampleContent = new HashSet<>();
     for (ISampleBean s : currList) {
       String queryType = null;
       switch (s.getType()) {
         case Q_BIOLOGICAL_ENTITY:
-          queryType = "Q_NCBI_ORGANISM";
+          queryType = OpenbisPropertyCodes.Q_NCBI_ORGANISM.name();
           break;
         case Q_BIOLOGICAL_SAMPLE:
-          queryType = "Q_PRIMARY_TISSUE";
+          queryType = OpenbisPropertyCodes.Q_PRIMARY_TISSUE.name();
           break;
         case Q_TEST_SAMPLE:
-          queryType = "Q_SAMPLE_TYPE";
+          queryType = OpenbisPropertyCodes.Q_SAMPLE_TYPE.name();
           break;
         default:
           queryType = null;
@@ -329,11 +331,11 @@ public class SamplePreparator {
   // new levels are created when the sample type changes or if a sample is found with a parent in an
   // existing tier
   private Map<Integer, List<ISampleBean>> readLevels() {
-    Map<Integer, List<ISampleBean>> knownLevels = new HashMap<Integer, List<ISampleBean>>();
+    Map<Integer, List<ISampleBean>> knownLevels = new HashMap<>();
     SampleType type = samples.get(0).getType();
     int i = 1;
-    List<ISampleBean> level = new ArrayList<ISampleBean>();
-    Set<String> ids = new HashSet<String>();
+    List<ISampleBean> level = new ArrayList<>();
+    Set<String> ids = new HashSet<>();
     for (ISampleBean b : samples) {
       boolean newLvl = false;
       if (!b.getType().equals(type)) {// || !b.getExperiment().equals(exp)) {
