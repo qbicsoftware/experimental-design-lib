@@ -49,6 +49,8 @@ public class MSDesignReader implements IExperimentalDesignReader {
   public static final String LIST_SEPARATOR = "\\+";
   public static final Set<String> LABELING_TYPES_WITHOUT_LABELS =
       new HashSet<>(Arrays.asList("LFQ", "None"));
+
+  public static final String EXPERIMENTAL_VARIABLE_PREFIX = "Experimental Variable:";
   public static final String SAMPLE_KEYWORD = MSExperimentProperties.Secondary_Name.label;
   public static final String SAMPLE_ALTNAME_KEYWORD = MSExperimentProperties.Sample_Name.label;
 
@@ -171,7 +173,7 @@ public class MSDesignReader implements IExperimentalDesignReader {
           if (parsedCategoriesToValues.containsKey(cat)) {
             parsedCategoriesToValues.get(cat).add(v);
           } else {
-            Set<String> set = new HashSet<String>();
+            Set<String> set = new HashSet<>();
             set.add(v);
             parsedCategoriesToValues.put(cat, set);
           }
@@ -254,21 +256,21 @@ public class MSDesignReader implements IExperimentalDesignReader {
       if (position > -1) {
         headerMapping.put(header[i], i);
         meta.add(i);
-      } else if (header[i].contains("Condition:")) {
-        String condition = header[i].replace("Condition: ", "");
+      } else if (header[i].contains(EXPERIMENTAL_VARIABLE_PREFIX)) {
+        String condition = header[i].replace(EXPERIMENTAL_VARIABLE_PREFIX+" ", "");
         for (char c : condition.toCharArray()) {
           if (Character.isUpperCase(c)) {
-            error = "Conditions are not allowed to contain upper case characters: " + condition;
+            error = "Experiment variables are not allowed to contain upper case characters: " + condition;
             return null;
           }
         }
         if (condition.contains(" ")) {
-          error = "Conditions are not allowed to contain spaces: " + condition;
+          error = "Experiment variables are not allowed to contain spaces: " + condition;
           return null;
         }
         char first = condition.charAt(0);
         if (first >= '0' && first <= '9') {
-          error = "Conditions are not allowed to start with a number: " + condition;
+          error = "Experiment variables are not allowed to start with a number: " + condition;
           return null;
         }
         factors.add(i);

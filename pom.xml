@@ -6,7 +6,7 @@
 	<groupId>life.qbic</groupId>
 	<artifactId>experimental-design-lib</artifactId>
 	<packaging>jar</packaging>
-	<version>0.21.0-SNAPSHOT</version>
+	<version>0.22.0-SNAPSHOT</version>
 	<name>Experimental Design Library</name>
 	<url>https://github.com/qbicsoftware/experimental-design-lib</url>
 	<description>Parsers, writers for experimental design formats etc.</description>
