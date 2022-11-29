@@ -110,8 +110,6 @@ public class MSDesignReader implements IExperimentalDesignReader {
         Collections.singletonList(OpenbisPropertyCodes.Q_PRIMARY_TISSUE.name()));
     extractMetadata.put(MSExperimentProperties.Customer_Comment.label,
         Collections.singletonList(OpenbisPropertyCodes.Q_ADDITIONAL_INFO.name()));
-    // extractMetadata.put("Extract ID", "Q_EXTERNALDB_ID");
-    // extractMetadata.put("Detailed Tissue", "Q_TISSUE_DETAILED");
 
     Map<String, List<String>> proteinMetadata = new HashMap<>();
     proteinMetadata.put(MSExperimentProperties.Label.label,
@@ -120,8 +118,6 @@ public class MSDesignReader implements IExperimentalDesignReader {
     Map<String, List<String>> peptideMetadata = new HashMap<>();
     peptideMetadata.put(MSExperimentProperties.Label.label,
         Collections.singletonList(OpenbisPropertyCodes.Q_MOLECULAR_LABEL.name()));
-    // peptideMetadata.put("Secondary Name", Collections.singletonList("Q_SECONDARY_NAME"));
-    // peptideMetadata.put("Sample Secondary Name", "Q_EXTERNALDB_ID");
 
     Map<String, List<String>> msRunMetadata = new HashMap<>();
     msRunMetadata.put(MSExperimentProperties.Facility_Comment.label,

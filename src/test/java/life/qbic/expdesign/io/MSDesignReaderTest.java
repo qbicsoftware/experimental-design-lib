@@ -16,7 +16,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.stream.Collectors;
 import javax.xml.bind.JAXBException;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Before;
 import org.junit.Test;
 import life.qbic.datamodel.experiments.ExperimentType;
@@ -74,6 +77,15 @@ public class MSDesignReaderTest {
     }
     for (Entry<String, Object> entry : msProps.entrySet()) {
       assert (searchExperimentsForProperty(msExps, msType, entry));
+    }
+    System.out.println("!!!Experimental Properties!!!");
+    Map<String, Map<Pair<String, String>, List<String>>> props = p.getExperimentalDesignProperties()
+        .getExperimentalDesign();
+    assert(props.keySet().contains("bla"));
+    assertEquals(props.get("bla").size(),3);
+    Set<String> knownValues = new HashSet<>(Arrays.asList("1","2","3"));
+    for(Pair factor : props.get("bla").keySet()) {
+      assert(knownValues.contains(factor.getLeft()));
     }
   }
 
